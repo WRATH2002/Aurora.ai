@@ -1,0 +1,505 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Default Cursor */
+/* body {
+  cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLW1vdXNlLXBvaW50ZXItMiI+PHBhdGggZD0iTTQuMDM3IDQuNjg4YS40OTUuNDk1IDAgMCAxIC42NTEtLjY1MWwxNiA2LjVhLjUuNSAwIDAgMS0uMDYzLjk0N2wtNi4xMjQgMS41OGEyIDIgMCAwIDAtMS40MzggMS40MzVsLTEuNTc5IDYuMTI2YS41LjUgMCAwIDEtLjk0Ny4wNjN6Ii8+PC9zdmc+")
+      0 0,
+    auto;
+}
+
+button,
+a,
+.custom-pointer {
+  cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXBvaW50ZXIiPjxwYXRoIGQ9Ik0yMiAxNGE4IDggMCAwIDEtOCA4Ii8+PHBhdGggZD0iTTE4IDExdi0xYTIgMiAwIDAgMC0yLTJhMiAyIDAgMCAwLTIgMiIvPjxwYXRoIGQ9Ik0xNCAxMFY5YTIgMiAwIDAgMC0yLTJhMiAyIDAgMCAwLTIgMnYxIi8+PHBhdGggZD0iTTEwIDkuNVY0YTIgMiAwIDAgMC0yLTJhMiAyIDAgMCAwLTIgMnYxMCIvPjxwYXRoIGQ9Ik0xOCAxMWEyIDIgMCAxIDEgNCAwdjNhOCA4IDAgMCAxLTggOGgtMmMtMi44IDAtNC41LS44Ni01Ljk5LTIuMzRsLTMuNi0zLjZhMiAyIDAgMCAxIDIuODMtMi44Mkw3IDE1Ii8+PC9zdmc+")
+      10 2,
+    pointer;
+}
+*/
+.masonry {
+  /* display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: masonry; */
+  column-count: 2;
+  column-gap: 20px;
+  grid-auto-rows: auto;
+}
+.div {
+  break-inside: avoid; /* Prevents column stacking issue */
+  margin-bottom: 20px; /* Adds spacing between blocks */
+}
+@font-face {
+  font-family: drr;
+  src: url(./assets/font/optionFont/Doto_Rounded-Regular.ttf);
+}
+@font-face {
+  font-family: dr;
+  src: url(./assets/font/optionFont/Doto-Regular.ttf);
+}
+@font-face {
+  font-family: mr;
+  src: url(./assets/font/optionFont/Montserrat-Regular.ttf);
+}
+@font-face {
+  font-family: nr;
+  src: url(./assets/font/optionFont/Nunito-Regular.ttf);
+}
+@font-face {
+  font-family: or;
+  src: url(./assets/font/optionFont/OpenSans-Regular.ttf);
+}
+@font-face {
+  font-family: pr;
+  src: url(./assets/font/optionFont/PlaywriteMXGuides-Regular.ttf);
+}
+@font-face {
+  font-family: rr;
+  src: url(./assets/font/optionFont/RobotoMono-Regular.ttf);
+}
+/* ----- */
+@font-face {
+  font-family: r;
+  src: url(./assets/font/optionFont/Roboto-Regular.ttf);
+}
+@font-face {
+  font-family: rsr;
+  src: url(./assets/font/optionFont/RobotoSlab-Regular.ttf);
+}
+@font-face {
+  font-family: smr;
+  src: url(./assets/font/optionFont/SyneMono-Regular.ttf);
+}
+@font-face {
+  font-family: tr;
+  src: url(./assets/font/optionFont/TitilliumWeb-Regular.ttf);
+}
+@font-face {
+  font-family: umr;
+  src: url(./assets/font/optionFont/UbuntuMono-Regular.ttf);
+}
+@font-face {
+  font-family: ur;
+  src: url(./assets/font/optionFont/Ubuntu-Regular.ttf);
+}
+@font-face {
+  font-family: v;
+  src: url(./assets/font/optionFont/verdana.ttf);
+}
+/* ---------------------- */
+
+@font-face {
+  font-family: mo;
+  src: url(./assets/font/optionFont/Mouser_o.ttf);
+}
+@font-face {
+  font-family: iub;
+  src: url(./assets/font/optionFont/IrishUncialfabeta-Bold.ttf);
+}
+
+/* @font-face {
+  font-family: sbitn;
+  src: url(./assets/font/optionFont/Stranger_back_in_the_Night.ttf);
+} */
+@font-face {
+  font-family: dt1;
+  src: url(./assets/font/optionFont/DraconianTypewritter001.ttf);
+}
+/* @font-face {
+  font-family: jspr;
+  src: url(./assets/font/optionFont/JotSprayPaintRegular-avOR.ttf);
+} */
+@font-face {
+  font-family: ot;
+  src: url(./assets/font/optionFont/Orange-Typewriter.ttf);
+}
+
+@font-face {
+  font-family: gr;
+  src: url(./assets/font/optionFont/EBGaramond-Regular.ttf);
+}
+
+@font-face {
+  font-family: sr;
+  src: url(./assets/font/optionFont/Syne-Regular.ttf);
+}
+/* @font-face {
+  font-family: wtdr;
+  src: url(./assets/font/optionFont/WanderlustTypewriterDemo-Regular.ttf);
+} */
+/* --------------------------------------------------------------------------------- */
+@font-face {
+  font-family: grm;
+  src: url(./assets/font/EBGaramond-Medium.ttf);
+}
+@font-face {
+  font-family: geistRegular;
+  src: url(./assets/font/Geist-Regular.ttf);
+}
+@font-face {
+  font-family: geistSemibold;
+  src: url(./assets/font/Geist-SemiBold.ttf);
+}
+@font-face {
+  font-family: geistBold;
+  src: url(./assets/font/Geist-Bold.ttf);
+}
+@font-face {
+  font-family: geistExtrabold;
+  src: url(./assets/font/Geist-ExtraBold.ttf);
+}
+@font-face {
+  font-family: geistMedium;
+  src: url(./assets/font/Geist-Medium.ttf);
+}
+@font-face {
+  font-family: geistLight;
+  src: url(./assets/font/Geist-Light.ttf);
+}
+
+.SCROLLHEIGHT::-webkit-scrollbar {
+  height: 0px;
+  width: 0px;
+}
+.directoryTreeScroll::-webkit-scrollbar {
+  height: 0px;
+  width: 0px;
+}
+
+.snippetScroll::-webkit-scrollbar-thumb {
+  background: #cccccc;
+  border-radius: 10px;
+}
+
+.ff::-webkit-scrollbar-thumb {
+  background: #39474e;
+  border-radius: 10px;
+  z-index: 80;
+}
+
+.aiScrollBar::-webkit-scrollbar-thumb {
+  background-color: #a9a9a9;
+}
+
+.treeScroll::-webkit-scrollbar-thumb {
+  background-color: #a9a9a9;
+}
+
+.bullete1 {
+  margin-right: 7px;
+}
+
+.bullete2 {
+  margin-right: 7px;
+  margin-left: 7px;
+}
+
+.bullete3 {
+  margin-right: 7px;
+  margin-left: 14px;
+}
+
+.h3 {
+  font-size: 19px;
+}
+
+.h2 {
+  font-size: 23px;
+}
+
+.h1 {
+  font-size: 27px;
+}
+
+.boxShadowLight0 {
+  -webkit-box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.06);
+  -moz-box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.06);
+  box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.06);
+}
+.boxShadowLight00 {
+  -webkit-box-shadow: 0px 0px 13px 1px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 0px 0px 13px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 0px 13px 1px rgba(0, 0, 0, 0.05);
+}
+.boxShadowLight1 {
+  -webkit-box-shadow: 0px 0px 23px 1px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 0px 0px 23px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 0px 23px 1px rgba(0, 0, 0, 0.05);
+}
+.boxShadowLight2 {
+  -webkit-box-shadow: 0px 0px 53px 1px rgba(0, 0, 0, 0.18);
+  -moz-box-shadow: 0px 0px 53px 1px rgba(0, 0, 0, 0.18);
+  box-shadow: 0px 0px 53px 1px rgba(0, 0, 0, 0.18);
+}
+.boxShadowLight3 {
+  -webkit-box-shadow: 0px 0px 30px 1px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 0px 0px 30px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 0px 30px 1px rgba(0, 0, 0, 0.05);
+}
+
+.gradDiv {
+  /* background: linear-gradient(to right, #4795e457, #c4677d57);
+  background-size: 200% 100%; 
+  animation: gradient-move 4s linear infinite; */
+  transform-origin: left; /* Without this, you'll notice the `expanding` animation starts expanding from the  middle instead of shooting out from the left */
+  border: none;
+  animation: expanding 0.4s 0.7s forwards linear,
+    moving 2s 2s infinite forwards linear;
+  /* border-radius: 0.125rem; */
+  /* background-image: linear-gradient(
+    to right,
+    #d699c250 30%,
+    #61e1e450 60%,
+    #d699c250
+  ); */
+  width: 80%;
+
+  background-size: 200% auto;
+  opacity: 0; /* The `expanding` animation will fade in the loading bar */
+  animation-delay: 100ms;
+}
+
+@keyframes expanding {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* This keyframe will create the loading gradient effect */
+@keyframes moving {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
+@keyframes rotateClockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating {
+  /* display: inline-block; Optional, ensures proper block display for rotation */
+  animation: rotateClockwise 3s linear infinite;
+}
+
+/* --------------------ccccccccccccccccccccccccccccccccccc-------------------- */
+
+.ExcalidrawModal__overlay {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  flex-direction: column;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  flex-grow: 0px;
+  flex-shrink: 1px;
+  z-index: 100;
+  background-color: rgba(40, 40, 40, 0.6);
+}
+.ExcalidrawModal__actions {
+  text-align: end;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  z-index: 1;
+}
+.ExcalidrawModal__actions button {
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.ExcalidrawModal__actions button:hover {
+  background-color: rgb(214, 213, 213);
+}
+
+.ExcalidrawModal__row {
+  position: relative;
+  padding: 40px 5px 5px;
+  width: 70vw;
+  height: 70vh;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+.ExcalidrawModal__row > div {
+  border-radius: 5px;
+}
+.ExcalidrawModal__modal {
+  position: relative;
+  z-index: 10;
+  top: 50px;
+  width: auto;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  background-color: #eee;
+}
+.ExcalidrawModal__discardModal {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.typing-char {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: typingEffect 0.8s ease forwards;
+}
+
+@keyframes typingEffect {
+  0% {
+    opacity: 0;
+    color: red;
+  }
+  100% {
+    opacity: 1;
+    color: black;
+  }
+}
+
+/* Mode wise Scroll Color and Modification --> */
+
+::-webkit-scrollbar {
+  height: 3px;
+  width: 3.5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 50px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #273136;
+  border-radius: 10px;
+  z-index: 80;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #fff;
+  cursor: pointer;
+}
+
+.darkScrollSecondary::-webkit-scrollbar-thumb {
+  background: #273136;
+  border-radius: 10px;
+}
+
+.darkScrollSecondary::-webkit-scrollbar-thumb:hover {
+  background: #fff;
+  cursor: pointer;
+}
+
+.lightScrollSecondary::-webkit-scrollbar-thumb {
+  background: #8484ad;
+  border-radius: 10px;
+}
+
+.lightScrollSecondary::-webkit-scrollbar-thumb:hover {
+  background: #fff;
+  cursor: pointer;
+}
+
+/* App.css */
+.floating-box {
+  border: 1px solid #ccc;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+}
+
+/* Loader gemini animation --------------> */
+
+.loading-bar-1 {
+  height: 1rem;
+  transform-origin: left; /* Without this, you'll notice the `expanding` animation starts expanding from the  middle instead of shooting out from the left */
+  animation: expanding 0.4s 0.7s forwards linear,
+    moving 1s 1s infinite forwards linear;
+  border-radius: 0.225rem;
+  background-image: linear-gradient(
+    to right,
+    #efb9c8 30%,
+    #fbf4ea 60%,
+    #efb9c8
+  );
+  width: 80%;
+  background-size: 200% auto;
+  opacity: 0; /* The `expanding` animation will fade in the loading bar */
+  animation-delay: 100ms;
+}
+.loading-bar-2 {
+  height: 1rem;
+  transform-origin: left; /* Without this, you'll notice the `expanding` animation starts expanding from the  middle instead of shooting out from the left */
+  animation: expanding 0.4s 0.7s forwards linear,
+    moving 1s 1s infinite forwards linear;
+  border-radius: 0.225rem;
+  background-image: linear-gradient(to right, #fbf4ea, #efb9c8 60%, #fbf4ea);
+  width: 100%;
+  background-size: 200% auto;
+  opacity: 0; /* The `expanding` animation will fade in the loading bar */
+  animation-delay: 100ms;
+}
+.loading-bar-3 {
+  height: 1rem;
+  transform-origin: left; /* Without this, you'll notice the `expanding` animation starts expanding from the  middle instead of shooting out from the left */
+  animation: expanding 0.4s 0.7s forwards linear,
+    moving 1s 1s infinite forwards linear;
+  border-radius: 0.225rem;
+  width: 60%;
+  background-image: linear-gradient(
+    to right,
+    #efb9c8 50%,
+    #fbf4ea 90%,
+    #efb9c8
+  );
+  background-size: 200% auto;
+  opacity: 0; /* The `expanding` animation will fade in the loading bar */
+  animation-delay: 100ms;
+}
+@keyframes expanding {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* This keyframe will create the loading gradient effect */
+@keyframes moving {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
