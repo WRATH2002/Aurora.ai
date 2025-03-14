@@ -41,6 +41,16 @@ import {
 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import APILimitError from "../components/APILimitError";
+import { auth, db } from "../firebase";
+import {
+  arrayRemove,
+  arrayUnion,
+  onSnapshot,
+  serverTimestamp,
+} from "firebase/firestore";
+import firebase from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { processStringDecrypt } from "../utils/functions";
 
 // import { Box, styled, IconButton } from "@mui/material";
 
@@ -110,8 +120,33 @@ function TextFormatFloatingToolbar({
   const [prompt, setPrompt] = useState("Make the above text in paras");
   const [aiError, setAiError] = useState(false);
   const [aiErrorMessage, setAiErrorMessage] = useState("");
+  const [activeApiKeyID, setActiveAPIKeyID] = useState("");
 
   const [editorr] = useLexicalComposerContext();
+
+  function ActiveApiKey() {
+    // const user = firebase.auth().currentUser;
+
+    const listen = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const channelRef = db
+          .collection("user")
+          .doc(user?.uid)
+          .collection("APIKeys")
+          .doc("APIKeys");
+
+        onSnapshot(channelRef, (snapshot) => {
+          setActiveAPIKeyID(snapshot?.data()?.ActiveAPIKey);
+        });
+      } else {
+        console.log("Not Logged in");
+      }
+    });
+  }
+
+  useEffect(() => {
+    ActiveApiKey();
+  }, []);
 
   const replaceSelectedTextt = (text, sel) => {
     editorr.update(() => {
@@ -163,9 +198,7 @@ function TextFormatFloatingToolbar({
     });
   }
 
-  const genAI = new GoogleGenerativeAI(
-    "AIzaSyDViziRgn4Bj7gKX_486zR-SgBqBFLyg0U"
-  );
+  const genAI = new GoogleGenerativeAI(processStringDecrypt(activeApiKeyID));
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-pro",
   });
