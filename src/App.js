@@ -100,9 +100,7 @@ Here's a breakdown of key aspects of computer networks:
   }, []);
 
   // const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_KEY);
-  const genAI = new GoogleGenerativeAI(
-    "AIzaSyDViziRgn4Bj7gKX_486zR-SgBqBFLyg0U"
-  );
+  const genAI = new GoogleGenerativeAI("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-pro",
   });
