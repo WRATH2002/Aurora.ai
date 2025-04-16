@@ -16,7 +16,8 @@ export default function AppearanceSettings(props) {
   const [theme, setTheme] = useState(false);
 
   function toggleTheme() {
-    const docRef = db.collection("user").doc("lv5PcvKwOUUj45R95lwE");
+    const user = firebase.auth().currentUser;
+    const docRef = db.collection("user").doc(user?.uid);
     docRef.update({
       Theme: !theme,
     });
@@ -24,9 +25,9 @@ export default function AppearanceSettings(props) {
   }
 
   function fetchTheme() {
-    // const user = firebase.auth().currentUser;
+    const user = firebase.auth().currentUser;
 
-    const channelRef = db.collection("user").doc("lv5PcvKwOUUj45R95lwE");
+    const channelRef = db.collection("user").doc(user?.uid);
 
     onSnapshot(channelRef, (snapshot) => {
       setTheme(snapshot?.data()?.Theme);
@@ -94,7 +95,7 @@ export default function AppearanceSettings(props) {
           <div
             className={
               "w-[33px] h-[22px] rounded-full shadow-inner  flex justify-start items-center px-[2px] cursor-pointer" +
-              (!theme ? " bg-[#111d2a]" : " bg-[#3a6f7754]")
+              (!theme ? " bg-[#141414]" : " bg-[#3a6f7754]")
             }
             onClick={() => {
               // setTheme(!theme);
@@ -105,7 +106,7 @@ export default function AppearanceSettings(props) {
             <div
               className={
                 "w-[16px] aspect-square rounded-full drop-shadow-md  " +
-                (!theme ? " ml-[1px] bg-[#36424e]" : " ml-[11px] bg-[#3a6f77]")
+                (!theme ? " ml-[1px] bg-[#222222]" : " ml-[11px] bg-[#3a6f77]")
               }
               style={{ transition: ".3s" }}
             ></div>
@@ -154,7 +155,7 @@ export default function AppearanceSettings(props) {
             className={
               "w-auto h-[30px] rounded-[6px] text-[14px] flex justify-center items-center px-[10px]  cursor-pointer" +
               (theme
-                ? " hover:bg-[#38464d] bg-[#36424E] text-[white]"
+                ? " hover:bg-[#38464d] bg-[#222222] text-[white]"
                 : " bg-[#EAEBF4] hover:bg-[#d7daf1] text-[black]")
             }
           >
@@ -188,7 +189,7 @@ export default function AppearanceSettings(props) {
             className={
               "w-auto min-h-[30px] rounded-[6px] text-[14px] flex justify-center items-center px-[10px]  cursor-pointer" +
               (theme
-                ? " hover:bg-[#38464d] bg-[#36424E] text-[white]"
+                ? " hover:bg-[#38464d] bg-[#222222] text-[white]"
                 : " bg-[#EAEBF4] hover:bg-[#d7daf1] text-[black]")
             }
             onClick={() => {

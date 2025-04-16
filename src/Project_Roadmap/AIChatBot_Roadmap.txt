@@ -1,0 +1,49 @@
+
+
+Left side bar :
+
+>   Top bar
+
+    >   Search Option
+        >   Close search modal
+        >   Case sensitive search option
+        >   Show search result
+        >   Filter option to filter search result based on Creation Date / Ascending Order in Name
+        >   Direct create new chat space if no result found 
+        >   Clear input
+        >   Outside modal click close modal
+
+    >   Archive Chats
+        >   Onclick it should show archive modal
+        >   Click on it to see the content
+        >   Unarchive chats
+        >   Delete chats driectly
+        >   Outside click close modal
+
+    >   Add new chat space
+        >   Close modal
+        >   Enable security toggle button
+        >   Create chat space button
+        >   Outside modal click, close modal
+
+    >   Toggle side bar
+
+>   Chats section
+    >   Show chat name
+    >   On hover show settings / three dots 
+        >   show options
+            >   Archive
+            >   Share
+            >   Rename
+            >   Delete
+    >   
+    >   
+    >   
+    >   
+    >   
+
+
+
+Main chat section :
+
+>   

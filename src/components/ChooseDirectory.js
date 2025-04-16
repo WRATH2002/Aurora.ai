@@ -18,8 +18,8 @@ export default function ChooseDirectory(props) {
                 : " hover:bg-[#F8F8FB00] text-[#6e6e7c] hover:text-[#000000]"
               : props?.theme
               ? props?.fileStacked[props?.selected] == props?.directory
-                ? " bg-[#36424e] text-[#ffffff]"
-                : " hover:bg-[#36424e] text-[#9ba6aa] hover:text-[#ffffff]"
+                ? " bg-[#222222] text-[#ffffff]"
+                : " hover:bg-[#222222] text-[#9ba6aa] hover:text-[#ffffff]"
               : props?.fileStacked[props?.selected] == props?.directory
               ? " hover:bg-[#ededed] text-[#6e6e7c] hover:text-[#000000]"
               : " hover:bg-[#ededed] text-[#6e6e7c] hover:text-[#000000]")
@@ -176,7 +176,7 @@ export default function ChooseDirectory(props) {
             <div
               className={
                 "w-full flex flex-col justify-start items-start border-dashed pl-[5px] border-l-[1.5px] " +
-                (props?.theme ? " border-[#36424E]" : " border-[#f3f3fa]")
+                (props?.theme ? " border-[#222222]" : " border-[#f3f3fa]")
               }
             >
               {props?.data?.subStructure?.map((data, index) => {

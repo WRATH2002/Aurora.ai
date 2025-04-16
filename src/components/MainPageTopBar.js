@@ -149,7 +149,7 @@ const MainPageTopBar = (props) => {
       <div
         className={
           "w-full h-[50px] px-[30px] text-[15px] flex md:hidden lg:hidden justify-between items-center z-[1] pt-[10px]" +
-          (props?.theme ? " bg-[#1d2935]" : " bg-[#ffffff]")
+          (props?.theme ? " bg-[#1A1A1A]" : " bg-[#ffffff]")
         }
       >
         <div
@@ -265,7 +265,7 @@ const MainPageTopBar = (props) => {
         className={
           "w-full h-[40px] hidden md:flex lg:flex justify-start items-end p-[10px] pt-[2px] pb-[0px] z-[1]" +
           (props?.theme
-            ? " bg-[#111d2a] text-[white]"
+            ? " bg-[#141414] text-[white]"
             : " bg-[#ffffff00] text-[black]")
         }
       >
@@ -294,7 +294,7 @@ const MainPageTopBar = (props) => {
                       "min-w-[12px] h-[12px]  overflow-hidden p-[0px] border-none mr-[0px]  mb-[0px] z-0" +
                       (index == 0 ? " ml-[-10px]" : " ml-[-10px]") +
                       (props?.theme
-                        ? " bg-[#1d2935] text-[white]"
+                        ? " bg-[#1A1A1A] text-[white]"
                         : " bg-[#ffffff] text-[black]")
                     }
                     // style={{ zIndex: "7" }}
@@ -303,7 +303,7 @@ const MainPageTopBar = (props) => {
                       className={
                         "w-full h-full rounded-tr-full rotate-90    " +
                         (props?.theme
-                          ? " bg-[#111d2a] text-[white]"
+                          ? " bg-[#141414] text-[white]"
                           : " bg-[#FAFAFA] text-[black]")
                       }
                     ></div>
@@ -312,7 +312,7 @@ const MainPageTopBar = (props) => {
                     className={
                       "h-full min-w-[50px] w-[170px] rounded-t-lg mb-[0px] flex justify-between items-center px-[10px] text-[13px] cursor-pointer border-none mx-[0px] " +
                       (props?.theme
-                        ? " bg-[#1d2935] text-[white]"
+                        ? " bg-[#1A1A1A] text-[white]"
                         : " bg-[#ffffff] text-[black]")
                     }
                   >
@@ -336,7 +336,7 @@ const MainPageTopBar = (props) => {
                       className={
                         "w-full h-full rounded-lg   flex justify-between items-center px-[7px]  z-50" +
                         (props?.theme
-                          ? " hover:bg-[#36424E] text-[#9ba6aa] hover:text-[#ccd5d9]"
+                          ? " hover:bg-[#222222] text-[#9ba6aa] hover:text-[#ccd5d9]"
                           : " hover:bg-[#ffffff] text-[#6e6e7c]")
                       }
                       style={{ zIndex: "10" }}
@@ -375,7 +375,7 @@ const MainPageTopBar = (props) => {
                     className={
                       "min-w-[12px] h-[12px] overflow-hidden p-[0px] border-none ml-[0px] mr-[-10px]  mb-[0px] " +
                       (props?.theme
-                        ? " bg-[#1d2935] text-[white]"
+                        ? " bg-[#1A1A1A] text-[white]"
                         : " bg-[#ffffff] text-[black]")
                     }
                   >
@@ -383,7 +383,7 @@ const MainPageTopBar = (props) => {
                       className={
                         "w-full h-full rounded-tr-full rotate-180 " +
                         (props?.theme
-                          ? " bg-[#111d2a] text-[white]"
+                          ? " bg-[#141414] text-[white]"
                           : " bg-[#FAFAFA] text-[black]")
                       }
                     ></div>
@@ -396,7 +396,7 @@ const MainPageTopBar = (props) => {
                     className={
                       "h-full min-w-[50px] w-[170px] rounded-t-lg flex justify-between items-center text-[13px] border-none mb-[0px]  cursor-pointer z-[2] p-[3px] py-[5px] rounded-lg" +
                       (props?.theme
-                        ? " bg-[#111d2a] text-[white]"
+                        ? " bg-[#141414] text-[white]"
                         : " bg-[#f8f6f500] text-[black]") +
                       (index == 0
                         ? index == props?.selected - 1
@@ -411,7 +411,7 @@ const MainPageTopBar = (props) => {
                       className={
                         "w-full h-full rounded-lg   flex justify-between items-center px-[7px]  z-50" +
                         (props?.theme
-                          ? " hover:bg-[#36424E] text-[#9ba6aa] hover:text-[#ccd5d9]"
+                          ? " hover:bg-[#222222] text-[#9ba6aa] hover:text-[#ccd5d9]"
                           : " hover:bg-[#ffffff] text-[#6e6e7c]")
                       }
                       style={{ zIndex: "10" }}

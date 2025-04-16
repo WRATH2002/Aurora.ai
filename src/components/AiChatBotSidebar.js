@@ -1,107 +1,711 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Bot,
   CaseSensitive,
   Command,
   CornerDownRight,
+  Ellipsis,
   GitBranchPlus,
   MessageSquare,
   MoveRight,
+  Package,
+  PackageOpen,
+  PanelTopClose,
+  PanelTopOpen,
+  PencilLine,
+  Plus,
   Satellite,
   Search,
+  Share2,
   Trash,
   X,
 } from "lucide-react";
-
-const aiChatNames = [
-  "DeepMind Conversational Assistant for Thoughtful and Engaging Discussions",
-  "SmartAI Chat Companion with Contextual Awareness and Emotional Intelligence",
-  "HyperBrain Virtual Assistant for Advanced AI-Powered Conversations and Insights",
-  "NeuralNet Genius Chatbot with Adaptive Learning and Smart Reply System",
-  "Gemini AI Chat Pro with DeepThink Mode for Comprehensive Explanations",
-  "QuantumTalk AI: The Intelligent Chatbot for Logical and Meaningful Dialogue",
-  "AI Sage Companion for Thoughtful Conversations and Knowledge Sharing",
-  "EvolveAI Chat with Context Retention and Predictive Response System",
-  "ChatNova AI: The Future of Interactive Conversations and AI Thinking",
-  "EchoMind AI: Your Conversational Partner for Thoughtful and Smart Dialogues",
-  "SentientAI Talkbot with Advanced NLP and Emotion Recognition Capabilities",
-  "InfinityBot AI: Conversational Assistant with Deep Learning and Smart Responses",
-  "NeuraThink Chat: AI-Powered Chatbot for Deep Conversations and Quick Replies",
-  "CerebralChat AI with Advanced Reasoning and Intuitive Conversational Flow",
-  "SymphonyAI Conversational Engine for Engaging and Intelligent Discussions",
-  "LumiAI Smart Chat Assistant for In-Depth Analysis and Fast Responses",
-  "DeepThinker Chatbot for Insightful, Smart, and Engaging AI Conversations",
-  "Visionary AI Chatbot with Enhanced Memory and Contextual Understanding",
-  "EchoBrain Conversational AI for Dynamic and Thoughtful Human-Like Dialogues",
-  "OmniMind AI Chat Assistant for Real-Time Conversations and Thoughtful Replies",
-  "CerebralChat AI with Advanced Reasoning and Intuitive Conversational Flow",
-  "SymphonyAI Conversational Engine for Engaging and Intelligent Discussions",
-  "LumiAI Smart Chat Assistant for In-Depth Analysis and Fast Responses",
-  "DeepThinker Chatbot for Insightful, Smart, and Engaging AI Conversations",
-  "Visionary AI Chatbot with Enhanced Memory and Contextual Understanding",
-  "EchoBrain Conversational AI for Dynamic and Thoughtful Human-Like Dialogues",
-  "OmniMind AI Chat Assistant for Real-Time Conversations and Thoughtful Replies",
-];
+import { db } from "../firebase";
+import {
+  arrayRemove,
+  arrayUnion,
+  onSnapshot,
+  serverTimestamp,
+  Timestamp,
+} from "firebase/firestore";
+import firebase from "../firebase";
+import NewAIChatModal from "./NewAIChatModal";
+import ShowArchiveChats from "./ShowArchiveChats";
+import ConfirmModal, { RenameChatModal, ShareChat } from "./ConfirmModal";
+import ShowSharedChats from "./ShowSharedChats";
 
 export default function AiChatBotSidebar(props) {
+  const [archiveModal, setArchiveModal] = useState(false);
+  const [shareShowModal, setShareShowModal] = useState(false);
+
+  const [chatSettings, setChatSettings] = useState("");
+  const [newChat, setNewChat] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [confirmModalData, setConfirmModalData] = useState([]);
+  const [renameModal, setRenameModal] = useState(false);
+  const [renameModalData, setRenameModalData] = useState([]);
+  const [shareModal, setShareModal] = useState(false);
+  const [shareModalData, setShareModalData] = useState([]);
+  const [AIChatInfo, setAIChatInfo] = useState({
+    ChatName: [],
+    ChatNameInfo: [],
+    ArchivedChatName: [],
+    AllSharedChatName: [],
+    ChatAccessRequest: [],
+  });
+  const divRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (divRef.current && !divRef.current.contains(event.target)) {
+        setChatSettings("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // ------------------------- Function to fetch all AI Chat Info
+  function fetchAllChatInfo() {
+    const user = firebase.auth().currentUser;
+    const chatRef1 = db
+      .collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc("AllAIChats");
+
+    onSnapshot(chatRef1, (snapshot) => {
+      setAIChatInfo({
+        ChatName: snapshot?.data()?.AllChatName,
+        ChatNameInfo: snapshot?.data()?.AllChatNameInfo,
+        ArchivedChatName: snapshot?.data()?.AllArchivedChatName,
+        SharedChatName: snapshot?.data()?.AllSharedChatName,
+        ChatAccessRequest: snapshot?.data()?.ChatAccessRequest,
+      });
+    });
+  }
+
+  // ------------------------- Calling `fetchAllChatInfo()` function
+  useEffect(() => {
+    fetchAllChatInfo();
+  }, []);
+
+  // ------------------------- Delete Chat Space from Firebase
+  function deleteChatFromFirebase(path, chatInfo) {
+    const user = firebase.auth().currentUser;
+
+    db.collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc("AllAIChats")
+      .update({ AllChatName: arrayRemove(path) }); // delete from AllChatName
+
+    db.collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc("AllAIChats")
+      .update({ AllChatNameInfo: arrayRemove(chatInfo) }); // delete from AllChatNameInfo
+
+    const chatDocPathRef = db
+      .collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc(path);
+
+    chatDocPathRef.delete().then(() => {
+      console.log("deleted");
+      setConfirmModalData([]);
+    });
+  }
+
+  // ------------------------- Function to get current Date & Time
+  function getCurrentDateTime() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes();
+    const period = hours >= 12 ? "pm" : "am";
+
+    hours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
+    let time = `${hours}:${minutes.toString().padStart(2, "0")} ${period}`;
+    let date =
+      now.getDate() +
+      "/" +
+      parseInt(parseInt(now.getMonth()) + 1) +
+      "/" +
+      now.getFullYear();
+
+    return { Time: time, Date: date };
+  }
+
+  // -------------------------- Function to create new Chat Space in Firebase
+  function createNewChatSpace(chatData, NewChatName, chatInfo) {
+    const user = firebase.auth().currentUser;
+    let tempDateTime = getCurrentDateTime();
+
+    const chatRef2 = db
+      .collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc(NewChatName)
+      .set({
+        chats: chatData,
+      });
+
+    chatRef2.then(() => {
+      console.log("Chat is renamed!");
+      //  props?.setSelectedChatName()
+    });
+
+    db.collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc("AllAIChats")
+      .update({ AllChatName: arrayUnion(NewChatName) }); // add in AllChatName
+
+    db.collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc("AllAIChats")
+      .update({
+        AllChatNameInfo: arrayUnion({
+          ChatName: NewChatName,
+          CreationDate: chatInfo?.CreationDate,
+          CreationTime: chatInfo?.CreationTime,
+          isSecured: chatInfo?.isSecured,
+          PIN: chatInfo?.PIN,
+          isEdited: true, // Extra feild for Edited chats
+          EditCount: chatInfo?.EditCount ? chatInfo?.EditCount + 1 : 1, // Extra feild for Edited chats
+          LastEditedDate: tempDateTime?.Date, // Extra feild for Edited chats
+          LastEditedTime: tempDateTime?.Time, // Extra feild for Edited chats
+        }),
+      }); // add in AllChatNameInfo
+  }
+
+  // -------------------------- Function to Rename the Chat Space in Firebase
+  function renameChatInFirebase(path, chatInfo, NewChatName) {
+    const user = firebase.auth().currentUser;
+
+    let tempChatSpaceData = [];
+
+    db.collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc(path)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          tempChatSpaceData = doc.data()?.chats;
+          createNewChatSpace(tempChatSpaceData, NewChatName, chatInfo);
+          deleteChatFromFirebase(path, chatInfo);
+          // console.log(tempChatSpaceData);
+        } else {
+          console.log("No such chat exist");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching the chat", error);
+      });
+  }
+
+  // -------------------------- Function to archive Chat Space
+  function archiveChatInFirebase(chatName, chatInfo) {
+    const user = firebase.auth().currentUser;
+    let tempDateTime = getCurrentDateTime();
+    let obj = { ...chatInfo };
+    obj.ArchiveDate = tempDateTime?.Date; // archive date
+    obj.ArchiveTime = tempDateTime?.Time;
+
+    console.log(obj);
+    console.log(chatInfo);
+
+    db.collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc("AllAIChats")
+      .update({
+        AllArchivedChatName: arrayUnion(obj),
+      });
+
+    db.collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc("AllAIChats")
+      .update({
+        AllChatName: arrayRemove(chatName),
+      });
+
+    db.collection("user")
+      .doc(user?.uid)
+      .collection("AIChats")
+      .doc("AllAIChats")
+      .update({
+        AllChatNameInfo: arrayRemove(chatInfo),
+      });
+  }
+
   return (
     <>
       {props?.searchChat ? (
         <SearchChat
-          aiChatNames={aiChatNames}
+          // aiChatNames={aiChatNames}
           setSearchChat={props?.setSearchChat}
           searchChat={props?.searchChat}
           theme={props?.theme}
+          AIChatInfo={AIChatInfo}
         />
       ) : (
         <></>
       )}
 
-      <div className="w-[250px] h-full bg-transparent rounded-l-lg hidden md:flex lg:flex flex-col justify-start items-start px-[30px] md:px-[7px] lg:px-[7px] overflow-y-scroll">
-        <div className="w-full ">
+      {confirmModal ? (
+        <>
+          <div
+            className={
+              "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
+              (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
+            }
+            onClick={() => {
+              setConfirmModalData([]);
+              setConfirmModal(false);
+            }}
+          >
+            <div
+              className={
+                "w-[350px] h-auto rounded-2xl border-[1.5px] boxShadowLight2 flex flex-col justify-start items-start p-[25px] pt-[18px] " +
+                (props?.theme
+                  ? " bg-[#1A1A1A] border-[#252525]"
+                  : " bg-[#ffffff] border-[#eaeaea]")
+              }
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <span
+                className={
+                  "text-[22px] font-[geistMedium] w-full flex justify-between items-center" +
+                  (props?.theme ? " text-[white]" : " text-[black]")
+                }
+              >
+                Delete Chat ?
+                <X
+                  width={18}
+                  height={18}
+                  strokeWidth={2.2}
+                  className={
+                    "cursor-pointer " +
+                    (props?.theme
+                      ? " text-[#828282] hover:text-[white]"
+                      : " text-[#828282] hover:text-[black]")
+                  }
+                  onClick={(e) => {
+                    setConfirmModalData([]);
+                    setConfirmModal(false);
+                  }}
+                />
+              </span>
+              <div
+                className={
+                  "w-full mt-[20px]" +
+                  (props?.theme ? " text-[#828282]" : " text-[#828282]")
+                }
+              >
+                This operation will delete :{" "}
+                <span
+                  className={
+                    "font-[geistMedium]" +
+                    (props?.theme ? " text-[white]" : " text-[black]")
+                  }
+                >
+                  {confirmModalData[0]}
+                </span>
+              </div>
+              <div className="w-full mt-[30px] flex justify-end items-center">
+                <button
+                  className={
+                    "px-[15px] h-[30px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[14px] cursor-pointer " +
+                    (props?.theme
+                      ? " bg-[#dc3737] hover:bg-[#f33636] border-[#fa5e5e] text-[#ffffff]"
+                      : " bg-[#222222] text-[#828282]")
+                  }
+                  onClick={() => {
+                    deleteChatFromFirebase(
+                      confirmModalData[0],
+                      confirmModalData[1]
+                    );
+                    setConfirmModal(false);
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+          {/* deleteChatFromFirebase(data?.ChatName, data); */}
+          {/* <ConfirmModal theme={props?.theme} closeFunction={setConfirmModal} performFunction={} confirmModalData={confirmModalData} /> */}
+        </>
+      ) : (
+        <></>
+      )}
+
+      {renameModal ? (
+        <>
+          <RenameChatModal
+            theme={props?.theme}
+            setRenameModal={setRenameModal}
+            renameModal={renameModal}
+            setRenameModalData={setRenameModalData}
+            renameModalData={renameModalData}
+            AIChatInfo={AIChatInfo}
+          />
+        </>
+      ) : (
+        <></>
+      )}
+
+      {shareModal ? (
+        <>
+          <ShareChat
+            theme={props?.theme}
+            setShareModal={setShareModal}
+            shareModal={shareModal}
+            setShareModalData={setShareModalData}
+            shareModalData={shareModalData}
+            AIChatInfo={AIChatInfo}
+          />
+        </>
+      ) : (
+        <></>
+      )}
+
+      {newChat ? (
+        <NewAIChatModal
+          theme={props?.theme}
+          setNewChat={setNewChat}
+          newChat={newChat}
+          AIChatInfo={AIChatInfo}
+        />
+      ) : (
+        <></>
+      )}
+
+      {archiveModal ? (
+        <ShowArchiveChats
+          theme={props?.theme}
+          setArchiveModal={setArchiveModal}
+          archiveModal={archiveModal}
+          AIChatInfo={AIChatInfo}
+          setSelectedChatName={props?.setSelectedChatName}
+        />
+      ) : (
+        <></>
+      )}
+
+      {shareShowModal ? (
+        <ShowSharedChats
+          theme={props?.theme}
+          setShareShowModal={setShareShowModal}
+          shareShowModal={shareShowModal}
+          AIChatInfo={AIChatInfo}
+          // setSelectedChatName={props?.setSelectedChatName}
+        />
+      ) : (
+        <></>
+      )}
+
+      <div
+        className={
+          " h-full bg-transparent rounded-l-lg hidden md:flex lg:flex flex-col justify-start items-start px-[30px] md:px-[7px] lg:px-[7px] overflow-y-scroll overflow-x-visible" +
+          (props?.chatSidebarModal ? " w-[250px]" : " w-[0px]")
+        }
+      >
+        <div
+          className={
+            "w-full flex justify-between items-center min-h-[50px] px-[10px] " +
+            (props?.theme ? " text-[#828282]" : " text-[#6e6e7c]")
+          }
+        >
           <Search
             width={18}
             height={18}
-            strokeWidth={1.8}
-            className=""
+            strokeWidth={2}
+            className={
+              "cursor-pointer " +
+              (props?.theme ? " hover:text-[#ffffff]" : " hover:text-[#000000]")
+            }
             onClick={() => {
               props?.setSearchChat(!props?.searchChat);
             }}
           />
-        </div>
-        {aiChatNames?.map((data, index) => {
-          return (
-            <div
-              key={index}
+
+          <div className="flex justify-end items-center min-w-[80px] z-30">
+            <Share2
+              width={18}
+              height={18}
+              strokeWidth={2}
               className={
-                "w-full min-h-[37px] group rounded-lg flex justify-start items-center px-[10px] cursor-pointer" +
+                "cursor-pointer mr-[13px]" +
                 (props?.theme
-                  ? " hover:bg-[#36424E] text-[#9ba6aa] hover:text-[#ffffff]"
-                  : " text-[#6e6e7c] hover:text-[#000000]")
+                  ? " hover:text-[#ffffff]"
+                  : " hover:text-[#000000]")
               }
-            >
-              <div className="w-[30px] flex justify-start items-center">
+              onClick={() => {
+                setShareShowModal(!shareShowModal);
+                // setNewChat(!newChat);
+              }}
+            />
+            <Package
+              width={18}
+              height={18}
+              strokeWidth={2}
+              className={
+                "cursor-pointer mr-[13px]" +
+                (props?.theme
+                  ? " hover:text-[#ffffff]"
+                  : " hover:text-[#000000]")
+              }
+              onClick={() => {
+                setArchiveModal(!archiveModal);
+                // setNewChat(!newChat);
+              }}
+            />
+            <Plus
+              width={18}
+              height={18}
+              strokeWidth={2}
+              className={
+                "cursor-pointer mr-[13px]" +
+                (props?.theme
+                  ? " hover:text-[#ffffff]"
+                  : " hover:text-[#000000]")
+              }
+              onClick={() => {
+                setNewChat(!newChat);
+              }}
+            />
+            {props?.chatSidebarModal ? (
+              <PanelTopClose
+                width={18}
+                height={18}
+                strokeWidth={2}
+                className={
+                  "cursor-pointer -rotate-90" +
+                  (props?.theme
+                    ? " hover:text-[#ffffff]"
+                    : " hover:text-[#000000]")
+                }
+                onClick={() => {
+                  props?.setChatSidebarModal(false);
+                }}
+              />
+            ) : (
+              <PanelTopOpen
+                width={18}
+                height={18}
+                strokeWidth={2}
+                className={
+                  "cursor-pointer -rotate-90" +
+                  (props?.theme
+                    ? " hover:text-[#ffffff]"
+                    : " hover:text-[#000000]")
+                }
+                onClick={() => {
+                  props?.setChatSidebarModal(true);
+                }}
+              />
+            )}
+          </div>
+        </div>
+        <div
+          onScroll={() => {
+            setChatSettings("");
+          }}
+          className="w-full h-[calc(100%-50px)] overflow-y-scroll flex flex-col-reverse justify-end items-start"
+        >
+          {AIChatInfo?.ChatNameInfo?.map((data, index) => {
+            return (
+              <div
+                key={index}
+                className={
+                  "w-full min-h-[33px] max-h-[33px] group rounded-lg flex justify-start items-center px-[10px] cursor-pointer" +
+                  (props?.theme
+                    ? " hover:bg-[#222222] hover:text-[#eaeaea]"
+                    : " text-[#6e6e7c] hover:text-[#000000]") +
+                  (props?.selectedChatName == data?.ChatName
+                    ? props?.theme
+                      ? " bg-[#2A2A2A] text-[#eaeaea]"
+                      : " bg-[#2A2A2A] text-[#eaeaea]"
+                    : props?.theme
+                    ? " bg-transparent text-[#828282]"
+                    : " bg-transparent text-[#6e6e7c]")
+                }
+                onClick={() => {
+                  props?.setSelectedChatName(data?.ChatName);
+                }}
+              >
+                {/* <div className="w-[30px] flex justify-start items-center">
                 <MessageSquare
                   width={18}
                   height={18}
                   strokeWidth={1.8}
                   className=""
                 />
+              </div> */}
+                <div
+                  className={
+                    " group-hover:w-[calc(100%-30px)] text-ellipsis overflow-hidden whitespace-nowrap" +
+                    (chatSettings == data?.ChatName
+                      ? " w-[calc(100%-30px)]"
+                      : " w-[calc(100%-00px)]")
+                  }
+                  // style={{ transition: ".2s" }}
+                >
+                  {data?.ChatName}
+                </div>
+                <div
+                  className={
+                    " group-hover:w-[30px] h-full overflow-visible flex flex-col justify-start items-end " +
+                    (chatSettings == data?.ChatName ? " w-[30px]" : " w-[0px]")
+                  }
+                  // style={{ transition: ".2s" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (chatSettings.length > 0) {
+                      setChatSettings("");
+                    } else {
+                      setChatSettings(data?.ChatName);
+                    }
+                  }}
+                >
+                  <div
+                    className={
+                      "w-full min-h-full flex justify-end items-center " +
+                      (props?.theme
+                        ? " text-[#828282] hover:text-[#eaeaea]"
+                        : " text-[#828282] hover:text-[#eaeaea]")
+                    }
+                  >
+                    {chatSettings == data?.ChatName ? (
+                      <X width={18} height={18} strokeWidth={2} className="" />
+                    ) : (
+                      <Ellipsis
+                        width={18}
+                        height={18}
+                        strokeWidth={2}
+                        className=""
+                      />
+                    )}
+                  </div>
+                  <div
+                    // ref={divRef}
+                    className={
+                      "w-auto h-auto rounded-[10px] p-[15px] py-[12px]  flex-col justify-start items-start z-40 mt-[5px] mr-[-10px]" +
+                      (chatSettings == data?.ChatName
+                        ? props?.theme
+                          ? " opacity-100 bg-[#2A2A2A] flex"
+                          : " opacity-100 bg-[#2A2A2A] flex"
+                        : props?.theme
+                        ? " opacity-0 bg-[#2A2A2A] hidden"
+                        : " opacity-0 bg-[#2A2A2A] hidden")
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <div
+                      className={
+                        "w-full h-[28px] flex justify-start items-center" +
+                        (props?.theme
+                          ? " text-[#bdbdbd] hover:text-[#ffffff]"
+                          : " text-[#bdbdbd] hover:text-[#ffffff]")
+                      }
+                      onClick={(e) => {
+                        archiveChatInFirebase(data?.ChatName, data);
+                      }}
+                    >
+                      <Package
+                        width={16}
+                        height={16}
+                        strokeWidth={2}
+                        className="mr-[8px]"
+                      />
+                      <span className="">Archive</span>
+                    </div>
+                    <div
+                      className={
+                        "w-full h-[28px] flex justify-start items-center" +
+                        (props?.theme
+                          ? " text-[#bdbdbd] hover:text-[#ffffff]"
+                          : " text-[#828282] hover:text-[#eaeaea]")
+                      }
+                      onClick={(e) => {
+                        setShareModalData([data?.ChatName, data]);
+                        setShareModal(true);
+                      }}
+                    >
+                      <Share2
+                        width={16}
+                        height={16}
+                        strokeWidth={2}
+                        className="mr-[8px]"
+                      />
+                      <span className="">Share</span>
+                    </div>
+                    <div
+                      className={
+                        "w-full h-[28px] flex justify-start items-center" +
+                        (props?.theme
+                          ? " text-[#bdbdbd] hover:text-[#ffffff]"
+                          : " text-[#828282] hover:text-[#eaeaea]")
+                      }
+                      onClick={(e) => {
+                        // renameChatInFirebase(
+                        // data?.ChatName,
+                        // data,
+                        // "Temporary New Name Setup 2"
+                        // );
+                        setRenameModalData([data?.ChatName, data]);
+                        setRenameModal(true);
+                      }}
+                    >
+                      <PencilLine
+                        width={16}
+                        height={16}
+                        strokeWidth={2}
+                        className="mr-[8px]"
+                      />
+                      <span className="">Rename</span>
+                    </div>
+                    <div
+                      className={
+                        "w-full h-[28px] flex justify-start items-center" +
+                        (props?.theme
+                          ? " text-[#bf3838] hover:text-[#ff5353]"
+                          : " text-[#828282] hover:text-[#eaeaea]")
+                      }
+                      onClick={(e) => {
+                        setConfirmModalData([data?.ChatName, data]);
+                        setConfirmModal(true);
+                        // deleteChatFromFirebase(data?.ChatName, data);
+                      }}
+                    >
+                      <Trash
+                        width={16}
+                        height={16}
+                        strokeWidth={2}
+                        className="mr-[8px]"
+                      />
+                      <span className="">Delete</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div
-                className="w-[calc(100%-30px)] group-hover:w-[calc(100%-60px)] text-ellipsis overflow-hidden whitespace-nowrap"
-                style={{ transition: ".2s" }}
-              >
-                {data}
-              </div>
-              <div
-                className="w-[0px] group-hover:w-[30px] overflow-hidden flex justify-end items-center"
-                style={{ transition: ".2s" }}
-              >
-                <Trash width={18} height={18} strokeWidth={1.8} className="" />
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </>
   );
@@ -115,16 +719,18 @@ const SearchChat = (props) => {
 
   function filterBySection(searchPrompt) {
     if (searchPrompt.length == 0) {
-      setResultArr(aiChatNames);
+      setResultArr(props?.AIChatInfo?.ChatNameInfo);
     } else {
       if (caseSensitive) {
         setResultArr(
-          props?.aiChatNames.filter((data) => data?.includes(searchPrompt))
+          props?.AIChatInfo?.ChatNameInfo?.filter((data) =>
+            data?.ChatName?.includes(searchPrompt)
+          )
         );
       } else {
         setResultArr(
-          props?.aiChatNames.filter((data) =>
-            data?.toLowerCase()?.includes(searchPrompt.toLowerCase())
+          props?.AIChatInfo?.ChatNameInfo?.filter((data) =>
+            data?.ChatName?.toLowerCase()?.includes(searchPrompt.toLowerCase())
           )
         );
       }
@@ -160,303 +766,340 @@ const SearchChat = (props) => {
   }, []);
 
   return (
-    <div
-      className={
-        "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
-        (props?.theme ? " bg-[#161b1e5c]" : " bg-[#b0b0b081]")
-      }
-    >
+    <>
       <div
-        className="w-[90%] md:w-[540px] lg:w-[540px] flex flex-col justify-start items-start  h-[500px]"
-        // style={{ transform: "translate(-50%, -50%)" }}
+        className={
+          "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
+          (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
+        }
       >
-        <div className="w-full flex justify-center items-center mb-[10px]">
+        <div
+          className="w-[90%] md:w-[540px] lg:w-[540px] flex flex-col justify-start items-start  h-[500px]"
+          // style={{ transform: "translate(-50%, -50%)" }}
+        >
+          <div className="w-full flex justify-center items-center mb-[10px]">
+            <div
+              className={
+                "h-[35px] boxShadowLight2 flex justify-center items-center px-[10px] pr-[5px] rounded-lg py-[5px] cursor-pointer border-[1.5px] text-[14px]" +
+                (props?.theme
+                  ? " bg-[#1A1A1A] border-[#252525] text-[#828282] hover:text-[#ffffff]"
+                  : " bg-[#ffffff] border-[#eaeaea] text-[#6e6e7c] hover:text-[#000000]")
+              }
+              onClick={() => {
+                props?.setSearchChat(false);
+              }}
+            >
+              <X
+                width="16"
+                height="16"
+                strokeWidth="2.5"
+                className="mr-[6px]"
+              />{" "}
+              Close{" "}
+              <div
+                className={
+                  " h-[23px] ml-[10px] rounded-[4px] flex justify-center items-center text-[12px] px-[7px] cursor-default border-[1.5px]" +
+                  (props?.theme
+                    ? " bg-[#272727] text-[#828282] border-[#292929]"
+                    : " bg-[#222222] text-[#6e6e7c] border-[#404b56]")
+                }
+              >
+                <Command
+                  width="12"
+                  height="12"
+                  strokeWidth="2.2"
+                  className="mr-[4px]"
+                />
+                Esc
+              </div>
+            </div>
+          </div>
           <div
             className={
-              "h-[35px] boxShadowLight2 flex justify-center items-center px-[10px] pr-[5px] rounded-lg py-[5px] cursor-pointer border-[1.5px]" +
+              "w-full flex flex-col justify-start items-start rounded-2xl max-h-[calc(100%-45px)] h-auto  boxShadowLight2 px-[7px] pr-[4px] py-[7px] font-[geistRegular] text-[14px] border-[1.5px]" +
               (props?.theme
-                ? " text-[#9ba6aa] hover:text-[#ffffff] bg-[#1D2935] border-[#25303c]"
-                : " text-[#6e6e7c] hover:text-[#000000] bg-[#1D2935] border-[#25303c]")
+                ? " bg-[#1A1A1A] border-[#252525]"
+                : " bg-[#ffffff] border-[#eaeaea]")
             }
-            onClick={() => {
-              props?.setSearchChat(false);
-            }}
+            style={{ transition: ".2s" }}
           >
-            <X width="16" height="16" strokeWidth="2.5" className="mr-[6px]" />{" "}
-            Close{" "}
+            <div className="flex justify-between items-center w-full px-[10px] ">
+              <div
+                className={
+                  "flex justify-start items-center w-[30px] cursor-pointer  " +
+                  (props?.theme
+                    ? " text-[#828282] hover:text-[white]"
+                    : " text-[#828282] hover:text-[black]")
+                }
+                onClick={() => {
+                  //   setSearchPrompt("");
+                }}
+              >
+                <Search width="16" height="16" strokeWidth="2.2" />
+              </div>
+              <input
+                className={
+                  " bg-transparent h-[35px] outline-none text-[14px] pr-[20px]" +
+                  (searchPrompt.length == 0
+                    ? " w-[calc(100%-58px)]"
+                    : " w-[calc(100%-88px)]") +
+                  (props?.theme
+                    ? " placeholder:text-[#5b5b5b]"
+                    : " placeholder:text-[#828282]")
+                }
+                placeholder="Search in Splitwise ..."
+                value={searchPrompt}
+                onChange={(e) => {
+                  setSearchPrompt(e.target.value);
+                }}
+                style={{ transition: ".1s" }}
+              ></input>
+              <div
+                className={
+                  "flex justify-center items-center w-[30px] h-[30px] mr-[-5px] rounded-[6px] cursor-pointer " +
+                  (!caseSensitive
+                    ? props?.theme
+                      ? " text-[#828282] hover:text-[#ffffff]"
+                      : " text-[#6e6e7c] hover:text-[#000000]"
+                    : props?.theme
+                    ? " text-[#ffffff] bg-[#2a2a2a]"
+                    : " text-[#000000] bg-[#222222]")
+                }
+                onClick={() => {
+                  setCaseSensitive(!caseSensitive);
+                }}
+              >
+                <CaseSensitive width="16" height="16" strokeWidth="2.2" />
+              </div>
+              <div
+                className={
+                  "flex justify-end items-center overflow-visible ml-[3px] cursor-pointer " +
+                  (searchPrompt.length > 0
+                    ? " w-[30px] opacity-100"
+                    : " w-[0px] opacity-0") +
+                  (props?.theme
+                    ? " text-[#828282] hover:text-[#eaeaea]"
+                    : " text-[#000000] hover:text-[#000000]")
+                }
+                style={{ transition: ".1s" }}
+                onClick={() => {
+                  setSearchPrompt("");
+                }}
+              >
+                <X width="16" height="16" strokeWidth="2.2" />
+              </div>
+            </div>
             <div
               className={
-                " h-[23px] ml-[10px] rounded-[4px] flex justify-center items-center text-[12px] px-[7px] cursor-default border-[1.5px]" +
+                "w-[calc(100%+11px)] ml-[-7px] border-t-[1.5px] mt-[7px] mb-[6px]" +
+                (props?.theme ? " border-[#252525]" : " border-[#eaeaea]")
+              }
+            ></div>
+            <div
+              className={
+                "w-full flex flex-col justify-start items-start h-[calc(100%-45.5px)] overflow-y-auto pr-[4px] text-[14px] " +
                 (props?.theme
-                  ? " bg-[#36424E] text-[#9ba6aa] border-[#404b56]"
-                  : " bg-[#36424E] text-[#6e6e7c] border-[#404b56]")
+                  ? " searchChatScrollDark"
+                  : " searchChatScrollLight")
               }
             >
-              <Command
-                width="12"
-                height="12"
-                strokeWidth="2.2"
-                className="mr-[4px]"
-              />
-              Esc
-            </div>
-          </div>
-        </div>
-        <div
-          className="w-full flex flex-col justify-start items-start rounded-2xl max-h-[calc(100%-45px)] h-auto bg-[#1D2935] border-[#25303c] boxShadowLight2 px-[7px] py-[7px] font-[geistRegular] text-[14px] border-[1.5px]"
-          style={{ transition: ".2s" }}
-        >
-          <div className="flex justify-between items-center w-full px-[10px]">
-            <div
-              className={"flex justify-start items-center w-[30px]  "}
-              onClick={() => {
-                //   setSearchPrompt("");
-              }}
-            >
-              <Search width="16" height="16" strokeWidth="2.2" />
-            </div>
-            <input
-              className={
-                " bg-transparent h-[35px] outline-none text-[14px] pr-[20px]" +
-                (searchPrompt.length == 0
-                  ? " w-[calc(100%-60px)]"
-                  : " w-[calc(100%-90px)]")
-              }
-              placeholder="Search in Splitwise ..."
-              value={searchPrompt}
-              onChange={(e) => {
-                setSearchPrompt(e.target.value);
-              }}
-            ></input>
-            <div
-              className={
-                "flex justify-center items-center w-[30px] h-[30px] rounded-[6px] cursor-pointer " +
-                (!caseSensitive
-                  ? props?.theme
-                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                    : " text-[#6e6e7c] hover:text-[#000000]"
-                  : props?.theme
-                  ? " text-[#ffffff] bg-[#36424E]"
-                  : " text-[#000000] bg-[#36424E]")
-              }
-              onClick={() => {
-                setCaseSensitive(!caseSensitive);
-              }}
-            >
-              <CaseSensitive width="16" height="16" strokeWidth="2.2" />
-            </div>
-            <div
-              className={
-                "justify-end items-center w-[30px] cursor-pointer " +
-                (searchPrompt.length > 0 ? " flex" : " hidden")
-              }
-              onClick={() => {
-                setSearchPrompt("");
-              }}
-            >
-              <X width="16" height="16" strokeWidth="2.2" />
-            </div>
-          </div>
-          <div className="w-full border-t-[1.5px] border-[#2b3642] mt-[7px] mb-[6px]"></div>
-          <div className="w-full flex flex-col justify-start items-start h-[calc(100%-45.5px)] overflow-y-auto ">
-            {searchPrompt.length == 0 && resultArr.length == 0 ? (
-              <>
-                <div
-                  className={
-                    "py-[7px] h-[35px] w-full cursor-pointer flex justify-center items-center my-[1px] px-[10px] rounded-[6px]" +
-                    (props?.theme
-                      ? " text-[#9ba6aa] "
-                      : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
-                  }
-                >
+              {searchPrompt.length == 0 && resultArr?.length == 0 ? (
+                <>
                   <div
                     className={
-                      "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
+                      "py-[7px] h-[35px] w-full cursor-pointer flex justify-center items-center my-[1px] px-[10px] rounded-[6px]" +
+                      (props?.theme
+                        ? " text-[#828282] "
+                        : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
                     }
-                    onClick={() => {
-                      // setSearchPrompt("");
-                    }}
                   >
-                    <Satellite width="16" height="16" strokeWidth="2.2" />
-                  </div>
-                  <div className="w-auto">No Chats</div>
-                </div>
-              </>
-            ) : searchPrompt.length > 0 && resultArr.length == 0 ? (
-              <>
-                {" "}
-                <div
-                  className={
-                    "py-[7px] h-[35px] w-full cursor-pointer flex justify-start items-start my-[1px] px-[10px] rounded-[6px]" +
-                    (props?.theme
-                      ? " hover:bg-[#36424E] text-[#818b8f] hover:text-[#ffffff] "
-                      : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
-                  }
-                  onClick={() => {
-                    //   setSection(data);
-                  }}
-                >
-                  <div
-                    className={
-                      "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
-                    }
-                    onClick={() => {
-                      setSearchPrompt("");
-                    }}
-                  >
-                    <GitBranchPlus width="16" height="16" strokeWidth="2.2" />
-                  </div>
-                  <div className="w-[calc(100%-120px)] flex justify-start items-center h-full ">
-                    <div className="w-auto  text-ellipsis overflow-hidden whitespace-nowrap  max-[calc(100%-100px)] ">
-                      {searchPrompt}
+                    <div
+                      className={
+                        "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
+                      }
+                      onClick={() => {
+                        // setSearchPrompt("");
+                      }}
+                    >
+                      <Satellite width="16" height="16" strokeWidth="2.2" />
                     </div>
-                    <div className="w-[90px] ml-[10px] flex justify-start items-center whitespace-nowrap h-full">
-                      <MoveRight
+                    <div className="w-auto">No Chats</div>
+                  </div>
+                </>
+              ) : searchPrompt.length > 0 && resultArr?.length == 0 ? (
+                <>
+                  {" "}
+                  <div
+                    className={
+                      "py-[7px] h-[35px] w-full cursor-pointer flex justify-start items-start my-[1px] px-[10px] rounded-[8px]" +
+                      (props?.theme
+                        ? " hover:bg-[#2a2a2a] text-[#828282] hover:text-[#eaeaea] "
+                        : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
+                    }
+                    onClick={() => {
+                      //   setSection(data);
+                    }}
+                  >
+                    <div
+                      className={
+                        "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
+                      }
+                      onClick={() => {
+                        setSearchPrompt("");
+                      }}
+                    >
+                      <GitBranchPlus width="16" height="16" strokeWidth="2.2" />
+                    </div>
+                    <div className="w-[calc(100%-120px)] flex justify-start items-center h-full ">
+                      <div className="w-auto  text-ellipsis overflow-hidden whitespace-nowrap  max-[calc(100%-100px)] ">
+                        {searchPrompt}
+                      </div>
+                      <div className="w-[90px] ml-[10px] flex justify-start items-center whitespace-nowrap h-full">
+                        <MoveRight
+                          width="12"
+                          height="12"
+                          strokeWidth="2.5"
+                          className="mr-[4px]"
+                        />{" "}
+                        <span className="ml-[5px] text-[12px] flex justify-start items-center h-full">
+                          create chat
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      className={
+                        "flex justify-end items-center w-[90px] h-full" +
+                        (props?.theme ? " text-[#606060] " : " text-[#6e6e7c] ")
+                      }
+                    >
+                      <CornerDownRight
                         width="12"
                         height="12"
                         strokeWidth="2.5"
                         className="mr-[4px]"
-                      />{" "}
-                      <span className="ml-[5px] text-[12px] flex justify-start items-center h-full">
-                        create chat
+                      />
+                      <span className="text-[12px] whitespace-nowrap">
+                        Alt + Enter
                       </span>
                     </div>
                   </div>
                   <div
                     className={
-                      "flex justify-end items-center w-[90px] h-full" +
-                      (props?.theme ? " text-[#818b8f] " : " text-[#6e6e7c] ")
-                    }
-                  >
-                    <CornerDownRight
-                      width="12"
-                      height="12"
-                      strokeWidth="2.5"
-                      className="mr-[4px]"
-                    />
-                    <span className="text-[12px] whitespace-nowrap">
-                      Alt + Enter
-                    </span>
-                  </div>
-                </div>
-                <div
-                  className={
-                    "py-[7px] h-[35px] w-full cursor-pointer flex justify-center items-center my-[1px] px-[10px] rounded-[6px]" +
-                    (props?.theme
-                      ? " text-[#9ba6aa] "
-                      : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
-                  }
-                  onClick={() => {
-                    //   setSection(data);
-                  }}
-                >
-                  <div
-                    className={
-                      "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
+                      "py-[7px] h-[35px] w-full cursor-pointer flex justify-center items-center my-[1px] px-[10px] rounded-[6px]" +
+                      (props?.theme
+                        ? " text-[#828282] "
+                        : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
                     }
                     onClick={() => {
-                      setSearchPrompt("");
+                      //   setSection(data);
                     }}
                   >
-                    <Satellite width="16" height="16" strokeWidth="2.2" />
-                  </div>
-                  <div className="w-auto">No Result Found</div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div
-                  className={
-                    "py-[7px] h-[35px] w-full cursor-pointer justify-start items-start my-[1px] px-[10px] rounded-[6px]" +
-                    (props?.theme
-                      ? " hover:bg-[#36424E] text-[#818b8f] hover:text-[#ffffff] "
-                      : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]") +
-                    (searchPrompt.length > 0 ? " flex" : " hidden")
-                  }
-                  onClick={() => {
-                    //   setSection(data);
-                  }}
-                >
-                  <div
-                    className={
-                      "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
-                    }
-                    onClick={() => {
-                      setSearchPrompt("");
-                    }}
-                  >
-                    <GitBranchPlus width="16" height="16" strokeWidth="2.2" />
-                  </div>
-                  <div className="w-[calc(100%-120px)] flex justify-start items-center">
-                    <div className="w-auto  text-ellipsis overflow-hidden whitespace-nowrap  max-[calc(100%-100px)] ">
-                      {searchPrompt}
+                    <div
+                      className={
+                        "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
+                      }
+                      onClick={() => {
+                        setSearchPrompt("");
+                      }}
+                    >
+                      <Satellite width="16" height="16" strokeWidth="2.2" />
                     </div>
-                    <div className="w-[90px] ml-[10px] flex justify-start items-center whitespace-nowrap">
-                      <MoveRight
+                    <div className="w-auto">No Result Found</div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div
+                    className={
+                      "py-[7px] h-[35px] w-full cursor-pointer justify-start items-start my-[1px] px-[10px] rounded-[8px]" +
+                      (props?.theme
+                        ? " hover:bg-[#2a2a2a] text-[#828282] hover:text-[#eaeaea] "
+                        : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]") +
+                      (searchPrompt.length > 0 ? " flex" : " hidden")
+                    }
+                    onClick={() => {
+                      //   setSection(data);
+                    }}
+                  >
+                    <div
+                      className={
+                        "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
+                      }
+                      onClick={() => {
+                        setSearchPrompt("");
+                      }}
+                    >
+                      <GitBranchPlus width="16" height="16" strokeWidth="2.2" />
+                    </div>
+                    <div className="w-[calc(100%-120px)] flex justify-start items-center">
+                      <div className="w-auto  text-ellipsis overflow-hidden whitespace-nowrap  max-[calc(100%-100px)] ">
+                        {searchPrompt}
+                      </div>
+                      <div className="w-[90px] ml-[10px] flex justify-start items-center whitespace-nowrap">
+                        <MoveRight
+                          width="12"
+                          height="12"
+                          strokeWidth="2.5"
+                          className="mr-[4px]"
+                        />{" "}
+                        <span className="ml-[5px] text-[12px]">
+                          create chat
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      className={
+                        "flex justify-end items-center w-[90px] h-full" +
+                        (props?.theme ? " text-[#606060]" : " text-[#606060]")
+                      }
+                    >
+                      <CornerDownRight
                         width="12"
                         height="12"
                         strokeWidth="2.5"
                         className="mr-[4px]"
-                      />{" "}
-                      <span className="ml-[5px] text-[12px]">create chat</span>
+                      />
+                      <span className="text-[12px] whitespace-nowrap">
+                        Alt + Enter
+                      </span>
                     </div>
                   </div>
-                  <div
-                    className={
-                      "flex justify-end items-center w-[90px] h-full" +
-                      (props?.theme ? " text-[#818b8f] " : " text-[#6e6e7c] ")
-                    }
-                  >
-                    <Command
-                      width="12"
-                      height="12"
-                      strokeWidth="2.5"
-                      className="mr-[4px]"
-                    />
-                    <span className="text-[12px] whitespace-nowrap">
-                      Alt + Enter
-                    </span>
-                  </div>
-                </div>
-                {resultArr?.map((data, index) => {
-                  return (
-                    <div
-                      className={
-                        "py-[7px] h-[35px] w-full cursor-pointer flex justify-start items-start my-[1px] px-[10px] rounded-[6px]" +
-                        (props?.theme
-                          ? " hover:bg-[#36424E] text-[#9ba6aa] hover:text-[#ffffff] "
-                          : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
-                      }
-                      onClick={() => {
-                        //   setSection(data);
-                      }}
-                      key={index}
-                    >
+                  {resultArr?.map((data, index) => {
+                    return (
                       <div
                         className={
-                          "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
+                          "py-[7px] h-[35px] w-full cursor-pointer flex justify-start items-start my-[1px] px-[10px] rounded-[8px]" +
+                          (props?.theme
+                            ? " hover:bg-[#2a2a2a] text-[#828282] hover:text-[#eaeaea] "
+                            : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
                         }
                         onClick={() => {
-                          setSearchPrompt("");
+                          //   setSection(data);
                         }}
+                        key={index}
                       >
-                        <MessageSquare
-                          width="16"
-                          height="16"
-                          strokeWidth="2.2"
-                        />
+                        <div
+                          className={
+                            "flex justify-start items-center w-[30px] cursor-pointer mt-[3px] "
+                          }
+                          onClick={() => {
+                            setSearchPrompt("");
+                          }}
+                        >
+                          <Bot width="16" height="16" strokeWidth="2.2" />
+                        </div>
+                        <div className="w-[calc(100%-30px)] text-ellipsis overflow-hidden whitespace-nowrap">
+                          {data?.ChatName}
+                        </div>
                       </div>
-                      <div className="w-[calc(100%-30px)] text-ellipsis overflow-hidden whitespace-nowrap">
-                        {data}
-                      </div>
-                    </div>
-                  );
-                })}
-              </>
-            )}
+                    );
+                  })}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

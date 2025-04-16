@@ -59,7 +59,7 @@ const MainPage = (props) => {
             className={
               "w-full h-full flex flex-col justify-center items-center" +
               (props?.theme
-                ? " text-[#9ba6aa] bg-[#1D2935]"
+                ? " text-[#9ba6aa] bg-[#1A1A1A]"
                 : " text-[#9999aa] bg-[#ffffff]")
             }
           >

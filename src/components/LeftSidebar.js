@@ -54,7 +54,7 @@ const LeftSidebar = (props) => {
         className={
           "w-full h-[60px] flex md:hidden lg:hidden justify-evenly items-center  tex-black fixed left-0 bottom-0 z-50 " +
           (props?.theme
-            ? " bg-[#1D2935] text-[#9ba6aa]"
+            ? " bg-[#141414] text-[#9ba6aa]"
             : " bg-white text-[#6e6e7c]")
         }
       >
@@ -171,7 +171,7 @@ const LeftSidebar = (props) => {
             ? " border-r-[1.5px] border-[#25252500]"
             : " border-r-[0px] border-[#25252500]") +
           (props?.theme
-            ? " bg-[#111d2a] text-[#9ba6aa]"
+            ? " bg-[#141414] text-[#9ba6aa]"
             : " bg-[#ffffff00] text-[#6e6e7c]")
         }
         style={{ transitionDelay: props?.isMinimise ? ".3s" : "0s" }}
@@ -218,7 +218,7 @@ const LeftSidebar = (props) => {
         <div
           className={
             "h-[calc(100%-40px)] w-[50px] flex flex-col justify-between items-center py-[18px] border-r-[1.5px] border-[#25252500]" +
-            (props?.theme ? " bg-[#111d2a]" : " bg-[#ffffff00]")
+            (props?.theme ? " bg-[#141414]" : " bg-[#ffffff00]")
           }
         >
           <div className="flex flex-col justify-start items-center w-full">

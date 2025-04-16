@@ -805,14 +805,14 @@ export default function Toolbars(props) {
       <div
         className={
           "w-full h-[100svh]  justify-center items-center fixed top-0 left-0 z-50 backdrop-blur-[5px]" +
-          (props?.theme ? " bg-[#111d2a6a]" : " bg-[#b0b0b081]") +
+          (props?.theme ? " bg-[#1414146a]" : " bg-[#b0b0b081]") +
           (syncConfirm ? " flex" : " hidden")
         }
       >
         <div
           className={
             "w-[calc(100%-60px)] md:w-[500px] lg:w-[500px] rounded-2xl h-auto p-[30px] pt-[25px] flex flex-col justify-center items-start fixed left-[50%] top-[50%] boxShadowLight2" +
-            (props?.theme ? " bg-[#1D2935]" : " bg-[white]")
+            (props?.theme ? " bg-[#1A1A1A]" : " bg-[white]")
           }
           style={{ transform: "translate(-50%,-50%)" }}
         >
@@ -844,7 +844,7 @@ export default function Toolbars(props) {
               className={
                 "flex justify-center items-center px-[7px] py-[3px] rounded-lg border-[1.5px] border-[#f0f0f0] h-[35px] cursor-pointer" +
                 (props?.theme
-                  ? " bg-[#36424E] hover:bg-[#36424E] border-[#3d4a56]"
+                  ? " bg-[#222222] hover:bg-[#222222] border-[#3d4a56]"
                   : " bg-[#F9F9F9] border-[#f0f0f0]") +
                 (props?.theme ? " text-[#ffffff]" : " text-[black]")
               }
@@ -1066,7 +1066,7 @@ export default function Toolbars(props) {
           {/* <button
             // disabled={!canUndo}
 
-            className={`w-[30px] h-[30px] mr-[10px] rounded-md flex justify-center items-center hover:bg-[#36424e] hover:text-[white]`}
+            className={`w-[30px] h-[30px] mr-[10px] rounded-md flex justify-center items-center hover:bg-[#222222] hover:text-[white]`}
             aria-label="Undo"
           >
             no
@@ -1106,7 +1106,7 @@ export default function Toolbars(props) {
       editor.setEditable(false);
       props?.setChangeLoading(false);
             }}
-            className={`w-[30px] h-[30px] mr-[10px] rounded-md flex justify-center items-center hover:bg-[#36424e] hover:text-[white]`}
+            className={`w-[30px] h-[30px] mr-[10px] rounded-md flex justify-center items-center hover:bg-[#222222] hover:text-[white]`}
             aria-label="Undo"
           >
             yes
@@ -1143,7 +1143,7 @@ export default function Toolbars(props) {
               className={
                 `w-[30px] h-[30px] mr-[5px] cursor-pointer rounded-md flex justify-center items-center ` +
                 (props?.theme
-                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                   : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
               }
               onClick={() => {
@@ -1174,7 +1174,7 @@ export default function Toolbars(props) {
               className={
                 `w-[30px] h-[30px] mr-[5px] cursor-pointer rounded-md flex justify-center items-center ` +
                 (props?.theme
-                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                   : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
               }
               onClick={() => {
@@ -1205,7 +1205,7 @@ export default function Toolbars(props) {
             className={
               `w-[30px] h-[30px] cursor-pointer rounded-md flex justify-center items-center ` +
               (props?.theme
-                ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                 : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
             }
             onClick={() => {
@@ -1219,7 +1219,7 @@ export default function Toolbars(props) {
               className={
                 "" +
                 (props?.theme
-                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                   : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
               }
             />
@@ -1252,10 +1252,10 @@ export default function Toolbars(props) {
                 " px-[10px] h-[30px] mr-[5px] rounded-md flex justify-center items-center " +
                 (isSpeechToText
                   ? props?.theme
-                    ? " bg-[#36424e] w-auto"
+                    ? " bg-[#222222] w-auto"
                     : " bg-[#e6e6f4] w-auto"
-                  : " bg-[#36424e00] w-[30px]") +
-                (props?.theme ? "  hover:bg-[#36424e]" : "  hover:bg-[#e6e6f4]")
+                  : " bg-[#22222200] w-[30px]") +
+                (props?.theme ? "  hover:bg-[#222222]" : "  hover:bg-[#e6e6f4]")
               }
               title="Speech To Text"
               aria-label={`${
@@ -1319,7 +1319,7 @@ export default function Toolbars(props) {
             className={
               `w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center` +
               (props?.theme
-                ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                 : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
             }
             aria-label="Undo"
@@ -1337,7 +1337,7 @@ export default function Toolbars(props) {
             className={
               `w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center cursor-pointer ` +
               (props?.theme
-                ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                 : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
             }
             aria-label="Redo"
@@ -1363,9 +1363,9 @@ export default function Toolbars(props) {
                 props?.theme
                   ? props?.isEditMode
                     ? props?.fontModal
-                      ? " bg-[#36424e] text-[#ffffff]"
-                      : " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                    : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " bg-[#222222] text-[#ffffff]"
+                      : " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                    : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? props?.fontModal
                     ? " bg-[#e6e6f4] text-[#000000]"
@@ -1409,8 +1409,8 @@ export default function Toolbars(props) {
                       `w-full min-h-[25px] px-[10px] outline-none rounded-[4px] flex justify-start items-center cursor-pointer ` +
                       (props?.theme
                         ? getFontNameByTag(fontFamily) == data?.fontName
-                          ? " bg-[#36424e] text-[white]"
-                          : "text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                          ? " bg-[#222222] text-[white]"
+                          : "text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                         : getFontNameByTag(fontFamily) == data?.fontName
                         ? " bg-[#e6e6f4] text-[black]"
                         : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
@@ -1443,9 +1443,9 @@ export default function Toolbars(props) {
                 props?.theme
                   ? props?.isEditMode
                     ? props?.fontSizeModal
-                      ? " bg-[#36424e] text-[#ffffff]"
-                      : " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                    : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " bg-[#222222] text-[#ffffff]"
+                      : " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                    : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? props?.fontSizeModal
                     ? " bg-[#e6e6f4] text-[#000000]"
@@ -1485,8 +1485,8 @@ export default function Toolbars(props) {
                       (props?.theme
                         ? selectionFontSize.split("px")[0] ==
                           data.split("px")[0]
-                          ? " bg-[#36424e] text-[white]"
-                          : "text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                          ? " bg-[#222222] text-[white]"
+                          : "text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                         : selectionFontSize.split("px")[0] ==
                           data.split("px")[0]
                         ? " bg-[#e6e6f4] text-[black]"
@@ -1520,13 +1520,13 @@ export default function Toolbars(props) {
               isBold
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center`}
           >
@@ -1542,13 +1542,13 @@ export default function Toolbars(props) {
               isItalic
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center  ml-[0px]`}
           >
@@ -1564,13 +1564,13 @@ export default function Toolbars(props) {
               isUnderine
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center`}
           >
@@ -1586,13 +1586,13 @@ export default function Toolbars(props) {
               isStrikethrough
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center `}
           >
@@ -1608,13 +1608,13 @@ export default function Toolbars(props) {
               isHighlight
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center `}
           >
@@ -1633,7 +1633,7 @@ export default function Toolbars(props) {
             className={`w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center  ${
               props?.isEditMode
                 ? props?.theme
-                  ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
+                  ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                   : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] cursor-pointer"
                 : props?.theme
                 ? " text-[#f4efff00] cursor-default "
@@ -1654,9 +1654,9 @@ export default function Toolbars(props) {
                 props?.theme
                   ? props?.isEditMode
                     ? props?.headingModal
-                      ? " bg-[#36424e] text-[#ffffff]"
-                      : " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                    : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " bg-[#222222] text-[#ffffff]"
+                      : " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                    : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? props?.headingModal
                     ? " bg-[#e6e6f4] text-[#000000]"
@@ -1691,8 +1691,8 @@ export default function Toolbars(props) {
                 className={`w-auto px-[10px] font-[geistSemibold] h-[30px] rounded-md flex justify-center items-center  ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -1723,8 +1723,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] rounded-md flex justify-center items-center  ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -1747,8 +1747,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] ml-[5px] rounded-md flex justify-center items-center  ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -1771,8 +1771,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] ml-[5px] rounded-md flex justify-center items-center  ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -1795,8 +1795,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] ml-[5px] rounded-md flex justify-center items-center  ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -1819,8 +1819,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] ml-[5px] rounded-md flex justify-center items-center  ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -1841,13 +1841,13 @@ export default function Toolbars(props) {
               blockType === "quote"
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             }`}
           >
@@ -1864,13 +1864,13 @@ export default function Toolbars(props) {
               isSuperscript
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center `}
           >
@@ -1886,13 +1886,13 @@ export default function Toolbars(props) {
               isSubscript
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center `}
           >
@@ -1912,8 +1912,8 @@ export default function Toolbars(props) {
         }}
         // onClick={handleCodeSnippet}
         className={`w-[30px] h-[30px] mr-[5px] rounded-md ${
-          isCode ? "bg-[#36424e]" : ""
-        } flex justify-center items-center hover:bg-[#36424e] hover:text-[white]`}
+          isCode ? "bg-[#222222]" : ""
+        } flex justify-center items-center hover:bg-[#222222] hover:text-[white]`}
       >
         <Code width={18} height={18} strokeWidth="1.8" />
       </button> */}
@@ -1922,8 +1922,8 @@ export default function Toolbars(props) {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "highlight");
         }}
         className={`w-[30px] h-[30px] mr-[5px] rounded-md ${
-          isItalic ? "bg-[#36424e]" : ""
-        } flex justify-center items-center hover:bg-[#36424e] hover:text-[white]`}
+          isItalic ? "bg-[#222222]" : ""
+        } flex justify-center items-center hover:bg-[#222222] hover:text-[white]`}
       >
         <Link2 width={18} height={18} strokeWidth="1.8" />
       </button> */}
@@ -1937,13 +1937,13 @@ export default function Toolbars(props) {
               blockType === "ul"
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center `}
           >
@@ -1959,13 +1959,13 @@ export default function Toolbars(props) {
               blockType === "ol"
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center `}
           >
@@ -1982,13 +1982,13 @@ export default function Toolbars(props) {
               blockType === "check"
                 ? props?.theme
                   ? props?.isEditMode
-                    ? " bg-[#36424e] text-[#f4efff] cursor-pointer"
-                    : " bg-[#36424e00] text-[#f4efff00] cursor-default"
+                    ? " bg-[#222222] text-[#f4efff] cursor-pointer"
+                    : " bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
-                ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] "
+                ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
                 : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
             } flex justify-center items-center  `}
           >
@@ -1998,8 +1998,8 @@ export default function Toolbars(props) {
           {/* <button
         onClick={insertLink}
         className={`w-[30px] h-[30px] mr-[5px] rounded-md ${
-          isItalic ? "bg-[#36424e]" : ""
-        } flex justify-center items-center hover:bg-[#36424e] hover:text-[white]`}
+          isItalic ? "bg-[#222222]" : ""
+        } flex justify-center items-center hover:bg-[#222222] hover:text-[white]`}
       >
         Check
       </button> */}
@@ -2023,9 +2023,9 @@ export default function Toolbars(props) {
                 props?.theme
                   ? props?.isEditMode
                     ? props?.alignModal
-                      ? " bg-[#36424e] text-[#ffffff]"
-                      : " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                    : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " bg-[#222222] text-[#ffffff]"
+                      : " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                    : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                   : props?.isEditMode
                   ? props?.alignModal
                     ? " bg-[#e6e6f4] text-[#000000]"
@@ -2054,8 +2054,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -2073,8 +2073,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -2092,8 +2092,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -2111,8 +2111,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -2132,8 +2132,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] mr-[5px] rounded-md ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -2153,8 +2153,8 @@ export default function Toolbars(props) {
                 className={`w-[30px] h-[30px] mr-[0px] rounded-md ${
                   props?.theme
                     ? props?.isEditMode
-                      ? " hover:bg-[#36424e] text-[#f4efff] hover:text-[white] cursor-pointer"
-                      : " hover:bg-[#36424e00] text-[#f4efff00] cursor-default"
+                      ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
+                      : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
                     ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
@@ -2180,7 +2180,7 @@ export default function Toolbars(props) {
             className={
               `w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center  cursor-pointer ` +
               (props?.theme
-                ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                 : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
             }
           >

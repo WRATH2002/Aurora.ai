@@ -26,6 +26,12 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import AppContainer from "./components/AppContainer";
 import AdminPage from "./components/AdminPage";
+import { CursorifyProvider } from "@cursorify/react";
+import { PhingerCursor } from "./assets/PhingerCursor/PhingerCursor";
+import Documentation from "./components/Documentation";
+import SharedChat from "./components/SharedChat";
+import SharedLogin from "./components/Landing/SharedLogin";
+import LinkError from "./components/LinkError";
 
 function App() {
   const [theme, setTheme] = useState(false);
@@ -79,9 +85,9 @@ Here's a breakdown of key aspects of computer networks:
   }, [chat]);
 
   function fetchTheme() {
-    // const user = firebase.auth().currentUser;
+    const user = firebase.auth().currentUser;
 
-    const channelRef = db.collection("user").doc("lv5PcvKwOUUj45R95lwE");
+    const channelRef = db.collection("user").doc(user?.uid);
 
     onSnapshot(channelRef, (snapshot) => {
       setTheme(snapshot?.data()?.Theme);
@@ -136,10 +142,14 @@ Here's a breakdown of key aspects of computer networks:
   // function navigateToSection(section) {
   //   navigate(`/user/welcomeUser/${section}`);
   // }
+
+  // useEffect(() => {
+  //   changeCursor(PhingerCursor);
+  // }, []);
   return (
     <>
-      <div className="-z-30 left-0 top-0 fixed w-full h-[100svh] bg-[#F6F8FA]"></div>
-
+      {/* <CursorifyProvider cursor={<PhingerCursor />}> */}
+      {/* <div className="-z-30 left-0 top-0 fixed w-full h-[100svh] bg-[#F6F8FA]"></div> */}
       {/* <div
         className={
           "w-full h-[100svh] flex font-[geistRegular] pr-[7px] pb-[7px] z-10 backdrop-blur-xl overflow-hidden" +
@@ -215,34 +225,25 @@ Here's a breakdown of key aspects of computer networks:
           </div>
         </div>
       </div> */}
-
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/documentation" element={<Documentation />} />
+
           <Route path="/user/login" element={<Login />} />
           <Route path="/user/signup" element={<Signup />} />
           <Route path="/user/welcomeUser/user" element={<AppContainer />} />
           <Route path="/admin" element={<AdminPage />} />
-          {/* <Route path="/" element={<LandingPage />} />
-          <Route path="/user" element={<UserLandingPage />} />
-          <Route path="/partner" element={<PartnerLandingPage />} />
-          
-          <Route path="/partner/login" element={<PartnerLogin />} />
-          <Route path="/partner/signup" element={<PartnerSignup />} />{" "}
-          <Route
-            path="/user/welcomeUser/:currSection"
-            element={<UserLandingPage />}
-          />
-          <Route
-            path="/partner/welcomePartner/:currSection"
-            element={<PartnerLandingPage />}
-          /> */}
+          <Route path="/shared" element={<SharedChat />} />
+          <Route path="/shared/login" element={<SharedLogin />} />
+
+          <Route path="*" element={<LinkError />} />
         </Routes>
       </Router>
       {/* <div className="w-full h-[100svh] flex justify-center items-center font-[geistRegular]"> */}
       {/* <Login />  */}
       {/* <Signup /> */}
-      {/* </div> */}
+      {/* </div> */} {/* </CursorifyProvider> */}
     </>
   );
 }

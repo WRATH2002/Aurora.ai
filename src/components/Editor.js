@@ -186,7 +186,8 @@ export default function Editor(props) {
   useEffect(() => {
     const fetchTheme = async () => {
       try {
-        const docRef = doc(db, "user", "lv5PcvKwOUUj45R95lwE"); // Adjust path as needed
+        const user = firebase.auth().currentUser;
+        const docRef = doc(db, "user", user?.uid); // Adjust path as needed
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const theme = docSnap.data().Theme; // Boolean: true = dark, false = light
@@ -313,9 +314,9 @@ export default function Editor(props) {
   }
 
   function fetchNoteLexicalStructure() {
-    // const user = firebase.auth().currentUser;
+    const user = firebase.auth().currentUser;
 
-    const channelRef = db.collection("user").doc("lv5PcvKwOUUj45R95lwE");
+    const channelRef = db.collection("user").doc(user?.uid);
 
     onSnapshot(channelRef, (snapshot) => {
       setEditorText(snapshot?.data()?.NoteLexicalStructure);
@@ -349,7 +350,7 @@ export default function Editor(props) {
   return (
     <div
       className={
-        "w-full h-full   " + (props?.theme ? " bg-[#1d2935]" : " bg-[#ffffff]")
+        "w-full h-full   " + (props?.theme ? " bg-[#1A1A1A]" : " bg-[#ffffff]")
       }
       onClick={() => {
         if (headingModal) {
@@ -368,7 +369,7 @@ export default function Editor(props) {
     >
       {/* {props?.loading ? (
         <div className="w-full h-[100svh] fixed top-0 left-0 z-50 flex justify-center items-center">
-          <div className="w-[200px] h-[150px] rounded-lg bg-[#111d2a] flex justify-center items-center">
+          <div className="w-[200px] h-[150px] rounded-lg bg-[#141414] flex justify-center items-center">
             <l-ring-2
               size="40"
               stroke="5"
@@ -557,7 +558,7 @@ const getThemeStyles = (isDark) => ({
     underline: "underline underline-offset-[5px]",
     underlineStrikethrough: "underline underline-offset-[5px] line-through",
     highlight: "bg-[#dcd2ff]",
-    // highlight: "border border-[white] rounded-[6px] bg-[#1d2935]",
+    // highlight: "border border-[white] rounded-[6px] bg-[#1A1A1A]",
     ai: "bg-gradient-to-r from-[#4aa6d5] via-[#61e1e4] to-[#4aa6d5] gradDiv",
     cfont: "font-[mono]",
   },
@@ -664,7 +665,7 @@ const getThemeStyles = (isDark) => ({
 //     underline: "underline underline-offset-[5px]",
 //     underlineStrikethrough: "underline underline-offset-[5px] line-through",
 //     highlight: "bg-[#dcd2ff]",
-//     // highlight: "border border-[white] rounded-[6px] bg-[#1d2935]",
+//     // highlight: "border border-[white] rounded-[6px] bg-[#1A1A1A]",
 //     ai: "bg-gradient-to-r from-[#4aa6d5] via-[#61e1e4] to-[#4aa6d5] gradDiv",
 //     cfont: "font-[mono]",
 //   },

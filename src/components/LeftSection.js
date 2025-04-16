@@ -1,11 +1,17 @@
 import {
   Check,
   ChevronRight,
+  Clipboard,
   Ellipsis,
   EllipsisVertical,
   File,
+  FileArchive,
+  FilePen,
+  FilePenLine,
+  FileText,
   FileX,
   Folder,
+  FolderClosed,
   FolderOpen,
   FolderPlus,
   FolderTree,
@@ -16,6 +22,9 @@ import {
   Plus,
   RefreshCcw,
   RotateCw,
+  Share2,
+  Trash,
+  Wrench,
   X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -281,7 +290,7 @@ const LeftSection = (props) => {
       <div
         className={
           "w-full h-[100svh] justify-center items-center fixed z-[200]" +
-          (props?.theme ? " bg-[#111d2a6a]" : " bg-[#b0b0b081]") +
+          (props?.theme ? " bg-[#1414146a]" : " bg-[#b0b0b081]") +
           (addFolderModal || addNoteModal ? " flex" : " hidden")
         }
       >
@@ -289,7 +298,7 @@ const LeftSection = (props) => {
           className={
             "w-[400px] h-[300px] rounded-xl flex flex-col justify-start items-start p-[20px] pt-[15px] boxShadowLight2" +
             (props?.theme
-              ? " text-[#9ba6aa] bg-[#111d2a] border-[2px] border-[#2d2d2d6f]"
+              ? " text-[#9ba6aa] bg-[#141414] border-[2px] border-[#2d2d2d6f]"
               : " text-[#9999aa] bg-[#ffffff] border-[2px] border-[#d4d4d400]")
           }
         >
@@ -369,7 +378,7 @@ const LeftSection = (props) => {
               <div
                 className={
                   "w-full min-h-[170px] max-h-[170px] pr-[3px] z-50 rounded-lg mt-[0px] flex-col justify-start items-center border-[1.5px] border-[#ededed] boxShadowLight0  " +
-                  (props?.theme ? " bg-[#111d2a]" : " bg-[#ffffff]") +
+                  (props?.theme ? " bg-[#141414]" : " bg-[#ffffff]") +
                   (showFolderTree ? " flex" : " hidden")
                 }
               >
@@ -583,7 +592,7 @@ const LeftSection = (props) => {
         <div
           className={
             "w-full h-[0px] md:h-[40px] lg:h-[40px] border-b-[1.5px] border-[#25252500] flex justify-between items-center text-[18px] font-[geistBold] uppercase" +
-            (props?.theme ? " bg-[#111d2a] " : " bg-[#ffffff00] ")
+            (props?.theme ? " bg-[#141414] " : " bg-[#ffffff00] ")
           }
         >
           {/* Inscribe */}
@@ -594,7 +603,7 @@ const LeftSection = (props) => {
           className={
             "w-full h-[calc(100%-0px)] md:h-[calc(100%-40px)] lg:h-[calc(100%-40px)] flex flex-col justify-start items-start px-[3px] text-[white] overflow-hidden rounded-l-lg" +
             (props?.theme
-              ? " bg-[#1d2935] text-white"
+              ? " bg-[#1A1A1A] text-white"
               : " bg-[#ffffff] text-black")
           }
         >
@@ -672,7 +681,7 @@ const LeftSection = (props) => {
                 className={
                   "w-auto h-auto p-[15px] py-[12px] mt-[10px] rounded-lg z-10 boxShadowLight0 flex-col justify-start items-start " +
                   (props?.theme
-                    ? " text-[#9ba6aa] bg-[#111d2a] border-[1.5px] border-[#2d2d2d6f]"
+                    ? " text-[#9ba6aa] bg-[#141414] border-[1.5px] border-[#2d2d2d6f]"
                     : " text-[#9999aa] bg-[#ffffff] border-[1.5px] border-[#ededed]") +
                   (moreModal ? " flex" : " hidden")
                 }
@@ -689,7 +698,7 @@ const LeftSection = (props) => {
                     fetchFolderStructureFromFirebase();
                   }}
                 >
-                  <RotateCw
+                  <RefreshCcw
                     width={16}
                     height={16}
                     strokeWidth="1.8"
@@ -710,7 +719,7 @@ const LeftSection = (props) => {
                     setAddFolderModal(true);
                   }}
                 >
-                  <Folder
+                  <FolderClosed
                     width={16}
                     height={16}
                     strokeWidth="1.8"
@@ -731,7 +740,7 @@ const LeftSection = (props) => {
                     setAddNoteModal(true);
                   }}
                 >
-                  <File
+                  <FileText
                     width={16}
                     height={16}
                     strokeWidth="1.8"
@@ -739,6 +748,48 @@ const LeftSection = (props) => {
                   />
                   New Note
                 </div>
+                {/* <div
+                  className={
+                    "w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer " +
+                    (props?.theme
+                      ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                      : " text-[#6e6e7c] hover:text-[#000000]")
+                  }
+                  onClick={() => {
+                    setMoreModal(false);
+                    // addNew(activeFolder);
+                    setAddNoteModal(true);
+                  }}
+                >
+                  <Wrench
+                    width={16}
+                    height={16}
+                    strokeWidth="1.8"
+                    className="mr-[7px]"
+                  />
+                  Properties
+                </div>
+                <div
+                  className={
+                    "w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer " +
+                    (props?.theme
+                      ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                      : " text-[#6e6e7c] hover:text-[#000000]")
+                  }
+                  onClick={() => {
+                    setMoreModal(false);
+                    // addNew(activeFolder);
+                    setAddNoteModal(true);
+                  }}
+                >
+                  <Share2
+                    width={16}
+                    height={16}
+                    strokeWidth="1.8"
+                    className="mr-[7px]"
+                  />
+                  Share
+                </div> */}
               </div>
             </div>
           </div>
@@ -833,8 +884,8 @@ const NoteTitleBlock = (props) => {
                 : " hover:bg-[#F8F8FB00] text-[#6e6e7c] hover:text-[#000000]"
               : props?.theme
               ? props?.fileStacked[props?.selected] == props?.directory
-                ? " bg-[#36424e] text-[#ffffff]"
-                : " hover:bg-[#36424e] text-[#9ba6aa] hover:text-[#ffffff]"
+                ? " bg-[#222222] text-[#ffffff]"
+                : " hover:bg-[#222222] text-[#9ba6aa] hover:text-[#ffffff]"
               : props?.fileStacked[props?.selected] == props?.directory
               ? " bg-[#ededed] text-[#000000]"
               : " hover:bg-[#ededed] text-[#6e6e7c] hover:text-[#000000]")
@@ -1057,7 +1108,7 @@ const NoteTitleBlock = (props) => {
                   className={
                     "min-w-[17px] h-[17px] rounded-md text-[11px] flex justify-center items-center " +
                     (props?.theme
-                      ? " bg-[#111d2a] text-[#9ba6aa]"
+                      ? " bg-[#141414] text-[#9ba6aa]"
                       : " bg-[#EAEBF4] text-[#6e6e7c]")
                   }
                 >
@@ -1072,34 +1123,15 @@ const NoteTitleBlock = (props) => {
         <div
           ref={rightClickedRef}
           className={
-            "w-auto h-auto p-[15px] py-[12px] mt-[-14px] mr-[4px] rounded-lg z-10 boxShadowLight0 flex-col justify-start items-start" +
+            "w-auto min-w-[150px] h-auto p-[4px] py-[12px] mt-[-14px] mr-[4px] rounded-xl z-10 boxShadowLight00 flex-col justify-start items-start backdrop-blur-[8px] border-[2px]" +
             (props?.rightClickedFolder == props?.directory
               ? " flex"
               : " hidden") +
             (props?.theme
-              ? " bg-[#111d2a] border-[1.5px] border-[#2d2d2d6f]"
-              : " bg-[#ffffff] border-[1.5px] border-[#ededed]")
+              ? " bg-[#141414b0] border-[#29333c]"
+              : " bg-[#ffffffb0] border-[#f2f2f2]")
           }
         >
-          {/* <div
-            className={
-              "w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
-              (props?.theme
-                ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                : " text-[#6e6e7c] hover:text-[#000000]")
-            }
-            onClick={() => {
-              // fetchFolderStructureFromFirebase();
-            }}
-          >
-            <RotateCw
-              width={16}
-              height={16}
-              strokeWidth="1.8"
-              className="mr-[7px]"
-            />
-            Refresh
-          </div> */}
           {props?.isfolder ? (
             <div
               className={
@@ -1122,26 +1154,134 @@ const NoteTitleBlock = (props) => {
               Delete Folder
             </div>
           ) : (
-            <div
-              className={
-                "w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
-                (props?.theme
-                  ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                  : " text-[#6e6e7c] hover:text-[#000000]")
-              }
-              onClick={() => {
-                // addNew(activeFolder);
-                // setAddFolderModal(true);
-              }}
-            >
-              <FileX
-                width={16}
-                height={16}
-                strokeWidth="1.8"
-                className="mr-[7px]"
-              />
-              Delete Note
-            </div>
+            <>
+              <div
+                className={
+                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                  (props?.theme
+                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                    : " text-[#6e6e7c] hover:text-[#000000]")
+                }
+                onClick={() => {
+                  // addNew(activeFolder);
+                  // setAddFolderModal(true);
+                }}
+              >
+                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
+                <FileArchive
+                  width={16}
+                  height={16}
+                  strokeWidth="1.8"
+                  className="mr-[7px]"
+                />
+                Archive
+              </div>{" "}
+              <div
+                className={
+                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                  (props?.theme
+                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                    : " text-[#6e6e7c] hover:text-[#000000]")
+                }
+                onClick={() => {
+                  // addNew(activeFolder);
+                  // setAddFolderModal(true);
+                }}
+              >
+                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
+                <Clipboard
+                  width={16}
+                  height={16}
+                  strokeWidth="1.8"
+                  className="mr-[7px]"
+                />
+                Copy
+              </div>
+              <div
+                className={
+                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                  (props?.theme
+                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                    : " text-[#6e6e7c] hover:text-[#000000]")
+                }
+                onClick={() => {
+                  // addNew(activeFolder);
+                  // setAddFolderModal(true);
+                }}
+              >
+                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
+                <Share2
+                  width={16}
+                  height={16}
+                  strokeWidth="1.8"
+                  className="mr-[7px]"
+                />
+                Share
+              </div>{" "}
+              <div
+                className={
+                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                  (props?.theme
+                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                    : " text-[#6e6e7c] hover:text-[#000000]")
+                }
+                onClick={() => {
+                  // addNew(activeFolder);
+                  // setAddFolderModal(true);
+                }}
+              >
+                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
+                <FilePenLine
+                  width={16}
+                  height={16}
+                  strokeWidth="1.8"
+                  className="mr-[7px]"
+                />
+                Rename
+              </div>{" "}
+              <div
+                className={
+                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                  (props?.theme
+                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                    : " text-[#6e6e7c] hover:text-[#000000]")
+                }
+                onClick={() => {
+                  // addNew(activeFolder);
+                  // setAddFolderModal(true);
+                }}
+              >
+                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
+                <Wrench
+                  width={16}
+                  height={16}
+                  strokeWidth="1.8"
+                  className="mr-[7px]"
+                />
+                Properties
+              </div>{" "}
+              <div
+                className={
+                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                  (props?.theme
+                    ? " text-[#aaa39b] hover:text-[#ffffff]"
+                    : " text-[#e3572c] hover:text-[#000000]")
+                }
+                onClick={() => {
+                  // addNew(activeFolder);
+                  // setAddFolderModal(true);
+                }}
+              >
+                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
+                <Trash
+                  width={16}
+                  height={16}
+                  strokeWidth="1.8"
+                  className="mr-[7px]"
+                />
+                Delete
+              </div>
+            </>
           )}
           {/* <div
             className={
@@ -1171,7 +1311,7 @@ const NoteTitleBlock = (props) => {
             <div
               className={
                 "w-full flex flex-col justify-start items-start pl-[5px] border-l-[1.5px] " +
-                (props?.theme ? " border-[#36424E]" : " border-[#f3f3fa]")
+                (props?.theme ? " border-[#222222]" : " border-[#f3f3fa]")
               }
             >
               {props?.data?.subStructure?.map((data, index) => {

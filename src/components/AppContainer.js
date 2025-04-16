@@ -78,14 +78,7 @@ export default function AppContainer() {
   const subDivRef = useRef(null); // Create a ref for the div
   const scrollToLast = useRef(null);
   const [fileStacked, setFileStacked] = useState(["Welcome to Obsidian"]);
-  const [fileStackedWithInfo, setFileStackedWithInfo] = useState([
-    // {
-    //   Title: "Welcome to Obsidian",
-    //   Content: "",
-    //   LastSaved: "",
-    //   isInitial: true,
-    // },
-  ]);
+  const [fileStackedWithInfo, setFileStackedWithInfo] = useState([]);
   const [selected, setSelected] = useState(0);
 
   const [toggleAddEventModal, setToggleAddEventModal] = useState(false);
@@ -102,6 +95,8 @@ export default function AppContainer() {
 
   const [fetchNoteQueue, setFetchNoteQueue] = useState([]);
   const [searchChat, setSearchChat] = useState(false);
+  const [chatSidebarModal, setChatSidebarModal] = useState(true);
+  const [selectedChatName, setSelectedChatName] = useState("");
 
   const [chat, setChat] = useState([
     { sender: "user", message: "Tell me about COmputer network" },
@@ -150,17 +145,16 @@ Here's a breakdown of key aspects of computer networks:
     }
   }, [chat]);
 
-  function fetchTheme() {
-    // const user = firebase.auth().currentUser;
-
-    const channelRef = db.collection("user").doc("lv5PcvKwOUUj45R95lwE");
-
-    onSnapshot(channelRef, (snapshot) => {
-      setTheme(snapshot?.data()?.Theme);
-    });
-  }
+  // --------------------------- Fetching Theme ----------------------------
 
   useEffect(() => {
+    function fetchTheme() {
+      const user = firebase.auth().currentUser;
+      const channelRef = db.collection("user").doc(user?.uid);
+      onSnapshot(channelRef, (snapshot) => {
+        setTheme(snapshot?.data()?.Theme);
+      });
+    }
     fetchTheme();
   }, []);
 
@@ -168,12 +162,12 @@ Here's a breakdown of key aspects of computer networks:
     const themeColorMeta = document.querySelector("meta[name='theme-color']");
 
     if (themeColorMeta) {
-      themeColorMeta.setAttribute("content", theme ? "#111D2A" : "#ffffff");
+      themeColorMeta.setAttribute("content", theme ? "#141414" : "#ffffff");
     } else {
       // If the meta tag doesn't exist, create it
       const newMeta = document.createElement("meta");
       newMeta.name = "theme-color";
-      newMeta.content = theme ? "#111D2A" : "#ffffff";
+      newMeta.content = theme ? "#141414" : "#ffffff";
       document.head.appendChild(newMeta);
     }
   }, [theme]);
@@ -238,7 +232,7 @@ Here's a breakdown of key aspects of computer networks:
       <div
         className={
           "w-full h-[100svh] flex font-[geistRegular] pr-[0px] md:pr-[7px] lg:pr-[7px] pb-[7px] z-10 backdrop-blur-xl overflow-hidden" +
-          (theme ? " bg-[#111d2a]" : " bg-[#ffffff00]")
+          (theme ? " bg-[#141414]" : " bg-[#ffffff00]")
         }
       >
         {loading || AiOutput.length > 0 ? (
@@ -341,7 +335,7 @@ Here's a breakdown of key aspects of computer networks:
             }
           >
             <div className="w-full h-[40px]"></div>
-            <div className="w-full h-[calc(100svh-48px)] rounded-lg flex justify-start items-start bg-[#1D2935] p-[30px]">
+            <div className="w-full h-[calc(100svh-48px)] rounded-lg flex justify-start items-start bg-[#1A1A1A] p-[30px]">
               <div className="w-[320px] h-full rounded-lg border-[1.5px] border-[#273645] flex flex-col justify-start items-start p-[10px] px-[2px]">
                 <div className="w-full h-[22px] flex justify-between items-center mb-[10px] px-[8px]">
                   <div className="flex justify-start items-center">
@@ -719,15 +713,25 @@ Here's a breakdown of key aspects of computer networks:
             <div
               className={
                 "w-full h-full  rounded-lg flex justify-start items-start " +
-                (theme ? " bg-[#1D2935]" : " bg-[#ffffff]")
+                (theme ? " bg-[#1a1a1a]" : " bg-[#ffffff]")
               }
             >
               <AiChatBotSidebar
                 theme={theme}
                 setSearchChat={setSearchChat}
                 searchChat={searchChat}
+                setChatSidebarModal={setChatSidebarModal}
+                chatSidebarModal={chatSidebarModal}
+                selectedChatName={selectedChatName}
+                setSelectedChatName={setSelectedChatName}
               />
-              <AiChatBot theme={theme} />
+              <AiChatBot
+                theme={theme}
+                setChatSidebarModal={setChatSidebarModal}
+                chatSidebarModal={chatSidebarModal}
+                selectedChatName={selectedChatName}
+                setSelectedChatName={setSelectedChatName}
+              />
             </div>
           </div>
         )}

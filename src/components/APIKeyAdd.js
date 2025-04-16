@@ -192,7 +192,7 @@ export default function APIKeyAdd(props) {
               "w-[33px] h-[22px] rounded-full shadow-inner  flex justify-start items-center px-[2px] cursor-pointer" +
               (!storeAPILocally
                 ? props?.theme
-                  ? " bg-[#111d2a]"
+                  ? " bg-[#141414]"
                   : " bg-[#F7F7F7]"
                 : props?.theme
                 ? " bg-[#00ff002e]"
@@ -211,7 +211,7 @@ export default function APIKeyAdd(props) {
                 "w-[16px] aspect-square rounded-full drop-shadow-md  " +
                 (!storeAPILocally
                   ? props?.theme
-                    ? " ml-[1px] bg-[#36424e]"
+                    ? " ml-[1px] bg-[#222222]"
                     : " ml-[1px] bg-[white]"
                   : props?.theme
                   ? " ml-[11px] bg-[#0ab810]"
@@ -249,7 +249,7 @@ export default function APIKeyAdd(props) {
               "w-[33px] h-[22px] rounded-full shadow-inner  flex justify-start items-center px-[2px] cursor-pointer" +
               (!scopedAPIUsage
                 ? props?.theme
-                  ? " bg-[#111d2a]"
+                  ? " bg-[#141414]"
                   : " bg-[#F7F7F7]"
                 : props?.theme
                 ? " bg-[#00ff002e]"
@@ -268,7 +268,7 @@ export default function APIKeyAdd(props) {
                 "w-[16px] aspect-square rounded-full drop-shadow-md  " +
                 (!scopedAPIUsage
                   ? props?.theme
-                    ? " ml-[1px] bg-[#36424e]"
+                    ? " ml-[1px] bg-[#222222]"
                     : " ml-[1px] bg-[white]"
                   : props?.theme
                   ? " ml-[11px] bg-[#0ab810]"
@@ -506,7 +506,7 @@ export default function APIKeyAdd(props) {
           className={
             "w-full h-[8px] rounded-b-[7px]  flex justify-start items-center border-t-[1.5px] px-[15px]" +
             (props?.theme
-              ? " bg-[#36424E] border-[#2c363b]"
+              ? " bg-[#222222] border-[#2c363b]"
               : " bg-[#FAFAFA] border-[#ededed]")
           }
         ></div>
@@ -619,7 +619,7 @@ export default function APIKeyAdd(props) {
             className={
               "w-full h-[8px] rounded-b-[7px]  flex justify-start items-center border-t-[1.5px] px-[15px]" +
               (props?.theme
-                ? " bg-[#36424E] border-[#2c363b]"
+                ? " bg-[#222222] border-[#2c363b]"
                 : " bg-[#FAFAFA] border-[#ededed]")
             }
           ></div>
@@ -631,7 +631,7 @@ export default function APIKeyAdd(props) {
         className={
           "w-full mt-[20px]  border-[1.5px]  rounded-lg p-[15px]" +
           (props?.theme
-            ? " bg-[#36424E] border-[#2c363b]"
+            ? " bg-[#222222] border-[#2c363b]"
             : " bg-[#f7f7f7] border-[#f2f2f2]")
         }
       >
@@ -651,7 +651,7 @@ export default function APIKeyAdd(props) {
         className={
           "w-full text-[15px] mt-[20px] flex flex-col justify-start items-start border-[1.5px] rounded-lg p-[15px] mb-[30px]" +
           (props?.theme
-            ? " bg-[#36424E00] border-[#2c363b]"
+            ? " bg-[#22222200] border-[#2c363b]"
             : " bg-[#f7f7f700] border-[#f2f2f2]")
         }
       >
@@ -955,7 +955,7 @@ const APIKeyDisplay = (props) => {
           "w-auto h-auto z-[1000] mr-[-10px] mt-[6px] rounded-lg boxShadowLight1 border-[1.5px] flex-col justify-start items-start py-[5px]" +
           (props?.index == props?.settingsIndex ? " flex" : " hidden") +
           (props?.theme
-            ? " border-[#2c363b] bg-[#111D2A]"
+            ? " border-[#2c363b] bg-[#141414]"
             : " border-[#ededed] bg-[white]")
         }
       >

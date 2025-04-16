@@ -690,7 +690,7 @@ export default function AdminPage() {
         className={
           "h-full w-[50px] hidden md:flex lg:flex flex-col justify-start items-center  " +
           (false
-            ? " bg-[#111d2a] text-[#9ba6aa]"
+            ? " bg-[#141414] text-[#9ba6aa]"
             : " bg-[#ffffff00] text-[#6e6e7c]")
         }
         // style={{ transitionDelay: props?.isMinimise ? ".3s" : "0s" }}
@@ -712,7 +712,7 @@ export default function AdminPage() {
         <div
           className={
             "h-[calc(100%-40px)] w-[50px] flex flex-col justify-between items-center py-[18px] border-r-[1.5px] border-[#25252500]" +
-            (false ? " bg-[#111d2a]" : " bg-[#ffffff00]")
+            (false ? " bg-[#141414]" : " bg-[#ffffff00]")
           }
         >
           <div className="flex flex-col justify-start items-center w-full">
@@ -859,9 +859,9 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
-      <div className="w-[calc(100%-350px)] h-auto flex flex-col justify-start items-start bg-[#1D1E20] border-[1.5px] border-[#ededed00] rounded-lg p-[30px]">
+      <div className="w-[calc(100%-350px)] h-[100svh] flex flex-col justify-start items-start bg-[#1D1E20] border-[1.5px] border-[#ededed00] rounded-lg p-[30px]">
         <div className="w-full flex justify-start items-center">
-          <div className="w-[calc((100%-40px)/3)] max-w-[250px] h-auto rounded-xl p-[20px] flex flex-col justify-start items-start bg-[#18191B] py-[15px] border-[1.5px] border-[#272b30]">
+          <div className="w-[calc((100%-40px)/3)] max-w-[250px] h-[100px] rounded-xl p-[20px] flex flex-col justify-start items-start bg-[#18191B] py-[15px] border-[1.5px] border-[#272b30]">
             <pre className="text-[30px] font-extrabold">
               <CountUp
                 from={0}
@@ -874,7 +874,7 @@ export default function AdminPage() {
             </pre>
             <pre className="text-[#adadad]">Total users</pre>
           </div>
-          <div className="w-[calc((100%-40px)/3)] max-w-[250px] ml-[20px] h-auto rounded-lg p-[20px] flex flex-col justify-start items-start bg-[#18191B] py-[15px] border-[1.5px] border-[#272b30]">
+          <div className="w-[calc((100%-40px)/3)] max-w-[250px] ml-[20px] h-[100px] rounded-lg p-[20px] flex flex-col justify-start items-start bg-[#18191B] py-[15px] border-[1.5px] border-[#272b30]">
             <pre className="text-[30px] font-extrabold">
               <CountUp
                 from={0}
@@ -887,7 +887,7 @@ export default function AdminPage() {
             </pre>
             <pre className="text-[#adadad]">Last month engagement</pre>
           </div>
-          <div className="w-[calc((100%-40px)/3)] max-w-[250px] ml-[20px] h-auto rounded-lg p-[20px] flex flex-col justify-start items-start bg-[#18191B] py-[15px] border-[1.5px] border-[#272b30]">
+          <div className="w-[calc((100%-40px)/3)] max-w-[250px] ml-[20px] h-[100px] rounded-lg p-[20px] flex flex-col justify-start items-start bg-[#18191B] py-[15px] border-[1.5px] border-[#272b30]">
             <pre className="text-[30px] font-extrabold">
               <CountUp
                 from={0}
@@ -901,7 +901,7 @@ export default function AdminPage() {
             <pre className="text-[#adadad]">Total users</pre>
           </div>
         </div>
-        <div className="w-full flex justify-between items-center mt-[30px]">
+        <div className="w-full flex justify-between items-center mt-[30px] h-[35px]">
           <pre className="text-[#adadad] whitespace-nowrap">
             {/* <Database
               width={16}
@@ -931,8 +931,8 @@ export default function AdminPage() {
             </pre>
           </div>
         </div>
-        <div className="w-full flex flex-col justify-start items-start bg-[#141414] border-[1.5px] border-[#272b30] rounded-xl mt-[10px] text-[14px] text-[#777777]">
-          <div className="w-full h-[40px] flex justify-start items-center font-[geistSemibold] px-[12px]">
+        <div className="w-full h-[calc(100%-175px)] overflow-y-scroll flex flex-col justify-start items-start bg-[#141414] border-[1.5px] border-[#272b30] rounded-xl mt-[10px] text-[14px] text-[#777777]">
+          <div className="w-full min-h-[35px] flex justify-start items-center font-[geistSemibold] px-[12px]">
             <div className="w-[35px] flex justify-start items-center">
               <div
                 className={
@@ -968,59 +968,64 @@ export default function AdminPage() {
             <pre className="font-bold w-[200px]">Date</pre>
             <pre className="font-bold w-[calc(100%-735px)]">UserID</pre>
           </div>
-          {Data?.map((data, index) => {
-            return (
-              <div
-                key={index}
-                className={
-                  "w-full h-[35px] flex justify-start items-center border-t-[1.5px] border-[#ededed00] px-[12px]  hover:text-[white] group" +
-                  (selectedData?.includes(index)
-                    ? " text-[white]"
-                    : " text-[#adadad]") +
-                  (index % 2 == 0 ? " bg-[#18191B]" : " bg-transparent")
-                }
-                onClick={() => {
-                  if (selectedData?.includes(index)) {
-                    setSelectedData(
-                      selectedData?.filter((data) => data !== index)
-                    );
-                  } else {
-                    setSelectedData((prev) => [...prev, index]);
+          <div
+            className="w-full h-[calc(100%-35px)] overflow-y-scroll flex flex-col justify-start its
+          "
+          >
+            {Data?.map((data, index) => {
+              return (
+                <div
+                  key={index}
+                  className={
+                    "w-full min-h-[35px] flex justify-start items-center border-t-[1.5px] border-[#ededed00] px-[12px]  hover:text-[white] group" +
+                    (selectedData?.includes(index)
+                      ? " text-[white]"
+                      : " text-[#adadad]") +
+                    (index % 2 == 0 ? " bg-[#18191B]" : " bg-transparent")
                   }
-                }}
-              >
-                <div className="w-[35px] flex justify-start items-center">
-                  <div
-                    className={
-                      "w-[17px] h-[17px] rounded-[6px] border-[1.5px] cursor-pointer flex justify-center items-center group-hover:border-[#5e5e5e]" +
-                      (selectedData?.includes(index)
-                        ? " bg-[#5e5e5ec4] border-[#5e5e5e]"
-                        : " bg-[#ffffff00] border-[#303030]")
+                  onClick={() => {
+                    if (selectedData?.includes(index)) {
+                      setSelectedData(
+                        selectedData?.filter((data) => data !== index)
+                      );
+                    } else {
+                      setSelectedData((prev) => [...prev, index]);
                     }
-                  >
-                    {selectedData?.includes(index) ? (
-                      <>
-                        <Check
-                          width={10}
-                          height={10}
-                          strokeWidth={4.8}
-                          className="text-[white]"
-                        />
-                      </>
-                    ) : (
-                      <></>
-                    )}
+                  }}
+                >
+                  <div className="w-[35px] flex justify-start items-center">
+                    <div
+                      className={
+                        "w-[17px] h-[17px] rounded-[6px] border-[1.5px] cursor-pointer flex justify-center items-center group-hover:border-[#5e5e5e]" +
+                        (selectedData?.includes(index)
+                          ? " bg-[#5e5e5ec4] border-[#5e5e5e]"
+                          : " bg-[#ffffff00] border-[#303030]")
+                      }
+                    >
+                      {selectedData?.includes(index) ? (
+                        <>
+                          <Check
+                            width={10}
+                            height={10}
+                            strokeWidth={4.8}
+                            className="text-[white]"
+                          />
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                    </div>
                   </div>
+                  <pre className="w-[200px]">{data?.Name}</pre>
+                  <pre className="w-[300px]">{data?.Email}</pre>
+                  <pre className="w-[200px]">{formatDate(data?.Date)}</pre>
+                  <pre className="w-[calc(100%-735px)] text-ellipsis whitespace-nowrap overflow-hidden">
+                    {data?.UserID}
+                  </pre>
                 </div>
-                <pre className="w-[200px]">{data?.Name}</pre>
-                <pre className="w-[300px]">{data?.Email}</pre>
-                <pre className="w-[200px]">{formatDate(data?.Date)}</pre>
-                <pre className="w-[calc(100%-735px)] text-ellipsis whitespace-nowrap overflow-hidden">
-                  {data?.UserID}
-                </pre>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

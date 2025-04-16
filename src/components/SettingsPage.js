@@ -68,7 +68,7 @@ function SettingsPage(props) {
         className={
           "w-[100%] h-[100%] md:w-[70%] md:h-[80%] lg:w-[70%] lg:h-[80%] rounded-none md:rounded-xl lg:rounded-xl  fixed left-[50%] top-[50%] text-[15px] md:text-[14px] lg:text-[14px] font-[geistRegular] flex justify-start items-start z-20 boxShadowLight2" +
           (props?.theme
-            ? " text-[#9ba6aa] bg-[#1D2935] border-[2px] border-[#222d37]"
+            ? " text-[#9ba6aa] bg-[#1A1A1A] border-[2px] border-[#222d37]"
             : " text-[#9999aa] bg-[#ffffff] border-[2px] border-[#d4d4d400]")
         }
         style={{ transform: "translate(-50%,-50%)" }}
@@ -85,7 +85,7 @@ function SettingsPage(props) {
             className={
               "w-[30px] h-[30px] cursor-pointer rounded-full flex justify-center items-center mb-[20px]" +
               (props?.theme
-                ? " hover:bg-[#36424E] text-[#9ba6aa] hover:text-[white]"
+                ? " hover:bg-[#222222] text-[#9ba6aa] hover:text-[white]"
                 : " hover:bg-[#eaebf4] text-[#9999aa] hover:text-[black]")
             }
             onClick={() => {
@@ -96,18 +96,18 @@ function SettingsPage(props) {
             <X width={18} height={18} strokeWidth={2.1} />
           </div>
           <div className="flex flex-col justify-start items-start w-full h-[calc(100%-110px)]">
-            <span
+            <button
               className={
-                "  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
                 (section == "Account"
                   ? props?.theme
-                    ? " bg-[#36424E] text-[white]"
+                    ? " bg-[#222222] text-[white]"
                     : " bg-[#eaebf4] text-[black]"
                   : props?.theme
                   ? " bg-[#6e52da00] text-[#9ba6aa]"
                   : " bg-[#6e52da00] text-[#9999aa]") +
                 (props?.theme
-                  ? " hover:bg-[#36424E] hover:text-[white]"
+                  ? " hover:bg-[#222222] hover:text-[white]"
                   : " hover:bg-[#eaebf4] hover:text-[black]")
               }
               onClick={() => {
@@ -122,19 +122,19 @@ function SettingsPage(props) {
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
               />{" "}
               Account
-            </span>
-            <span
+            </button>
+            <button
               className={
-                "  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
                 (section == "Editor"
                   ? props?.theme
-                    ? " bg-[#36424E] text-[white]"
+                    ? " bg-[#222222] text-[white]"
                     : " bg-[#eaebf4] text-[black]"
                   : props?.theme
                   ? " bg-[#6e52da00] text-[#9ba6aa]"
                   : " bg-[#6e52da00] text-[#9999aa]") +
                 (props?.theme
-                  ? " hover:bg-[#36424E] hover:text-[white]"
+                  ? " hover:bg-[#222222] hover:text-[white]"
                   : " hover:bg-[#eaebf4] hover:text-[black]")
               }
               onClick={() => {
@@ -149,19 +149,19 @@ function SettingsPage(props) {
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
               />{" "}
               Editor
-            </span>
-            <span
+            </button>
+            <button
               className={
-                "  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
                 (section == "Toolbar"
                   ? props?.theme
-                    ? " bg-[#36424E] text-[white]"
+                    ? " bg-[#222222] text-[white]"
                     : " bg-[#eaebf4] text-[black]"
                   : props?.theme
                   ? " bg-[#6e52da00] text-[#9ba6aa]"
                   : " bg-[#6e52da00] text-[#9999aa]") +
                 (props?.theme
-                  ? " hover:bg-[#36424E] hover:text-[white]"
+                  ? " hover:bg-[#222222] hover:text-[white]"
                   : " hover:bg-[#eaebf4] hover:text-[black]")
               }
               onClick={() => {
@@ -176,19 +176,19 @@ function SettingsPage(props) {
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
               />{" "}
               Toolbar
-            </span>
-            <span
+            </button>
+            <button
               className={
-                "  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
                 (section == "Appearance"
                   ? props?.theme
-                    ? " bg-[#36424E] text-[white]"
+                    ? " bg-[#222222] text-[white]"
                     : " bg-[#eaebf4] text-[black]"
                   : props?.theme
                   ? " bg-[#6e52da00] text-[#9ba6aa]"
                   : " bg-[#6e52da00] text-[#9999aa]") +
                 (props?.theme
-                  ? " hover:bg-[#36424E] hover:text-[white]"
+                  ? " hover:bg-[#222222] hover:text-[white]"
                   : " hover:bg-[#eaebf4] hover:text-[black]")
               }
               onClick={() => {
@@ -203,19 +203,19 @@ function SettingsPage(props) {
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
               />{" "}
               Appearance
-            </span>
-            <span
+            </button>
+            <button
               className={
-                "  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
                 (section == "API Key"
                   ? props?.theme
-                    ? " bg-[#36424E] text-[white]"
+                    ? " bg-[#222222] text-[white]"
                     : " bg-[#eaebf4] text-[black]"
                   : props?.theme
                   ? " bg-[#6e52da00] text-[#9ba6aa]"
                   : " bg-[#6e52da00] text-[#9999aa]") +
                 (props?.theme
-                  ? " hover:bg-[#36424E] hover:text-[white]"
+                  ? " hover:bg-[#222222] hover:text-[white]"
                   : " hover:bg-[#eaebf4] hover:text-[black]")
               }
               onClick={() => {
@@ -230,19 +230,19 @@ function SettingsPage(props) {
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
               />{" "}
               API Key
-            </span>
-            <span
+            </button>
+            <button
               className={
-                "  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
                 (section == "Hot Keys"
                   ? props?.theme
-                    ? " bg-[#36424E] text-[white]"
+                    ? " bg-[#222222] text-[white]"
                     : " bg-[#eaebf4] text-[black]"
                   : props?.theme
                   ? " bg-[#6e52da00] text-[#9ba6aa]"
                   : " bg-[#6e52da00] text-[#9999aa]") +
                 (props?.theme
-                  ? " hover:bg-[#36424E] hover:text-[white]"
+                  ? " hover:bg-[#222222] hover:text-[white]"
                   : " hover:bg-[#eaebf4] hover:text-[black]")
               }
               onClick={() => {
@@ -257,13 +257,13 @@ function SettingsPage(props) {
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
               />{" "}
               Hot Keys
-            </span>
+            </button>
             {/* <span
               className={
                 "  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[27px] max-h-[27px] my-[1.5px] group mt-[30px] " +
                 (section == "Log Out"
                   ? props?.theme
-                    ? " bg-[#36424E] text-[white]"
+                    ? " bg-[#222222] text-[white]"
                     : " bg-[#eaebf4] text-[black]"
                   : props?.theme
                   ? " bg-[#6e52da00] text-[#9ba6aa]"
@@ -284,12 +284,12 @@ function SettingsPage(props) {
               Log Out
             </span> */}
           </div>
-          <span
+          <button
             className={
-              "  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[27px] max-h-[27px] my-[1.5px] group " +
+              "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[27px] max-h-[27px] my-[1.5px] group " +
               (section == "Log Out"
                 ? props?.theme
-                  ? " bg-[#36424E] text-[white]"
+                  ? " bg-[#222222] text-[white]"
                   : " bg-[#eaebf4] text-[black]"
                 : props?.theme
                 ? " bg-[#6e52da00] text-[#9ba6aa]"
@@ -308,7 +308,7 @@ function SettingsPage(props) {
               className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
             />{" "}
             Log Out
-          </span>
+          </button>
           <span
             className={
               "text-[12px] tracking-widest rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[27px] max-h-[27px] my-[1.5px] group " +
@@ -326,7 +326,7 @@ function SettingsPage(props) {
             (searchParams.get("ID")?.split("?section=")[1].includes("_")
               ? " w-full flex md:w-[calc(100%-200px)] lg:w-[calc(100%-200px)]"
               : " w-full hidden md:flex lg:flex md:w-[calc(100%-200px)] lg:w-[calc(100%-200px)]") +
-            (props?.theme ? " bg-[#1D2935]" : " bg-[#ffffff]")
+            (props?.theme ? " bg-[#1A1A1A]" : " bg-[#ffffff]")
           }
         >
           {searchParams.get("ID")?.split("?section=")[1]?.split("_")[1] ==

@@ -250,15 +250,15 @@ export default function WelcomeEditorPage(props) {
     return totalOffset;
   }
 
-  function fetchNoteLexicalStructure() {
-    // const user = firebase.auth().currentUser;
+  // function fetchNoteLexicalStructure() {
+  //   const user = firebase.auth().currentUser;
 
-    const channelRef = db.collection("user").doc("lv5PcvKwOUUj45R95lwE");
+  //   const channelRef = db.collection("user").doc(user?.uid);
 
-    onSnapshot(channelRef, (snapshot) => {
-      setEditorText(snapshot?.data()?.NoteLexicalStructure);
-    });
-  }
+  //   onSnapshot(channelRef, (snapshot) => {
+  //     setEditorText(snapshot?.data()?.NoteLexicalStructure);
+  //   });
+  // }
 
   return (
     <div
@@ -283,7 +283,7 @@ export default function WelcomeEditorPage(props) {
     >
       {loading ? (
         <div className="w-full h-[100svh] fixed top-0 left-0 z-50 flex justify-center items-center">
-          <div className="w-[200px] h-[150px] rounded-lg bg-[#111d2a] flex justify-center items-center">
+          <div className="w-[200px] h-[150px] rounded-lg bg-[#141414] flex justify-center items-center">
             <l-ring-2
               size="40"
               stroke="5"
@@ -328,7 +328,7 @@ export default function WelcomeEditorPage(props) {
                 className={
                   `w-[30px] h-[30px] mr-[10px] rounded-md flex justify-center items-center ` +
                   (props?.theme
-                    ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                    ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                     : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
                 }
                 onClick={() => {
@@ -347,7 +347,7 @@ export default function WelcomeEditorPage(props) {
                 className={
                   `w-[30px] h-[30px] mr-[10px] rounded-md flex justify-center items-center ` +
                   (props?.theme
-                    ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                    ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                     : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
                 }
                 onClick={() => {
@@ -370,7 +370,7 @@ export default function WelcomeEditorPage(props) {
               className={
                 "ml-[15px]" +
                 (props?.theme
-                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#36424e]"
+                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                   : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
               }
             /> */}
