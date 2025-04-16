@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import SplitText from "../Animations/SplitText";
+// import SplitText from "../Animations/SplitText";
 import StarBorder from "../Animations/StarBorder";
 import ShinyText from "../Animations/ShinyText";
 import Threads from "../Animations/Threads";
@@ -247,7 +247,7 @@ export default function LandingPage() {
             >
               {/* Redefining the Art of Note-Taking */}
               {/* Redefining Note-Taking */}
-              <SplitText
+              {/* <SplitText
                 text="Redefining Note-Taking"
                 className=""
                 delay={20}
@@ -259,7 +259,7 @@ export default function LandingPage() {
                 easing="easeOutCubic"
                 threshold={0.2}
                 rootMargin="-50px"
-              />
+              /> */}
             </span>
           ) : (
             <>
@@ -271,7 +271,7 @@ export default function LandingPage() {
           {head2 ? (
             <span className="font-[geistRegular] hidden md:block lg:block text-[60px] mt-[-15px] text-[#CCCED8]">
               {/* Reimagined for You */}
-              <SplitText
+              {/* <SplitText
                 text="Reimagined for You"
                 className=""
                 delay={20}
@@ -283,7 +283,7 @@ export default function LandingPage() {
                 easing="easeOutCubic"
                 threshold={0.2}
                 rootMargin="-50px"
-              />
+              /> */}
             </span>
           ) : (
             <>
@@ -299,7 +299,7 @@ export default function LandingPage() {
             >
               {/* Redefining the Art of Note-Taking */}
               {/* Redefining Note-Taking */}
-              <SplitText
+              {/* <SplitText
                 text="Reimagined"
                 className=""
                 delay={20}
@@ -311,7 +311,7 @@ export default function LandingPage() {
                 easing="easeOutCubic"
                 threshold={0.2}
                 rootMargin="-50px"
-              />
+              /> */}
             </span>
           ) : (
             <>
@@ -323,7 +323,7 @@ export default function LandingPage() {
           {head2 ? (
             <span className="font-[geistRegular] block md:hidden lg:hidden text-center text-[60px] mt-[-15px] text-[#CCCED8]">
               {/* Reimagined for You */}
-              <SplitText
+              {/* <SplitText
                 text="for You"
                 className=""
                 delay={20}
@@ -335,7 +335,7 @@ export default function LandingPage() {
                 easing="easeOutCubic"
                 threshold={0.2}
                 rootMargin="-50px"
-              />
+              /> */}
             </span>
           ) : (
             <>
