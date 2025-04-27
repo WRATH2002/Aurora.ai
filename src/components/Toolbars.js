@@ -1113,7 +1113,7 @@ export default function Toolbars(props) {
           </button> */}
           <div
             className={
-              "hidden md:flex lg:flex justify-start items-center w-auto mr-[10px]  text-[14px] whitespace-nowrap font-[geistRegular]" +
+              "hidden md:flex lg:flex justify-start items-center w-auto mr-[10px]  text-[14px] whitespace-nowrap font-[DMSr]" +
               (props?.theme ? " text-[#9ba6aa]" : " text-[#9999aa]")
             }
           >

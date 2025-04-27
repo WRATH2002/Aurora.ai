@@ -177,7 +177,7 @@ const MainPageTopBar = (props) => {
         {/* <div>jnfianei</div> */}
         <div
           className={
-            "flex justify-end items-center w-[80px] text-[14px] whitespace-nowrap font-[geistRegular] overflow-visible" +
+            "flex justify-end items-center w-[80px] text-[14px] whitespace-nowrap font-[DMSr] overflow-visible" +
             (props?.theme ? " text-[#9ba6aa]" : " text-[#9999aa]")
           }
         >

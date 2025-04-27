@@ -80,6 +80,7 @@ import firebase from "../firebase";
 
 import { ring2 } from "ldrs";
 import { useDebouncedCallback } from "use-debounce";
+import DraggableBlockPlugin from "../plugins/DraggableBlockPlugin";
 // import ExcalidrawPlugin from "../plugins/ExcalidrawPlugin";
 // import { ExcalidrawNode } from "../nodes/ExcalidrawNode";
 ring2.register();
@@ -159,6 +160,7 @@ export default function Editor(props) {
   const [editorTheme, setEditorTheme] = useState(getThemeStyles(false));
 
   const [fetchQueue, setFetchQueue] = useState([]);
+  const [floatingAnchorElem, setFloatingAnchorElem] = useState(null);
 
   const editor = createEditor();
 
@@ -181,6 +183,12 @@ export default function Editor(props) {
       // ExcalidrawNode,
     ],
     editable: false,
+  };
+
+  const onRef = (_floatingAnchorElem) => {
+    if (_floatingAnchorElem !== null) {
+      setFloatingAnchorElem(_floatingAnchorElem);
+    }
   };
 
   useEffect(() => {
@@ -472,6 +480,9 @@ export default function Editor(props) {
             <ClickableLinkPlugin />
             <HashtagPlugin />
             <SpeechToTextPlugin />
+            {/* {floatingAnchorElem && (
+              <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
+            )} */}
           </>
         )}
 

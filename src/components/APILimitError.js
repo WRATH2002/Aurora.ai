@@ -4,7 +4,7 @@ import React from "react";
 export default function APILimitError(props) {
   return (
     <div
-      className="w-full h-[100svh] font-[geistRegular] flex justify-center items-center fixed left-0 top-0 bg-[#0000002b] z-[900]"
+      className="w-full h-[100svh] font-[DMSr] flex justify-center items-center fixed left-0 top-0 bg-[#0000002b] z-[900]"
       onClick={() => {
         props?.setAiErrorMessage("");
         props?.setAiError(false);

@@ -753,7 +753,7 @@ export default function SharedChat() {
                             {data?.Sender == "User" ? (
                               <>
                                 <pre
-                                  className="mt-[8px] font-[geistRegular] leading-[25px] whitespace-pre-wrap w-full "
+                                  className="mt-[8px] font-[DMSr] leading-[25px] whitespace-pre-wrap w-full "
                                   // dangerouslySetInnerHTML={{
                                   //   __html: formatText(data?.Message),
                                   // }}
@@ -764,7 +764,7 @@ export default function SharedChat() {
                             ) : (
                               <>
                                 <pre
-                                  className="mt-[8px] font-[geistRegular] leading-[28px] whitespace-pre-wrap w-full "
+                                  className="mt-[8px] font-[DMSr] leading-[28px] whitespace-pre-wrap w-full "
                                   dangerouslySetInnerHTML={{
                                     __html: formatText(data?.Message),
                                   }}

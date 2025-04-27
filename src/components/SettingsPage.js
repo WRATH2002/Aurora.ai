@@ -59,14 +59,14 @@ function SettingsPage(props) {
   return (
     <div
       className={
-        "w-full h-full fixed left-0 top-0 text-[14px] font-[geistRegular] flex justify-center items-center z-[800]  backdrop-blur-[5px]  " +
+        "w-full h-full fixed left-0 top-0 text-[14px] font-[DMSr] flex justify-center items-center z-[800]  backdrop-blur-[5px]  " +
         (props?.theme ? " bg-[#161b1e5c]" : " bg-[#b0b0b081]")
       }
       // style={{ transform: "translate(-50%,-50%)" }}
     >
       <div
         className={
-          "w-[100%] h-[100%] md:w-[70%] md:h-[80%] lg:w-[70%] lg:h-[80%] rounded-none md:rounded-xl lg:rounded-xl  fixed left-[50%] top-[50%] text-[15px] md:text-[14px] lg:text-[14px] font-[geistRegular] flex justify-start items-start z-20 boxShadowLight2" +
+          "w-[100%] h-[100%] md:w-[70%] md:h-[80%] lg:w-[70%] lg:h-[80%] rounded-none md:rounded-xl lg:rounded-xl  fixed left-[50%] top-[50%] text-[15px] md:text-[14px] lg:text-[14px] font-[DMSr] flex justify-start items-start z-20 boxShadowLight2" +
           (props?.theme
             ? " text-[#9ba6aa] bg-[#1A1A1A] border-[2px] border-[#222d37]"
             : " text-[#9999aa] bg-[#ffffff] border-[2px] border-[#d4d4d400]")

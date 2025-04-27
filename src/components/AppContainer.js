@@ -2,43 +2,7 @@ import React from "react";
 import LandingPage from "./Landing/LandingPage";
 import LeftSidebar from "./LeftSidebar";
 import LeftSection from "./LeftSection";
-import {
-  ArrowLeft,
-  ArrowUp,
-  Calendar,
-  CalendarFold,
-  Check,
-  ChevronRight,
-  Circle,
-  CircleCheck,
-  CloudDrizzle,
-  Cog,
-  Ellipsis,
-  File,
-  FileArchive,
-  FileSearch,
-  FolderClosed,
-  FolderOpen,
-  Link2,
-  Loader,
-  MessageSquare,
-  MessageSquareText,
-  MoveLeft,
-  NotebookPen,
-  Paperclip,
-  Pause,
-  Plus,
-  Search,
-  Siren,
-  SlidersHorizontal,
-  Sparkles,
-  Tags,
-  Terminal,
-  Trash,
-  Twitch,
-  User,
-  X,
-} from "lucide-react";
+
 import MainPageTopBar from "./MainPageTopBar";
 import MainPage from "./MainPage";
 import { useEffect, useRef, useState } from "react";
@@ -67,6 +31,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import AiChatBot from "./AiChatBot";
 import AiChatBotSidebar from "./AiChatBotSidebar";
+import RoadMapContainer from "./RoadMapContainer";
 
 export default function AppContainer() {
   const [searchParams] = useSearchParams();
@@ -124,11 +89,21 @@ Here's a breakdown of key aspects of computer networks:
     navigate(`/user/login`);
   }
 
+  // -------------------------------- Function to fetch Theme form Firebase  ## Called inside auth checking UseEffect
+  function fetchTheme() {
+    const user = firebase.auth().currentUser;
+    const channelRef = db.collection("user").doc(user?.uid);
+    onSnapshot(channelRef, (snapshot) => {
+      setTheme(snapshot?.data()?.Theme);
+    });
+  }
+
+  // -------------------------------- Checking for if the user is logged in or not
   useEffect(() => {
     const listen = onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthUser(user);
-        // fetchSplitTransaction();
+        fetchTheme();
       } else {
         setAuthUser(null);
         navigateToWelcomePgae();
@@ -139,25 +114,26 @@ Here's a breakdown of key aspects of computer networks:
     };
   }, []);
 
-  useEffect(() => {
-    if (scrollToLast.current) {
-      scrollToLast.current.scrollTop = scrollToLast.current.scrollHeight;
-    }
-  }, [chat]);
+  // useEffect(() => {
+  //   if (scrollToLast.current) {
+  //     scrollToLast.current.scrollTop = scrollToLast.current.scrollHeight;
+  //   }
+  // }, []);
 
-  // --------------------------- Fetching Theme ----------------------------
+  // --------------------------- Fetching Theme ## Deprecated --> Called Above
 
-  useEffect(() => {
-    function fetchTheme() {
-      const user = firebase.auth().currentUser;
-      const channelRef = db.collection("user").doc(user?.uid);
-      onSnapshot(channelRef, (snapshot) => {
-        setTheme(snapshot?.data()?.Theme);
-      });
-    }
-    fetchTheme();
-  }, []);
+  // useEffect(() => {
+  //   function fetchTheme() {
+  //     const user = firebase.auth().currentUser;
+  //     const channelRef = db.collection("user").doc(user?.uid);
+  //     onSnapshot(channelRef, (snapshot) => {
+  //       setTheme(snapshot?.data()?.Theme);
+  //     });
+  //   }
+  //   fetchTheme();
+  // }, []);
 
+  // ------------------------------- Setting the Browser theme color based on Theme for Android
   useEffect(() => {
     const themeColorMeta = document.querySelector("meta[name='theme-color']");
 
@@ -180,59 +156,59 @@ Here's a breakdown of key aspects of computer networks:
   }, []);
 
   // const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_KEY);
-  const genAI = new GoogleGenerativeAI(
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-  );
-  const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-pro",
-  });
+  // const genAI = new GoogleGenerativeAI(
+  //   "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  // );
+  // const model = genAI.getGenerativeModel({
+  //   model: "gemini-1.5-pro",
+  // });
 
-  const generationConfig = {
-    temperature: 1,
-    top_p: 0.95,
-    top_k: 64,
-    max_output_tokens: 8192,
-    response_mime_type: "text/plain",
-  };
+  // const generationConfig = {
+  //   temperature: 1,
+  //   top_p: 0.95,
+  //   top_k: 64,
+  //   max_output_tokens: 8192,
+  //   response_mime_type: "text/plain",
+  // };
 
-  async function run() {
-    console.log("generating plan");
-    const chatSession = model.startChat({
-      generationConfig,
-      // safetySettings: Adjust safety settings
-      // See https://ai.google.dev/gemini-api/docs/safety-settings
-      history: [],
-    });
+  // async function run() {
+  //   console.log("generating plan");
+  //   const chatSession = model.startChat({
+  //     generationConfig,
+  //     // safetySettings: Adjust safety settings
+  //     // See https://ai.google.dev/gemini-api/docs/safety-settings
+  //     history: [],
+  //   });
 
-    const result = await chatSession.sendMessage(
-      `
-      ${prompt}`
-    );
-    console.log(result?.response?.text());
-    setChat((prev) => [
-      ...prev,
-      { sender: "assistant", message: result?.response?.text() },
-    ]);
-  }
+  //   const result = await chatSession.sendMessage(
+  //     `
+  //     ${prompt}`
+  //   );
+  //   console.log(result?.response?.text());
+  //   setChat((prev) => [
+  //     ...prev,
+  //     { sender: "assistant", message: result?.response?.text() },
+  //   ]);
+  // }
   // const navigate = useNavigate();
   // function navigateToSection(section) {
   //   navigate(`/user/welcomeUser/${section}`);
   // }
 
-  const addToQueue = (noteId) => {
-    setFetchNoteQueue((prevQueue) => [...prevQueue, noteId]); // Append to queue
-  };
+  // const addToQueue = (noteId) => {
+  //   setFetchNoteQueue((prevQueue) => [...prevQueue, noteId]); // Append to queue
+  // };
 
-  useEffect(() => {
-    console.log(selectedDoc);
-  }, [selectedDoc]);
+  // useEffect(() => {
+  //   console.log(selectedDoc);
+  // }, [selectedDoc]);
 
   return (
     <>
       <div
         className={
-          "w-full h-[100svh] flex font-[geistRegular] pr-[0px] md:pr-[7px] lg:pr-[7px] pb-[7px] z-10 backdrop-blur-xl overflow-hidden" +
-          (theme ? " bg-[#141414]" : " bg-[#ffffff00]")
+          "w-full h-[100svh] flex font-[DMSr] pr-[0px] md:pr-[7px] lg:pr-[7px] pb-[7px] z-10 backdrop-blur-xl overflow-hidden" +
+          (theme ? " bg-[#141414]" : " bg-[#f3f3f3]")
         }
       >
         {loading || AiOutput.length > 0 ? (
@@ -298,7 +274,7 @@ Here's a breakdown of key aspects of computer networks:
                 setSaveLoading={setSaveLoading}
               />
 
-              <div className="w-full h-[calc(100%-102px)] md:h-[calc(100%-40px)] lg:h-[calc(100%-40px)] flex justify-start items-start font-[geistRegular]">
+              <div className="w-full h-[calc(100%-102px)] md:h-[calc(100%-40px)] lg:h-[calc(100%-40px)] flex justify-start items-start font-[DMSr]">
                 <div className="w-[calc(100%-00px)] h-full flex justify-start items-start rounded-r-md ">
                   <MainPage
                     theme={theme}
@@ -328,385 +304,23 @@ Here's a breakdown of key aspects of computer networks:
             </div>
           </>
         ) : searchParams.get("ID")?.split("?section=")[1] == "Roadmaps" ? (
-          <div
-            className={
-              "w-[calc(100%-50px)] h-[100svh] flex flex-col justify-start items-start pb-[8px] text-[white] text-[14px]" +
-              (theme ? " text-[#9ba6aa]" : " text-[#6e6e7c]")
-            }
-          >
-            <div className="w-full h-[40px]"></div>
-            <div className="w-full h-[calc(100svh-48px)] rounded-lg flex justify-start items-start bg-[#1A1A1A] p-[30px]">
-              <div className="w-[320px] h-full rounded-lg border-[1.5px] border-[#273645] flex flex-col justify-start items-start p-[10px] px-[2px]">
-                <div className="w-full h-[22px] flex justify-between items-center mb-[10px] px-[8px]">
-                  <div className="flex justify-start items-center">
-                    <Circle
-                      width={18}
-                      height={18}
-                      strokeWidth={1.8}
-                      className=""
-                    />
-                    <span
-                      className={
-                        "ml-[8px] " +
-                        (theme ? " text-[#ffffff]" : " text-[#000000]")
-                      }
-                    >
-                      Todo
-                    </span>
-                    <span className="ml-[8px]">4</span>
-                  </div>
-                  <div className="flex justify-end items-center">
-                    <Search
-                      width={16}
-                      height={16}
-                      strokeWidth={2}
-                      className={
-                        "cursor-pointer " +
-                        (theme
-                          ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                          : " text-[#6e6e7c] hover:text-[#000000]")
-                      }
-                    />
-                    <SlidersHorizontal
-                      width={16}
-                      height={16}
-                      strokeWidth={2}
-                      className={
-                        "cursor-pointer ml-[8px] rotate-90 " +
-                        (theme
-                          ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                          : " text-[#6e6e7c] hover:text-[#000000]")
-                      }
-                    />
-                    <Plus
-                      width={18}
-                      height={18}
-                      strokeWidth={2}
-                      className={
-                        "cursor-pointer ml-[8px] " +
-                        (theme
-                          ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                          : " text-[#6e6e7c] hover:text-[#000000]")
-                      }
-                    />
-                    <Ellipsis
-                      width={18}
-                      height={18}
-                      strokeWidth={1.8}
-                      className={
-                        "cursor-pointer ml-[8px]" +
-                        (theme
-                          ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                          : " text-[#6e6e7c] hover:text-[#000000]")
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div
-                  className={
-                    "w-full h-[calc(100%-22px)] px-[8px] flex flex-col justify-start items-start overflow-y-scroll" +
-                    (theme ? " text-[#9ba6aa]" : " text-[#6e6e7c]")
-                  }
-                  onScroll={() => {
-                    if (selectedDoc.split("_")[0] == "Todo") {
-                      setSelectedDoc("");
-                    }
-                  }}
-                >
-                  {TempData.map((data, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className={
-                          "w-full h-auto rounded-lg bg-[#283541] flex flex-col justify-end items-end py-[10px] border-[1.5px] " +
-                          (theme ? " border-[#2f3c47]" : " border-[#2f3c47]") +
-                          (index == 0 ? " mt-[0px]" : " mt-[10px]")
-                        }
-                      >
-                        {/* <div
-                          className={
-                            "w-[100px] h-[100px] rounded-lg bg-[#313f4d] absolute boxShadowLight2" +
-                            (index == 0 ? " flex" : " hidden")
-                          }
-                        ></div> */}
-                        <div
-                          className={
-                            "w-full flex justify-between items-center px-[13px]" +
-                            (theme ? " text-[white]" : " text-[black]")
-                          }
-                        >
-                          <div className="flex justify-start items-center w-[calc(100%-50px)]">
-                            <CloudDrizzle
-                              width={18}
-                              height={18}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                            <div className="ml-[8px] text-ellipsis whitespace-nowrap overflow-hidden w-[100%] ">
-                              {data?.Title}
-                            </div>
-                          </div>
-                          <div className="ml-[15px] w-[35px] flex justify-end items-center">
-                            <Siren
-                              width={18}
-                              height={18}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                          </div>
-                        </div>
-                        <div className="w-full overflow-hidden text-ellipsis line-clamp-2 text-[13px]  mt-[5px] px-[13px]">
-                          {data?.SubTitle}
-                        </div>
-                        <div className="w-full flex flex-wrap justify-start items-center text-[13px] mt-[5px]  px-[13px]">
-                          <CalendarFold
-                            width={16}
-                            height={16}
-                            strokeWidth={1.8}
-                            className=" mb-[8px]"
-                          />
-                          <span className="ml-[8px] whitespace-nowrap mb-[8px] ">
-                            Nov 6, 2025
-                          </span>
-                          {data?.Topics.map((dataa, index) => {
-                            return (
-                              <div
-                                key={index}
-                                className="px-[5px] h-[21px] flex justify-center items-center rounded-[5px] bg-[#e650e676] border-[1.5px] border-[#e978e971] text-[#fba4fb] ml-[8px] whitespace-nowrap mb-[8px]"
-                              >
-                                {dataa}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div className="w-full border-t-[2px] border-dashed border-[#3a4752] mt-[7px] my-[10px]"></div>
-                        <div
-                          className={
-                            "w-auto h-[116px] bg-[#313f4d] mt-[-116px] rounded-lg  mr-[10px] flex-col justify-start items-start py-[8px] text-[13px] boxShadowLight2 border-[1.5px] border-[#384655]" +
-                            (selectedDoc.split("_")[0] == "Todo" &&
-                            selectedDoc.split("_")[1] == index
-                              ? " flex"
-                              : " hidden")
-                          }
-                        >
-                          <div
-                            className={
-                              "w-full h-[25px] flex justify-start items-center cursor-pointer px-[12px] " +
-                              (theme
-                                ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                                : " text-[#6e6e7c] hover:text-[#000000]")
-                            }
-                          >
-                            <Trash
-                              width={16}
-                              height={16}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                            <span className="ml-[7px]">Delete</span>
-                          </div>
-                          <div
-                            className={
-                              "w-full h-[25px] flex justify-start items-center cursor-pointer px-[12px] " +
-                              (theme
-                                ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                                : " text-[#6e6e7c] hover:text-[#000000]")
-                            }
-                          >
-                            <Loader
-                              width={16}
-                              height={16}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                            <span className="ml-[7px]">Mark Progress</span>
-                          </div>
-                          <div
-                            className={
-                              "w-full h-[25px] flex justify-start items-center cursor-pointer px-[12px] " +
-                              (theme
-                                ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                                : " text-[#6e6e7c] hover:text-[#000000]")
-                            }
-                          >
-                            <CircleCheck
-                              width={16}
-                              height={16}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                            {/* <Check
-                              width={10}
-                              height={10}
-                              strokeWidth={3.5}
-                              className="ml-[-13.5px] mr-[3.5px]"
-                            /> */}
-                            <span className="ml-[7px]">Mark Done</span>
-                          </div>
-                          <div
-                            className={
-                              "w-full h-[25px] flex justify-start items-center cursor-pointer px-[12px] " +
-                              (theme
-                                ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                                : " text-[#6e6e7c] hover:text-[#000000]")
-                            }
-                          >
-                            <Pause
-                              width={16}
-                              height={16}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                            <span className="ml-[7px]">Mark Pause</span>
-                          </div>
-                        </div>
-                        <div className="w-full px-[13px] flex justify-between items-center text-[13px] text-[#ffffff8c]">
-                          <div className="flex justify-start items-center">
-                            <Link2
-                              width={16}
-                              height={16}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                            <span className="ml-[5px] mr-[13px] ">
-                              {data?.Links}
-                            </span>
-                            <Tags
-                              width={16}
-                              height={16}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                            <span className="ml-[5px] mr-[13px] ">
-                              {data?.Tags}
-                            </span>
-                            <Paperclip
-                              width={16}
-                              height={16}
-                              strokeWidth={1.8}
-                              className=""
-                            />
-                            <span className="ml-[5px] mr-[13px] ">
-                              {data?.Attachments}
-                            </span>
-                          </div>
-                          {selectedDoc.split("_")[0] == "Todo" &&
-                          selectedDoc.split("_")[1] == index ? (
-                            <div
-                              onClick={() => {
-                                setSelectedDoc("");
-                              }}
-                            >
-                              <X
-                                width={16}
-                                height={16}
-                                strokeWidth={1.8}
-                                className={
-                                  "cursor-pointer " +
-                                  (theme
-                                    ? " hover:text-[white]"
-                                    : " hover:text-[black]")
-                                }
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              onClick={() => {
-                                setSelectedDoc(`Todo_${index}`);
-                              }}
-                            >
-                              <Ellipsis
-                                width={16}
-                                height={16}
-                                strokeWidth={1.8}
-                                className={
-                                  "cursor-pointer " +
-                                  (theme
-                                    ? " hover:text-[white]"
-                                    : " hover:text-[black]")
-                                }
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="w-[320px] h-full rounded-lg border-[1.5px] border-[#273645] flex flex-col justify-start items-start p-[10px] ml-[20px]">
-                <div className="w-full flex justify-between items-center mb-[10px]">
-                  <div className="flex justify-start items-center">
-                    <Loader
-                      width={18}
-                      height={18}
-                      strokeWidth={1.8}
-                      className=""
-                    />
-                    <span className="ml-[8px]">In Progress</span>
-                    <span className="ml-[8px]">9</span>
-                  </div>
-                  <div className="flex justify-end items-center">
-                    <Plus
-                      width={18}
-                      height={18}
-                      strokeWidth={1.8}
-                      className={
-                        "cursor-pointer " +
-                        (theme
-                          ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                          : " text-[#6e6e7c] hover:text-[#000000]")
-                      }
-                    />
-                    <Ellipsis
-                      width={18}
-                      height={18}
-                      strokeWidth={1.8}
-                      className={
-                        "cursor-pointer ml-[8px]" +
-                        (theme
-                          ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                          : " text-[#6e6e7c] hover:text-[#000000]")
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="w-full h-[170px] rounded-lg bg-[#283541] flex flex-col justify-start items-start p-[10px]">
-                  <div className="w-full flex justify-between items-center">
-                    <div className="flex justify-start items-center w-[calc(100%-50px)]">
-                      <Twitch
-                        width={18}
-                        height={18}
-                        strokeWidth={1.8}
-                        className=""
-                      />
-                      <div className="ml-[8px] text-ellipsis whitespace-nowrap overflow-hidden w-[100%]">
-                        Cloud Synchronization Document sds sfvs c
-                      </div>
-                    </div>
-                    <div className="ml-[15px] w-[35px] flex justify-end items-center">
-                      <Cog
-                        width={18}
-                        height={18}
-                        strokeWidth={1.8}
-                        className=""
-                      />
-                    </div>
-                  </div>
-                  <div className="text-[13px] text-[#ffffff8c] mt-[5px]">
-                    Project Description
-                  </div>
-                </div>
-                <div className="w-full h-[170px] rounded-lg bg-[#283541] mt-[10px]"></div>
-              </div>
-            </div>
+          <>
+            <RoadMapContainer
+              theme={theme}
+              selectedDoc={selectedDoc}
+              setSelectedDoc={setSelectedDoc}
+              TempData={TempData}
+            />
+          </>
+        ) : searchParams.get("ID")?.split("?section=")[1] == "Calender" ? (
+          <div className="w-full h-full flex justify-start items-center pt-[8px]">
+            <CalenderView theme={theme} />
           </div>
         ) : (
           <div
             className={
               "w-full md:w-[calc(100%-50px)] lg:w-[calc(100%-50px)] h-[calc(100svh-52px)] md:h-[100svh] lg:h-[100svh] flex flex-col justify-start items-start py-[0px] md:py-[8px] lg:py-[8px] text-[white] text-[14px]" +
-              (theme ? " text-[#9ba6aa]" : " text-[#6e6e7c]")
+              (theme ? " text-[#9ba6aa]" : " text-[#797979]")
             }
           >
             <div className="w-full h-[40px] hidden md:hidden lg:hidden"></div>

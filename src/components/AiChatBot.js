@@ -20,6 +20,10 @@ import {
   WifiHigh,
   CornerDownRight,
   ChevronRight,
+  CirclePlus,
+  File,
+  X,
+  Check,
 } from "lucide-react";
 import React, { useRef, useState, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -39,7 +43,14 @@ import { TextShimmer } from "./motion-animations/text-shimmer";
 import { lineSpinner } from "ldrs";
 import { ring2 } from "ldrs";
 import { TextEffect, TextLoop } from "./motion-animations/text-effect";
+import uplimg from "../assets/img/agriculture-farm-land-countryside-aerial-view-green-3200x2000-3985.jpg";
+import uplimg2 from "../assets/img/macos-sequoia-4096x2264-17018.jpg";
 import Prism from "prismjs";
+import { ring } from "ldrs";
+ring.register();
+
+// Default values shown
+
 // import "../assets/style/prism-vsc-dark-plus.css";
 
 ring2.register();
@@ -47,33 +58,48 @@ lineSpinner.register();
 zoomies.register();
 
 const aiModels = [
+  // {
+  //   Model: "gemini-2.5-pro-preview-03-25",
+  //   About: "Multimodal, coding, reasoning",
+  // },
+  // {
+  //   Model: "gemini-2.5-flash-preview-04-17",
+  //   About: "Thinking, no-thinking",
+  // },
   {
     Model: "gemini-2.0-flash",
     About: "Multimodal, realtime streaming",
+    limit: 1500,
   },
   {
     Model: "gemini-2.0-flash-lite",
     About: "Long context, realtime streaming",
+    limit: 1500,
   },
   {
     Model: "gemini-2.0-pro-exp-02-05",
     About: "Multimodal, realtime streaming",
+    limit: 1500,
   },
   {
     Model: "gemini-2.0-flash-thinking-exp-01-21",
     About: "Multimodal, reasoning, coding",
+    limit: 1500,
   },
   {
     Model: "gemini-1.5-pro",
     About: "Long context, complex & math reasoning",
+    limit: 50,
   },
   {
     Model: "gemini-1.5-flash",
     About: "Image, video, audio understanding",
+    limit: 1500,
   },
   {
     Model: "gemini-1.5-flash-8b",
     About: "Low latency, multilingual, summarization",
+    limit: 1500,
   },
 ];
 
@@ -90,7 +116,76 @@ export default function AiChatBot(props) {
   const [chatHistoryTemp, setChatHistoryTemp] = useState([]);
   const [activeApiKeyID, setActiveAPIKeyID] = useState("");
 
+  const [isCopied, setIsCopied] = useState(false);
+
+  // ------------------------------------- For storing files
+  const [filesInfo, setFilesInfo] = useState([]);
+
+  // ------------------------------------- For links of the files
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const isImage = file.type.startsWith("image/");
+        const isDocument = file.type === "application/pdf" || !isImage;
+
+        const fileData = {
+          name: file.name,
+          type: file.type,
+          size: (file.size / 1024).toFixed(2) + " KB",
+          src: reader.result, // base64 or blob URL
+          idDocument: isDocument,
+        };
+
+        // If it's an image, we can extract dimensions
+        if (isImage) {
+          const img = new Image();
+          img.src = reader.result;
+
+          img.onload = () => {
+            fileData.width = img.width;
+            fileData.height = img.height;
+            setFilesInfo((prev) => [...prev, fileData]);
+          };
+        } else {
+          setFilesInfo((prev) => [...prev, fileData]);
+        }
+      };
+
+      reader.readAsDataURL(file); // works for both images and docs
+    });
+  };
+
   const lastElementRef = useRef(null);
+
+  const [models, setModels] = useState([]);
+  const [error, setError] = useState(null);
+  //  const [loading, setLoading] = useState(true); // Add loading state
+
+  useEffect(() => {
+    const fetchModels = async () => {
+      setLoading(true); // Set loading to true before fetching
+      try {
+        const genAI = new GoogleGenerativeAI(
+          processStringDecrypt(activeApiKeyID)
+        );
+        const response = await genAI.listModels();
+        console.log(response);
+        setError(null); // Clear any previous errors
+      } catch (err) {
+        console.error("Failed to fetch models:", err);
+        setError(err.message);
+        setModels([]); // Clear models on error
+      } finally {
+        setLoading(false); // Set loading to false regardless of success or failure
+      }
+    };
+
+    fetchModels();
+  }, []);
 
   useEffect(() => {
     // if (lastElementRef.current) {
@@ -311,6 +406,22 @@ export default function AiChatBot(props) {
     }));
   }
 
+  // ----------------------------- Getting all files src to send to Gemini API
+  async function fileToGenerativePart(file) {
+    const base64EncodedDataPromise = new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(",")[1]);
+      reader.readAsDataURL(file);
+    });
+
+    return {
+      inlineData: {
+        data: await base64EncodedDataPromise,
+        mimeType: file.type,
+      },
+    };
+  }
+
   // ----------------------------- Gemini Model and API implementation and settings -----------------------------
   const genAI = new GoogleGenerativeAI(processStringDecrypt(activeApiKeyID));
 
@@ -336,7 +447,37 @@ export default function AiChatBot(props) {
 
     let tempPrompt = text;
 
-    const result = await chatSession.sendMessage(tempPrompt);
+    let isDocumentAttach = false;
+
+    if (filesInfo.length > 0) {
+      isDocumentAttach = true;
+    } else {
+      isDocumentAttach = false;
+    }
+
+    // ------------------
+
+    // Combine the prompt and all file parts
+    let allParts;
+    if (filesInfo.length > 0) {
+      const fileInputEl = document.querySelector("input[type=file]");
+      const files = [...fileInputEl.files];
+
+      // Prepare all image parts (with async conversion)
+      const imageParts = await Promise.all(files.map(fileToGenerativePart));
+      allParts = [tempPrompt, ...imageParts];
+    } else {
+      allParts = tempPrompt;
+    }
+    // const allParts = [prompt, ...imageParts];
+
+    const result = await chatSession.sendMessage(allParts);
+
+    setFilesInfo([]);
+
+    // -------------------
+
+    // const result = await chatSession.sendMessage(tempPrompt);
 
     console.log("Recieved Answer --->");
     //   console.log(result);
@@ -836,12 +977,24 @@ export default function AiChatBot(props) {
   //   Prism.highlightAll();
   // });
 
+  function copyToClipboard(text) {
+    // const text = "Add note at cursor location";
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("Text copied to clipboard");
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  }
+
   return (
     <>
       {" "}
       <div
         className={
-          " pb-[10px] md:pb-[30px] lg:pb-[30px] pt-[0px] md:pt-[0px] lg:pt-[0px] h-full flex flex-col justify-center items-center font-[geistRegular]" +
+          " pb-[10px] md:pb-[30px] lg:pb-[30px] pt-[0px] md:pt-[0px] lg:pt-[0px] h-full flex flex-col justify-center items-center font-[DMSr]" +
           (props?.theme ? " text-[#ffffff]" : " text-[#000000]") +
           (props?.chatSidebarModal
             ? " w-full md:w-[calc(100%-250px)] lg:w-[calc(100%-250px)]"
@@ -860,7 +1013,7 @@ export default function AiChatBot(props) {
                 (props?.theme ? " chatScrollDark" : " chatScrollLight")
               }
             >
-              <div className="w-[calc(100%-35px)] md:w-[calc(100%-35px)] lg:w-[60%] h-full flex flex-col justify-start items-start  ">
+              <div className="w-[calc(100%-35px)] md:w-[calc(100%-35px)] lg:w-[60%] h-full flex flex-col justify-start items-start z-0 ">
                 {chatHistoryTemp?.map((data, index) => {
                   return (
                     <>
@@ -949,7 +1102,7 @@ export default function AiChatBot(props) {
                       >
                         <div
                           className={
-                            " rounded-2xl flex flex-col justify-start items-start mb-[20px]" +
+                            " chatMessageContainer rounded-2xl flex flex-col justify-start items-start mb-[20px] " +
                             (data?.Sender == "User"
                               ? props?.theme
                                 ? " bg-[#222222] p-[15px] px-[20px] max-w-[80%] md:max-w-[70%] lg:max-w-[70%]  w-auto"
@@ -982,10 +1135,26 @@ export default function AiChatBot(props) {
                               <span className="">{data?.Time}</span>
                             </span>
                           </div>
+                          {/* <div className="h-[100px] mt-[8px] flex justify-start items-start">
+                            <img
+                              className="h-full aspect-square rounded-[4px] object-cover"
+                              src={uplimg}
+                            ></img>
+                            <div className="h-full ml-[3px] flex flex-col justify-start items-start">
+                              <img
+                                className="h-[calc((100%-3px)/2)] aspect-square rounded-[4px] object-cover mb-[3px]"
+                                src={uplimg}
+                              ></img>
+                              <img
+                                className="h-[calc((100%-3px)/2)] aspect-square rounded-[4px] object-cover"
+                                src={uplimg2}
+                              ></img>
+                            </div>
+                          </div> */}
                           {data?.Sender == "User" ? (
                             <>
                               <pre
-                                className="mt-[8px] font-[geistRegular] leading-[25px] whitespace-pre-wrap w-full "
+                                className=" chatMessage mt-[8px] font-[DMSr] leading-[25px] whitespace-pre-wrap w-full "
                                 // dangerouslySetInnerHTML={{
                                 //   __html: formatText(data?.Message),
                                 // }}
@@ -996,7 +1165,8 @@ export default function AiChatBot(props) {
                           ) : (
                             <>
                               <pre
-                                className="mt-[8px] font-[geistRegular] leading-[28px] whitespace-pre-wrap w-full "
+                                data-index={index}
+                                className=" chatMessage mt-[8px] font-[DMSr] leading-[28px] whitespace-pre-wrap w-full "
                                 dangerouslySetInnerHTML={{
                                   __html: formatText(data?.Message),
                                 }}
@@ -1089,14 +1259,16 @@ export default function AiChatBot(props) {
                             </div>
                             <div
                               className="h-[28px] w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer flex justify-center items-center"
-                              onClick={() => {
-                                //   copyToClipboard(
-                                //     props?.AiOutput[0]?.Message[activeIndex]
-                                //   );
-                                //   setCopied(true);
-                                //   setTimeout(() => {
-                                //     setCopied(false);
-                                //   }, 2000);
+                              onClick={(e) => {
+                                // handleCopyClick(index)
+                                const preInsideDiv = document.querySelectorAll(
+                                  ".chatMessageContainer .chatMessage"
+                                );
+                                setIsCopied(true);
+                                setTimeout(() => {
+                                  setIsCopied(false);
+                                }, 1000);
+                                copyToClipboard(preInsideDiv[index].innerText);
                               }}
                             >
                               <Copy
@@ -1105,6 +1277,15 @@ export default function AiChatBot(props) {
                                 strokeWidth={2.2}
                                 className=""
                               />
+                            </div>
+                            <div
+                              className={
+                                "h-[28px] ml-[4px] bg-[#f0f0f0] text-[#000000] px-[10px] flex justify-center items-center rounded-md" +
+                                (isCopied ? " opacity-100" : " opacity-0")
+                              }
+                              style={{ transition: ".2s" }}
+                            >
+                              Copied
                             </div>
                           </div>
                         </div>
@@ -1148,7 +1329,7 @@ export default function AiChatBot(props) {
                       color="black"
                     ></l-line-spinner>
                     <TextShimmer
-                      className="ml-[8px] font-[geistRegular]"
+                      className="ml-[8px] font-[DMSr]"
                       duration={1}
                     >
                       Generating response ...
@@ -1186,17 +1367,10 @@ export default function AiChatBot(props) {
                   speed="1"
                   color={` ${props?.theme ? "#ffffff" : "#000000"}`}
                 ></l-line-spinner>
-                {/* <l-ring-2
-                      size="10"
-                      stroke="1.5"
-                      stroke-length="0.25"
-                      bg-opacity="0.1"
-                      speed="0.8"
-                      color="black"
-                    ></l-ring-2> */}
+
                 <TextShimmer
                   theme={props?.theme}
-                  className="ml-[8px] font-[geistRegular]"
+                  className="ml-[8px] font-[DMSr]"
                   duration={1}
                 >
                   Generating response ...
@@ -1212,24 +1386,149 @@ export default function AiChatBot(props) {
             >
               <div
                 className={
-                  "w-[calc(100%-0px)] md:w-[calc(100%-0px)] lg:w-[calc(60%+20px)] h-auto min-h-[120px] max-h-[300px]  rounded-xl border-[1.5px]  flex flex-col justify-between items-start p-[4px] pt-[7px] z-40  " +
+                  "w-[calc(100%-40px)] md:w-[calc(100%-40px)] lg:w-[60%] h-auto min-h-[120px] max-h-[300px]  rounded-2xl border-[1.5px]  flex flex-col justify-between items-start p-[4px] pt-[0px] z-40  " +
                   (props?.theme
-                    ? " bg-[#222222] border-[#292a2d] text-[white]"
-                    : " bg-[#F7F7F7] border-[#f2f2f2] text-[black]")
+                    ? " bg-[#222222] border-[#292a2d]"
+                    : " bg-[#f7f7f7] border-[#f0f0f0]")
                 }
-                // style={{ marginTop: `-${height}px` }}
-                // style={{ height: `${subHeight}px` }}
+                // style={{ height: `${height}px` }}
                 ref={subDivRef}
-                // style={{ transition: ".2s" }}
               >
-                <div className="w-full min-h-[calc(100%-50px)] mb-[10px]">
+                <div className="w-full flex justify-between items-center h-[40px] px-[9px] py-[4px]">
+                  <div className="flex justify-start items-center h-full overflow-x-scroll overflow-y-visible uploadScroll">
+                    <label
+                      className={
+                        "cursor-pointer  " +
+                        (props?.theme
+                          ? " text-[#8f8f8f] hover:text-[#ffffff]"
+                          : " text-[#878787] hover:text-[#000000]")
+                      }
+                      for="image-file-input"
+                    >
+                      <CirclePlus
+                        width={16}
+                        height={16}
+                        strokeWidth={2}
+                        className=" mr-[9px]"
+                      />
+                      <input
+                        id="image-file-input"
+                        className="hidden"
+                        type="file"
+                        multiple
+                        accept="*"
+                        onChange={(e) => {
+                          handleFileChange(e);
+                        }}
+                      />
+                    </label>{" "}
+                    {filesInfo.length > 0 ? (
+                      <>
+                        {filesInfo?.map((data, index) => {
+                          return (
+                            <>
+                              {data?.idDocument ? (
+                                <>
+                                  <div
+                                    className={
+                                      "flex justify-start items-center max-w-[150px]  h-full  rounded-[8px] px-[6px] " +
+                                      (index == 0
+                                        ? " ml-[0px] "
+                                        : " ml-[6px] ") +
+                                      (props?.theme
+                                        ? " bg-[#000000] border-[#000000] text-[#ffffff]"
+                                        : " bg-[white] border-[#f2f2f2] text-[#000000]")
+                                    }
+                                  >
+                                    <div className="w-[20px] flex justify-start items-center mr-[2px]">
+                                      <File
+                                        width={16}
+                                        height={16}
+                                        strokeWidth={1.6}
+                                        className=""
+                                      />
+                                    </div>
+                                    <div className="flex flex-col justify-center items-start h-full w-[calc(100%-22px)]">
+                                      <span
+                                        className={
+                                          "w-full overflow-hidden text-ellipsis text-[12px]" +
+                                          (props?.theme
+                                            ? " text-[#ffffff]"
+                                            : " text-[#000000]")
+                                        }
+                                      >
+                                        {data?.name}
+                                      </span>
+                                      <span
+                                        className={
+                                          "text-[10px] mt-[-4px]" +
+                                          (props?.theme
+                                            ? " text-[#ffffff]"
+                                            : " text-[#727272]")
+                                        }
+                                      >
+                                        .{data?.type?.split("/")?.pop()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="h-full flex justify-start items-start overflow-y-visible z-50">
+                                    <div
+                                      className={
+                                        "w-[12px] h-[12px] ml-[6px] mt-[-6px] rounded-full flex justify-center items-center border-[0px]" +
+                                        (props?.theme
+                                          ? " bg-[#ffffff] text-[black] border-[#ffffff]"
+                                          : " bg-[#000000] text-[white] border-[#000000]")
+                                      }
+                                    >
+                                      <X
+                                        width={8}
+                                        height={8}
+                                        strokeWidth={4}
+                                        className=""
+                                      />
+                                    </div>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div
+                                    className={
+                                      "flex justify-start items-start h-full rounded-[8px] " +
+                                      (index == 0 ? " ml-[0px] " : " ml-[6px] ")
+                                    }
+                                  >
+                                    <img
+                                      className="h-full aspect-square rounded-[8px] object-cover blur-[0px]"
+                                      src={data?.src}
+                                      alt="img"
+                                    ></img>
+                                  </div>
+                                </>
+                              )}
+                            </>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                </div>
+                <div
+                  className={
+                    "w-full h-auto rounded-[12px]  p-[13px] pt-[10px] flex flex-col justify-start items-start " +
+                    (props?.theme ? " bg-[#1A1A1A]" : " bg-[#ffffff]")
+                  }
+                >
                   <textarea
-                    className="w-full h-auto min-h-[100%] px-[8px] max-h-[100px] outline-none bg-transparent  resize-none"
+                    className="w-full h-auto min-h-[100%] max-h-[100px] pt-[0px] outline-none bg-transparent  resize-none"
                     style={{ transition: ".2s" }}
                     placeholder="Type your message ..."
                     value={message}
                     onInput={(e) => {
                       setMessage(e.target.value);
+                      // setHeight()
+
                       e.target.style.height = "auto"; // Reset the height to auto to recalculate
                       e.target.style.height = `${e.target.scrollHeight}px`; // Set the height to the scroll height
                     }}
@@ -1247,186 +1546,238 @@ export default function AiChatBot(props) {
                       setShowModels(false);
                     }}
                   ></textarea>
-                </div>
-                <div className="w-full h-[40px] rounded-[8px] flex justify-between items-center px-[8px] pb-[8px]">
-                  <div className="h-full flex flex-col justify-end items-start overflow-y-visible">
-                    <div
-                      className={
-                        "w-auto max-w-[400px] md:max-w-[400px] lg:max-w-[400px] min-h-[230px] rounded-lg mb-[6px] p-[7px]   pr-[4px] flex-col justify-start items-start backdrop-blur-[40px] boxShadowLight0 " +
-                        (showModels ? " flex" : " hidden") +
-                        (props?.theme ? " bg-[#181b20]" : " bg-[#1F2125]")
-                      }
-                    >
+                  <div className="w-full h-[42px] mt-[8px] rounded-[10px] flex justify-between items-end ">
+                    <div className="h-full flex flex-col justify-end items-start overflow-visible max-w-[200px]">
                       <div
                         className={
-                          "w-full h-full flex flex-col justify-start items-start overflow-y-scroll pr-[3px]" +
-                          (props?.theme ? " scroll2" : " ")
+                          "w-auto max-w-[400px] md:max-w-[400px] lg:max-w-[400px]  rounded-[10px] p-[7px]  border-[1.5px] pr-[4px] flex flex-col justify-start items-start backdrop-blur-[20px] boxShadowLight0 " +
+                          (showModels
+                            ? " opacity-100 mb-[6px] z-10 h-[230px]"
+                            : " opacity-0 mb-[-26px] -z-20 h-[130px]") +
+                          (props?.theme
+                            ? " bg-[#181b20]"
+                            : " bg-[#ffffffc4] border-[#f0f0f0]")
                         }
+                        style={{ transition: ".2s" }}
                       >
-                        {aiModels?.map((data, index) => {
-                          return (
-                            <span
-                              key={index}
-                              className={
-                                "group h-auto p-[7px] py-[5px] my-[1px] group cursor-pointer w-full rounded-[6px]   flex whitespace-nowrap justify-start items-center " +
-                                (props?.theme
-                                  ? currentModel == data.Model
-                                    ? " text-[white] bg-[#353941]"
-                                    : " text-[#97a2b0] hover:bg-[#35394150]"
-                                  : " text-[#a4a4a4]")
-                              }
-                              onClick={() => {
-                                setCurrentModel(data?.Model);
-                                setShowModels(false);
-                              }}
-                            >
-                              <div
+                        <div
+                          className={
+                            "w-full h-full flex flex-col justify-start items-start overflow-y-scroll modelScrollDark pr-[3px]" +
+                            (props?.theme
+                              ? " modelScrollDark"
+                              : " modelScrollLight")
+                          }
+                        >
+                          {aiModels?.map((data, index) => {
+                            return (
+                              <span
+                                key={index}
                                 className={
-                                  "min-w-[3px] h-[20px] rounded-full mr-[15px]" +
-                                  (currentModel == data.Model
-                                    ? " bg-[#bcc4d2] flex"
-                                    : " bg-transparent hidden")
+                                  "group h-auto p-[7px] py-[5px] my-[1px] group cursor-pointer w-full rounded-[6px]   flex whitespace-nowrap justify-start items-center " +
+                                  (props?.theme
+                                    ? currentModel == data.Model
+                                      ? " text-[white] bg-[#353941]"
+                                      : " text-[#97a2b0] hover:bg-[#35394150]"
+                                    : currentModel == data.Model
+                                    ? " text-[#000000] bg-[#F7F7F7]"
+                                    : " text-[#262626] hover:bg-[#f7f7f7ce]")
                                 }
-                              ></div>
-                              <div
-                                className={
-                                  " " +
-                                  (currentModel == data.Model
-                                    ? " hidden ml-[0px] w-[0px]"
-                                    : " block ml-[-5px] w-[23px]")
-                                }
+                                onClick={() => {
+                                  setCurrentModel(data?.Model);
+                                  setShowModels(false);
+                                }}
                               >
-                                <ChevronRight
-                                  width={18}
-                                  height={18}
-                                  strokeWidth={3.5}
-                                  className="text-transparent group-hover:text-[#bcc4d2] "
-                                />
-                              </div>
-
-                              <div className="flex flex-col justify-start items-start w-[calc(100%-30px)]">
-                                <div
+                                {/* <div
                                   className={
-                                    "flex justify-start items-center" +
-                                    (props?.theme
-                                      ? " group-hover:text-[#ffffff]"
-                                      : " group-hover:text-[#ffffff]")
-                                  }
-                                >
-                                  {data?.Model}{" "}
-                                  {index < 4 ? (
-                                    <span
-                                      className={
-                                        "ml-[10px] rounded-[6px] h-[17px] bg-gradient-to-br from-[#ba96fc] to-[#a477f7] text-[black] flex justify-center items-center px-[5px] py-[0px] text-[10px] tracking-wider font-[geistBold] " +
-                                        (currentModel == data?.Model
-                                          ? " border-[#525863]"
-                                          : " border-[#465463]")
-                                      }
-                                    >
-                                      New
-                                    </span>
-                                  ) : (
-                                    <></>
-                                  )}
-                                </div>
-                                <div
-                                  className={
-                                    "mt-[-1px] text-[11px] tracking-wide group-hover:text-[#a9b0ba]" +
+                                    "min-w-[3px] h-[20px] rounded-full mr-[15px]" +
                                     (props?.theme
                                       ? currentModel == data.Model
-                                        ? " text-[#a9b0ba]"
-                                        : " text-[#737d8a]"
-                                      : " text-[#a4a4a4]")
+                                        ? " bg-[#bcc4d2] flex"
+                                        : " bg-transparent hidden"
+                                      : currentModel == data.Model
+                                      ? " bg-[#000000] flex"
+                                      : " bg-transparent hidden")
+                                  }
+                                  // style={{ borderRadius: "10%" }}
+                                ></div>
+                                <div
+                                  className={
+                                    " " +
+                                    (currentModel == data.Model
+                                      ? " hidden ml-[0px] w-[0px]"
+                                      : " block ml-[-5px] w-[23px]")
                                   }
                                 >
-                                  {data?.About}
+                                  <ChevronRight
+                                    width={18}
+                                    height={18}
+                                    strokeWidth={3.5}
+                                    className={
+                                      "text-transparent  " +
+                                      (props?.theme
+                                        ? " group-hover:text-[#bcc4d2]"
+                                        : " group-hover:text-[#262626]")
+                                    }
+                                  />
+                                </div> */}
+                                <div className="flex justify-start items-center w-[30px]">
+                                  <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M21.9956 12.0175C16.6323 12.3419 12.3399 16.6343 12.0156 21.9975H11.9756C11.6556 16.6343 7.36325 12.3419 2 12.0175V11.9775C7.36325 11.6576 11.6556 7.36521 11.98 2.00195H12.02C12.3444 7.36521 16.6367 11.6576 22 11.982V12.0175H21.9956Z"
+                                      fill="#323544"
+                                    />
+                                  </svg>
                                 </div>
-                              </div>
-                              <div
-                                className={
-                                  "" +
-                                  (currentModel == data.Model
-                                    ? " block"
-                                    : " hidden")
-                                }
-                              >
-                                <WifiHigh
-                                  width={20}
-                                  height={20}
-                                  strokeWidth={2}
-                                  className="mt-[-7px]"
-                                />
-                              </div>
-                            </span>
-                          );
-                        })}
+
+                                <div className="flex flex-col justify-start items-start w-[calc(100%-30px)]">
+                                  <div
+                                    className={
+                                      "flex justify-start items-center" +
+                                      (props?.theme
+                                        ? " group-hover:text-[#ffffff]"
+                                        : " group-hover:text-[#000000]")
+                                    }
+                                  >
+                                    {data?.Model}{" "}
+                                    {index < 4 ? (
+                                      <span
+                                        className={
+                                          "ml-[10px] rounded-[5px] h-[17px] bg-[#d39561] text-[#ffffff] flex justify-center items-center px-[5px] py-[0px] text-[10px] tracking-wider font-[DMSb] uppercase " +
+                                          (currentModel == data?.Model
+                                            ? " border-[#525863]"
+                                            : " border-[#465463]")
+                                        }
+                                      >
+                                        New
+                                      </span>
+                                    ) : (
+                                      <></>
+                                    )}
+                                  </div>
+                                  <div
+                                    className={
+                                      "mt-[-1px] text-[11px] tracking-wide group-hover:text-[#a9b0ba]" +
+                                      (props?.theme
+                                        ? " text-[#a9b0ba]"
+                                        : " text-[#a4a4a4]")
+                                    }
+                                  >
+                                    {data?.About}
+                                  </div>
+                                </div>
+                                <div
+                                  className={
+                                    "" +
+                                    (currentModel == data.Model
+                                      ? " block"
+                                      : " hidden")
+                                  }
+                                >
+                                  <Check
+                                    width={16}
+                                    height={16}
+                                    strokeWidth={3.5}
+                                    className={
+                                      "mt-[0px]" +
+                                      (props?.theme
+                                        ? " text-[#737d8a]"
+                                        : " text-[#878787]")
+                                    }
+                                  />
+                                </div>
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                    <div
-                      className={
-                        "min-h-[32px] max-h-[32px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer border-[1.5px] max-w-[200px]" +
-                        (props?.theme
-                          ? " bg-[#181b20] text-[#97a2b0] hover:text-[white] border-[#181b20]"
-                          : " bg-[#404148] text-[white]")
-                      }
-                      onClick={() => {
-                        setShowModels(!showModels);
-                      }}
-                    >
-                      <Sparkles
-                        width={14}
-                        height={14}
-                        strokeWidth={2.4}
-                        className="mr-[8px]"
-                      />
-                      <div className="overflow-hidden whitespace-nowrap text-ellipsis w-[calc(100%-40px)]">
-                        {currentModel}
-                      </div>
-                      <ChevronDown
-                        width={14}
-                        height={14}
-                        strokeWidth={2.4}
-                        className="ml-[8px]"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end items-center ">
-                    <Mic
-                      width={18}
-                      height={18}
-                      strokeWidth={2.1}
-                      className={
-                        "mr-[10px] cursor-pointer " +
-                        (props?.theme
-                          ? " text-[#97a2b0] hover:text-[#ffffff]"
-                          : " text-[#6e6e7c] hover:text-[#000000]")
-                      }
-                    />
-                    <button
-                      className={
-                        "h-[32px] px-[10px] rounded-lg flex justify-center items-center " +
-                        (props?.theme
-                          ? message?.trim().length > 0
-                            ? " bg-[#ffffff]  text-[#000000] cursor-pointer"
-                            : " bg-[#ffffff20] text-[#ffffff40] cursor-default"
-                          : " bg-[#404148] text-[white] cursor-pointer")
-                      }
-                      onClick={() => {
-                        if (message?.trim().length > 0) {
-                          addUserMessage(message);
-                          setLoading(true);
+                      <div
+                        className={
+                          "min-h-[32px] max-h-[32px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer border-[1.5px] max-w-[200px] z-10" +
+                          (props?.theme
+                            ? " bg-[#181b20] text-[#97a2b0] hover:text-[white] border-[#181b20]"
+                            : " bg-[#F7F7F7] border-[#f0f0f0] text-[#000000]")
                         }
-                      }}
-                      style={{ transition: ".15s" }}
-                    >
-                      <Send
-                        width={14}
-                        height={14}
-                        strokeWidth={2.4}
-                        className="mr-[8px]"
+                        onClick={() => {
+                          setShowModels(!showModels);
+                        }}
+                      >
+                        {/* <Sparkles
+                          width={14}
+                          height={14}
+                          strokeWidth={2.4}
+                          className="mr-[8px]"
+                        /> */}
+                        <div className="flex justify-start items-center w-[24px]">
+                          <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M21.9956 12.0175C16.6323 12.3419 12.3399 16.6343 12.0156 21.9975H11.9756C11.6556 16.6343 7.36325 12.3419 2 12.0175V11.9775C7.36325 11.6576 11.6556 7.36521 11.98 2.00195H12.02C12.3444 7.36521 16.6367 11.6576 22 11.982V12.0175H21.9956Z"
+                              fill="#323544"
+                            />
+                          </svg>
+                        </div>
+                        <div className="overflow-hidden whitespace-nowrap text-ellipsis w-[calc(100%-40px)]">
+                          {currentModel}
+                        </div>
+                        <ChevronDown
+                          width={14}
+                          height={14}
+                          strokeWidth={2.4}
+                          className="ml-[8px]"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end items-center ">
+                      <Mic
+                        width={18}
+                        height={18}
+                        strokeWidth={2.1}
+                        className={
+                          "mr-[15px] cursor-pointer " +
+                          (props?.theme
+                            ? " text-[#97a2b0] hover:text-[#ffffff]"
+                            : " text-[#797979] hover:text-[#000000]")
+                        }
                       />
-                      Send
-                    </button>
+                      <button
+                        className={
+                          "h-[32px] px-[10px] pr-[13px] rounded-[10px] flex justify-center items-center " +
+                          (props?.theme
+                            ? message?.trim().length > 0
+                              ? " bg-[#ffffff]  text-[#000000] cursor-pointer"
+                              : " bg-[#ffffff20] text-[#ffffff40] cursor-default"
+                            : message?.trim().length > 0
+                            ? " bg-[#1a191f]  text-[#ffffff] cursor-pointer"
+                            : " bg-[#1a191f0a] text-[#B9B9B9] cursor-default")
+                        }
+                        onClick={() => {
+                          if (message?.trim().length > 0) {
+                            addUserMessage(message);
+                            setLoading(true);
+                          }
+                        }}
+                        style={{ transition: ".15s" }}
+                      >
+                        <Send
+                          width={14}
+                          height={14}
+                          strokeWidth={2.4}
+                          className="mr-[8px] "
+                        />
+                        Send
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1449,7 +1800,7 @@ export default function AiChatBot(props) {
               <div
                 className={
                   "mt-[5px] " +
-                  (props?.theme ? " text-[#828282]" : " text-[#6e6e7c]")
+                  (props?.theme ? " text-[#828282]" : " text-[#797979]")
                 }
               >
                 <TextLoop className="text-center">
@@ -1502,7 +1853,6 @@ export default function AiChatBot(props) {
                     />
                   </span>
                 </TextLoop>
-                {/* How may I assist you today? */}
               </div>
               <div
                 className={
@@ -1513,7 +1863,7 @@ export default function AiChatBot(props) {
               >
                 <div
                   className={
-                    "w-[calc(100%-40px)] md:w-[calc(100%-40px)] lg:w-[60%] h-auto min-h-[120px] max-h-[300px]  rounded-xl border-[1.5px]  flex flex-col justify-between items-start p-[4px] pt-[7px] z-40  " +
+                    "w-[calc(100%-40px)] md:w-[calc(100%-40px)] lg:w-[60%] h-auto min-h-[120px] max-h-[300px]  rounded-2xl border-[1.5px]  flex flex-col justify-between items-start p-[4px] pt-[0px] z-40  " +
                     (props?.theme
                       ? " bg-[#222222] border-[#292a2d]"
                       : " bg-[#f7f7f7] border-[#f0f0f0]")
@@ -1521,9 +1871,114 @@ export default function AiChatBot(props) {
                   // style={{ height: `${height}px` }}
                   ref={divRef}
                 >
-                  <div className="w-full min-h-[calc(100%-50px)] h-auto mb-[10px]">
+                  <div className="w-full flex justify-between items-center h-[40px] px-[9px] py-[4px]">
+                    <div className="flex justify-start items-center h-full overflow-x-scroll uploadScroll">
+                      <label
+                        className={
+                          "cursor-pointer  " +
+                          (props?.theme
+                            ? " text-[#000000] hover:text-[#000000]"
+                            : " text-[#878787] hover:text-[#000000]")
+                        }
+                        for="image-file-input"
+                      >
+                        <CirclePlus
+                          width={16}
+                          height={16}
+                          strokeWidth={2}
+                          className=" mr-[9px]"
+                        />
+                        <input
+                          id="image-file-input"
+                          className="hidden"
+                          type="file"
+                          multiple
+                          accept="*"
+                          onChange={(e) => {
+                            handleFileChange(e);
+                          }}
+                        />
+                      </label>{" "}
+                      {filesInfo.length > 0 ? (
+                        <>
+                          {filesInfo?.map((data, index) => {
+                            return (
+                              <>
+                                {data?.idDocument ? (
+                                  <>
+                                    <div
+                                      className={
+                                        "flex justify-start items-center max-w-[150px]  h-full  rounded-[8px] px-[6px] " +
+                                        (index == 0
+                                          ? " ml-[0px] "
+                                          : " ml-[6px] ") +
+                                        (props?.theme
+                                          ? " bg-[#000000] border-[#000000] text-[#ffffff]"
+                                          : " bg-[white] border-[#f2f2f2] text-[#000000]")
+                                      }
+                                    >
+                                      <div className="w-[20px] flex justify-start items-center mr-[2px]">
+                                        <File
+                                          width={16}
+                                          height={16}
+                                          strokeWidth={1.6}
+                                          className=""
+                                        />
+                                      </div>
+                                      <div className="flex flex-col justify-center items-start h-full w-[calc(100%-22px)]">
+                                        <span
+                                          className={
+                                            "w-full overflow-hidden text-ellipsis text-[12px]" +
+                                            (props?.theme
+                                              ? " text-[#ffffff]"
+                                              : " text-[#000000]")
+                                          }
+                                        >
+                                          {data?.name}
+                                        </span>
+                                        <span
+                                          className={
+                                            "text-[10px] mt-[-4px]" +
+                                            (props?.theme
+                                              ? " text-[#ffffff]"
+                                              : " text-[#727272]")
+                                          }
+                                        >
+                                          .{data?.type?.split("/")?.pop()}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div
+                                      className={
+                                        "flex justify-start items-start h-full rounded-[8px] " +
+                                        (index == 0
+                                          ? " ml-[0px] "
+                                          : " ml-[6px] ")
+                                      }
+                                    >
+                                      <img
+                                        className="h-full aspect-square rounded-[8px] object-cover blur-[0px]"
+                                        src={data?.src}
+                                        alt="img"
+                                      ></img>
+                                    </div>
+                                  </>
+                                )}
+                              </>
+                            );
+                          })}
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                    </div>
+                  </div>
+                  <div className="w-full h-auto bg-[white] rounded-[12px]  p-[13px] pt-[10px] flex flex-col justify-start items-start ">
                     <textarea
-                      className="w-full h-auto min-h-[100%] px-[8px] max-h-[100px] outline-none bg-transparent  resize-none"
+                      className="w-full h-auto min-h-[100%] max-h-[100px] pt-[0px] outline-none bg-transparent  resize-none"
                       style={{ transition: ".2s" }}
                       placeholder="Type your message ..."
                       value={message}
@@ -1548,186 +2003,188 @@ export default function AiChatBot(props) {
                         setShowModels(false);
                       }}
                     ></textarea>
-                  </div>
-                  <div className="w-full h-[40px] rounded-[8px] flex justify-between items-center px-[8px] pb-[8px]">
-                    <div className="h-full flex flex-col justify-end items-start overflow-visible max-w-[200px]">
-                      <div
-                        className={
-                          "w-auto max-w-[400px] md:max-w-[400px] lg:max-w-[400px] min-h-[230px] rounded-lg mb-[6px] p-[7px]   pr-[4px] flex-col justify-start items-start backdrop-blur-[40px] boxShadowLight0 " +
-                          (showModels ? " flex" : " hidden") +
-                          (props?.theme ? " bg-[#181b20]" : " bg-[#1F2125]")
-                        }
-                      >
+                    <div className="w-full h-[42px] mt-[8px] rounded-[10px] flex justify-between items-end ">
+                      <div className="h-full flex flex-col justify-end items-start overflow-visible max-w-[200px]">
                         <div
                           className={
-                            "w-full h-full flex flex-col justify-start items-start overflow-y-scroll pr-[3px]" +
-                            (props?.theme ? " scroll2" : " ")
+                            "w-auto max-w-[400px] md:max-w-[400px] lg:max-w-[400px] min-h-[230px] rounded-lg mb-[6px] p-[7px]   pr-[4px] flex-col justify-start items-start backdrop-blur-[40px] boxShadowLight0 " +
+                            (showModels ? " flex" : " hidden") +
+                            (props?.theme ? " bg-[#181b20]" : " bg-[#1F2125]")
                           }
                         >
-                          {aiModels?.map((data, index) => {
-                            return (
-                              <span
-                                key={index}
-                                className={
-                                  "group h-auto p-[7px] py-[5px] my-[1px] group cursor-pointer w-full rounded-[6px]   flex whitespace-nowrap justify-start items-center " +
-                                  (props?.theme
-                                    ? currentModel == data.Model
-                                      ? " text-[white] bg-[#353941]"
-                                      : " text-[#97a2b0] hover:bg-[#35394150]"
-                                    : " text-[#a4a4a4]")
-                                }
-                                onClick={() => {
-                                  setCurrentModel(data?.Model);
-                                  setShowModels(false);
-                                }}
-                              >
-                                <div
+                          <div
+                            className={
+                              "w-full h-full flex flex-col justify-start items-start overflow-y-scroll pr-[3px]" +
+                              (props?.theme ? " scroll2" : " ")
+                            }
+                          >
+                            {aiModels?.map((data, index) => {
+                              return (
+                                <span
+                                  key={index}
                                   className={
-                                    "min-w-[3px] h-[20px] rounded-full mr-[15px]" +
-                                    (currentModel == data.Model
-                                      ? " bg-[#bcc4d2] flex"
-                                      : " bg-transparent hidden")
+                                    "group h-auto p-[7px] py-[5px] my-[1px] group cursor-pointer w-full rounded-[6px]   flex whitespace-nowrap justify-start items-center " +
+                                    (props?.theme
+                                      ? currentModel == data.Model
+                                        ? " text-[white] bg-[#353941]"
+                                        : " text-[#97a2b0] hover:bg-[#35394150]"
+                                      : " text-[#a4a4a4]")
                                   }
-                                ></div>
-                                <div
-                                  className={
-                                    " " +
-                                    (currentModel == data.Model
-                                      ? " hidden ml-[0px] w-[0px]"
-                                      : " block ml-[-5px] w-[23px]")
-                                  }
+                                  onClick={() => {
+                                    setCurrentModel(data?.Model);
+                                    setShowModels(false);
+                                  }}
                                 >
-                                  <ChevronRight
-                                    width={18}
-                                    height={18}
-                                    strokeWidth={3.5}
-                                    className="text-transparent group-hover:text-[#bcc4d2] "
-                                  />
-                                </div>
+                                  <div
+                                    className={
+                                      "min-w-[3px] h-[20px] rounded-full mr-[15px]" +
+                                      (currentModel == data.Model
+                                        ? " bg-[#bcc4d2] flex"
+                                        : " bg-transparent hidden")
+                                    }
+                                  ></div>
+                                  <div
+                                    className={
+                                      " " +
+                                      (currentModel == data.Model
+                                        ? " hidden ml-[0px] w-[0px]"
+                                        : " block ml-[-5px] w-[23px]")
+                                    }
+                                  >
+                                    <ChevronRight
+                                      width={18}
+                                      height={18}
+                                      strokeWidth={3.5}
+                                      className="text-transparent group-hover:text-[#bcc4d2] "
+                                    />
+                                  </div>
 
-                                <div className="flex flex-col justify-start items-start w-[calc(100%-30px)]">
-                                  <div
-                                    className={
-                                      "flex justify-start items-center" +
-                                      (props?.theme
-                                        ? " group-hover:text-[#ffffff]"
-                                        : " group-hover:text-[#ffffff]")
-                                    }
-                                  >
-                                    {data?.Model}{" "}
-                                    {index < 4 ? (
-                                      <span
-                                        className={
-                                          "ml-[10px] rounded-[6px] h-[17px] bg-gradient-to-br from-[#ba96fc] to-[#a477f7] text-[black] flex justify-center items-center px-[5px] py-[0px] text-[10px] tracking-wider font-[geistBold] " +
-                                          (currentModel == data?.Model
-                                            ? " border-[#525863]"
-                                            : " border-[#465463]")
-                                        }
-                                      >
-                                        New
-                                      </span>
-                                    ) : (
-                                      <></>
-                                    )}
+                                  <div className="flex flex-col justify-start items-start w-[calc(100%-30px)]">
+                                    <div
+                                      className={
+                                        "flex justify-start items-center" +
+                                        (props?.theme
+                                          ? " group-hover:text-[#ffffff]"
+                                          : " group-hover:text-[#ffffff]")
+                                      }
+                                    >
+                                      {data?.Model}{" "}
+                                      {index < 4 ? (
+                                        <span
+                                          className={
+                                            "ml-[10px] rounded-[6px] h-[17px] bg-gradient-to-br from-[#ba96fc] to-[#a477f7] text-[black] flex justify-center items-center px-[5px] py-[0px] text-[10px] tracking-wider font-[geistBold] " +
+                                            (currentModel == data?.Model
+                                              ? " border-[#525863]"
+                                              : " border-[#465463]")
+                                          }
+                                        >
+                                          New
+                                        </span>
+                                      ) : (
+                                        <></>
+                                      )}
+                                    </div>
+                                    <div
+                                      className={
+                                        "mt-[-1px] text-[11px] tracking-wide group-hover:text-[#a9b0ba]" +
+                                        (props?.theme
+                                          ? currentModel == data.Model
+                                            ? " text-[#a9b0ba]"
+                                            : " text-[#737d8a]"
+                                          : " text-[#a4a4a4]")
+                                      }
+                                    >
+                                      {data?.About}
+                                    </div>
                                   </div>
                                   <div
                                     className={
-                                      "mt-[-1px] text-[11px] tracking-wide group-hover:text-[#a9b0ba]" +
-                                      (props?.theme
-                                        ? currentModel == data.Model
-                                          ? " text-[#a9b0ba]"
-                                          : " text-[#737d8a]"
-                                        : " text-[#a4a4a4]")
+                                      "" +
+                                      (currentModel == data.Model
+                                        ? " block"
+                                        : " hidden")
                                     }
                                   >
-                                    {data?.About}
+                                    <WifiHigh
+                                      width={20}
+                                      height={20}
+                                      strokeWidth={2}
+                                      className="mt-[-7px]"
+                                    />
                                   </div>
-                                </div>
-                                <div
-                                  className={
-                                    "" +
-                                    (currentModel == data.Model
-                                      ? " block"
-                                      : " hidden")
-                                  }
-                                >
-                                  <WifiHigh
-                                    width={20}
-                                    height={20}
-                                    strokeWidth={2}
-                                    className="mt-[-7px]"
-                                  />
-                                </div>
-                              </span>
-                            );
-                          })}
+                                </span>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                      <div
-                        className={
-                          "min-h-[32px] max-h-[32px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer border-[1.5px] max-w-[200px]" +
-                          (props?.theme
-                            ? " bg-[#181b20] text-[#97a2b0] hover:text-[white] border-[#181b20]"
-                            : " bg-[#404148] text-[white]")
-                        }
-                        onClick={() => {
-                          setShowModels(!showModels);
-                        }}
-                      >
-                        <Sparkles
-                          width={14}
-                          height={14}
-                          strokeWidth={2.4}
-                          className="mr-[8px]"
-                        />
-                        <div className="overflow-hidden whitespace-nowrap text-ellipsis w-[calc(100%-40px)]">
-                          {currentModel}
-                        </div>
-                        <ChevronDown
-                          width={14}
-                          height={14}
-                          strokeWidth={2.4}
-                          className="ml-[8px]"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end items-center ">
-                      <Mic
-                        width={18}
-                        height={18}
-                        strokeWidth={2.1}
-                        className={
-                          "mr-[10px] cursor-pointer " +
-                          (props?.theme
-                            ? " text-[#97a2b0] hover:text-[#ffffff]"
-                            : " text-[#6e6e7c] hover:text-[#000000]")
-                        }
-                      />
-                      <button
-                        className={
-                          "h-[32px] px-[10px] rounded-lg flex justify-center items-center " +
-                          (props?.theme
-                            ? message?.trim().length > 0
-                              ? " bg-[#ffffff]  text-[#000000] cursor-pointer"
-                              : " bg-[#ffffff20] text-[#ffffff40] cursor-default"
-                            : " bg-[#404148] text-[white] cursor-pointer")
-                        }
-                        onClick={() => {
-                          if (message?.trim().length > 0) {
-                            addUserMessage(message);
-                            setLoading(true);
+                        <div
+                          className={
+                            "min-h-[32px] max-h-[32px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer border-[1.5px] max-w-[200px]" +
+                            (props?.theme
+                              ? " bg-[#181b20] text-[#97a2b0] hover:text-[white] border-[#181b20]"
+                              : " bg-[#F7F7F7] border-[#f0f0f0] text-[#000000]")
                           }
-                        }}
-                        style={{ transition: ".15s" }}
-                      >
-                        <Send
-                          width={14}
-                          height={14}
-                          strokeWidth={2.4}
-                          className="mr-[8px]"
+                          onClick={() => {
+                            setShowModels(!showModels);
+                          }}
+                        >
+                          <Sparkles
+                            width={14}
+                            height={14}
+                            strokeWidth={2.4}
+                            className="mr-[8px]"
+                          />
+                          <div className="overflow-hidden whitespace-nowrap text-ellipsis w-[calc(100%-40px)]">
+                            {currentModel}
+                          </div>
+                          <ChevronDown
+                            width={14}
+                            height={14}
+                            strokeWidth={2.4}
+                            className="ml-[8px]"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end items-center ">
+                        <Mic
+                          width={18}
+                          height={18}
+                          strokeWidth={2.1}
+                          className={
+                            "mr-[15px] cursor-pointer " +
+                            (props?.theme
+                              ? " text-[#97a2b0] hover:text-[#ffffff]"
+                              : " text-[#797979] hover:text-[#000000]")
+                          }
                         />
-                        Send
-                      </button>
+                        <button
+                          className={
+                            "h-[32px] px-[10px] pr-[13px] rounded-[10px] flex justify-center items-center " +
+                            (props?.theme
+                              ? message?.trim().length > 0
+                                ? " bg-[#ffffff]  text-[#000000] cursor-pointer"
+                                : " bg-[#ffffff20] text-[#ffffff40] cursor-default"
+                              : message?.trim().length > 0
+                              ? " bg-[#1a191f]  text-[#ffffff] cursor-pointer"
+                              : " bg-[#1a191f0a] text-[#B9B9B9] cursor-default")
+                          }
+                          onClick={() => {
+                            if (message?.trim().length > 0) {
+                              addUserMessage(message);
+                              setLoading(true);
+                            }
+                          }}
+                          style={{ transition: ".15s" }}
+                        >
+                          <Send
+                            width={14}
+                            height={14}
+                            strokeWidth={2.4}
+                            className="mr-[8px] "
+                          />
+                          Send
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1735,23 +2192,6 @@ export default function AiChatBot(props) {
             </div>
           </>
         )}
-
-        {/* <div className="flex justify-center items-center">
-        <BrainCircuit
-          width={35}
-          height={35}
-          strokeWidth={2}
-          className="mr-[15px]"
-        />
-        <span className="text-[30px] font-[geistSemibold]">I'm ProbeSeek</span>
-      </div>
-      <div
-        className={
-          "mt-[5px] " + (props?.theme ? " text-[#9ba6aa]" : " text-[#6e6e7c]")
-        }
-      >
-        How may I assist you today?
-      </div> */}
       </div>
     </>
   );

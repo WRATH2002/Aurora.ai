@@ -52,14 +52,12 @@ export default function TypingEffect({ data, activeIndex, setActiveIndex }) {
 
   // Render text directly if size hasn't changed
   if (data?.Message?.length === prevSize) {
-    return (
-      <div className="whitespace-pre-wrap font-[geistRegular]">{text}</div>
-    );
+    return <div className="whitespace-pre-wrap font-[DMSr]">{text}</div>;
   }
 
   // Render with animation if size changes
   return (
-    <div className="whitespace-pre-wrap font-[geistRegular]">
+    <div className="whitespace-pre-wrap font-[DMSr]">
       {typedElements.map((element, index) =>
         element.tag ? (
           <span

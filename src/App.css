@@ -165,6 +165,34 @@ a,
   src: url(./assets/font/Recoleta-RegularDEMO.otf);
 }
 
+/* --------------------------- */
+
+@font-face {
+  font-family: DMSr;
+  src: url(./assets/font/DMSans-Regular.ttf);
+}
+@font-face {
+  font-family: DMSm;
+  src: url(./assets/font/DMSans-Medium.ttf);
+}
+@font-face {
+  font-family: DMSb;
+  src: url(./assets/font/DMSans-Bold.ttf);
+}
+
+@font-face {
+  font-family: DMMr;
+  src: url(./assets/font/DMMono-Regular.ttf);
+}
+@font-face {
+  font-family: jetr;
+  src: url(./assets/font/JetBrainsMono-Regular.ttf);
+}
+@font-face {
+  font-family: jetm;
+  src: url(./assets/font/JetBrainsMono-Medium.ttf);
+}
+
 .SCROLLHEIGHT::-webkit-scrollbar {
   height: 0px;
   width: 0px;
@@ -172,6 +200,11 @@ a,
 .directoryTreeScroll::-webkit-scrollbar {
   height: 0px;
   width: 0px;
+}
+
+::selection {
+  /* color: red; */
+  background: #f8dcc5;
 }
 
 /* --------------------------------------------------- */
@@ -260,15 +293,54 @@ a,
   background-color: #a9a9a9;
 }
 
-.scroll2::-webkit-scrollbar-thumb {
+/* ----------------- */
+
+.uploadScroll::-webkit-scrollbar {
+  height: 0px;
+}
+/* ---------------------------------------- */
+.modelScrollDark::-webkit-scrollbar-thumb {
   background-color: #33373e;
 }
-.scroll2::-webkit-scrollbar-thumb:hover {
+.modelScrollDark::-webkit-scrollbar-thumb:hover {
   background-color: #41454d;
 }
-.scroll2::-webkit-scrollbar {
+.modelScrollDark::-webkit-scrollbar {
   width: 5px;
 }
+
+.modelScrollLight::-webkit-scrollbar-thumb {
+  background: #b6b6b6;
+}
+.modelScrollLight::-webkit-scrollbar-thumb:hover {
+  background-color: #828282;
+}
+.modelScrollLight::-webkit-scrollbar {
+  width: 5px;
+}
+/* ---------------------------------------- */
+
+.modelScrollDark::-webkit-scrollbar-thumb {
+  background-color: #33373e;
+}
+.modelScrollDark::-webkit-scrollbar-thumb:hover {
+  background-color: #41454d;
+}
+.modelScrollDark::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modelScrollLight::-webkit-scrollbar-thumb {
+  background: #ececec;
+}
+.modelScrollLight::-webkit-scrollbar-thumb:hover {
+  background-color: #e6e6e6;
+}
+.modelScrollLight::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* ---------------------------------------- */
 
 .bullete1 {
   margin-right: 7px;

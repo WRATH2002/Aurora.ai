@@ -36,6 +36,7 @@ import {
   Strikethrough,
   TextSearch,
   Underline,
+  Wand,
   WandSparkles,
   WrapText,
 } from "lucide-react";
@@ -388,25 +389,43 @@ function TextFormatFloatingToolbar({
           >
             <div
               className={
-                "flex justify-start items-center  boxShadowLight0  px-[5px] min-w-[30px] min-h-[40px]  border-[1.5px]  rounded-lg w-auto" +
+                "flex justify-start items-center backdrop-blur-[20px] drop-shadow-md px-[5px] min-w-[30px] min-h-[40px]  border-[1px]  rounded-xl w-auto" +
                 (theme
-                  ? " border-[#252525] bg-[#353e42]"
-                  : " border-[#E5E7EB] bg-[#ffffff]")
+                  ? " border-[#252525] bg-[#181b20]"
+                  : " bg-[#ffffffc4] border-[#f1f1f1]")
               }
-              style={{
-                boxShadow: "0px 1px 15px rgba(0, 0, 0, 0.15)",
-              }}
+              // style={{
+              //   boxShadow: "0px 1px 15px rgba(0, 0, 0, 0.15)",
+              // }}
             >
               <button
                 className={
-                  "w-[30px] h-[30px] rounded-md flex justify-center items-center    cursor-pointer  " +
+                  "w-auto h-[30px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer " +
+                  (showAiMenu
+                    ? theme
+                      ? " text-[white] bg-[#313C40]"
+                      : " text-[black] bg-[#e6e6f4]"
+                    : theme
+                    ? " text-[#f4efff] hover:text-[white] hover:bg-[#313C40]"
+                    : " text-[#6e6e7c] hover:text-[black] hover:bg-[#ffffff]")
+                }
+                onClick={() => {
+                  setShowAiMenu(!showAiMenu);
+                }}
+              >
+                <Wand width={18} height={18} strokeWidth="1.8" />{" "}
+                <span className="text-[15px] ml-[7px]">Improve writing</span>
+              </button>
+              <button
+                className={
+                  "w-[30px] h-[30px] ml-[5px] rounded-lg flex justify-center items-center    cursor-pointer  " +
                   (isBold
                     ? theme
                       ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
                       : " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                     : theme
                     ? " hover:bg-[#313C40] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
+                    : " hover:bg-[#F7F7F7] text-[#6e6e7c] hover:text-[black] ")
                 }
                 onClick={() => {
                   editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
@@ -416,14 +435,14 @@ function TextFormatFloatingToolbar({
               </button>
               <button
                 className={
-                  "w-[30px] h-[30px] ml-[5px] rounded-md flex justify-center items-center    cursor-pointer  " +
+                  "w-[30px] h-[30px] ml-[5px] rounded-lg flex justify-center items-center    cursor-pointer  " +
                   (isItalic
                     ? theme
                       ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
                       : " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                     : theme
                     ? " hover:bg-[#313C40] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
+                    : " hover:bg-[#F7F7F7] text-[#6e6e7c] hover:text-[black] ")
                 }
                 onClick={() => {
                   editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
@@ -433,14 +452,14 @@ function TextFormatFloatingToolbar({
               </button>
               <button
                 className={
-                  "w-[30px] h-[30px] ml-[5px] rounded-md flex justify-center items-center    cursor-pointer  " +
+                  "w-[30px] h-[30px] ml-[5px] rounded-lg flex justify-center items-center    cursor-pointer  " +
                   (isUnderline
                     ? theme
                       ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
                       : " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                     : theme
                     ? " hover:bg-[#313C40] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
+                    : " hover:bg-[#F7F7F7] text-[#6e6e7c] hover:text-[black] ")
                 }
                 onClick={() => {
                   editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
@@ -450,14 +469,14 @@ function TextFormatFloatingToolbar({
               </button>
               <button
                 className={
-                  "w-[30px] h-[30px] ml-[5px] rounded-md flex justify-center items-center    cursor-pointer  " +
+                  "w-[30px] h-[30px] ml-[5px] rounded-lg flex justify-center items-center    cursor-pointer  " +
                   (isStrikethrough
                     ? theme
                       ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
                       : " bg-[#e6e6f4] text-[#000000] cursor-pointer"
                     : theme
                     ? " hover:bg-[#313C40] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
+                    : " hover:bg-[#F7F7F7] text-[#6e6e7c] hover:text-[black] ")
                 }
                 onClick={() => {
                   editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
@@ -466,23 +485,6 @@ function TextFormatFloatingToolbar({
                 <Strikethrough width={18} height={18} strokeWidth="1.8" />
               </button>
 
-              <button
-                className={
-                  "w-[30px] h-[30px] ml-[5px] rounded-md flex justify-center items-center cursor-pointer " +
-                  (showAiMenu
-                    ? theme
-                      ? " text-[white] bg-[#313C40]"
-                      : " text-[black] bg-[#e6e6f4]"
-                    : theme
-                    ? " text-[#f4efff] hover:text-[white] hover:bg-[#313C40]"
-                    : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
-                }
-                onClick={() => {
-                  setShowAiMenu(!showAiMenu);
-                }}
-              >
-                <Sparkles width={18} height={18} strokeWidth="1.8" />
-              </button>
               {/* <IconButton
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");

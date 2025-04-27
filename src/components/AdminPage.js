@@ -685,7 +685,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="w-full h-[100svh] flex justify-center items-start font-[geistRegular] text-[14px] bg-[#1D1E20] text-[white]">
+    <div className="w-full h-[100svh] flex justify-center items-start font-[DMSr] text-[14px] bg-[#1D1E20] text-[white]">
       <div
         className={
           "h-full w-[50px] hidden md:flex lg:flex flex-col justify-start items-center  " +

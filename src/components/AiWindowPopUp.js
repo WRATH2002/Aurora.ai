@@ -212,7 +212,7 @@ export default function AiWindowPopUp(props) {
             ...position,
           });
         }}
-        className="rounded-xl flex flex-col justify-center items-center font-[geistRegular] fixed   "
+        className="rounded-xl flex flex-col justify-center items-center font-[DMSr] fixed   "
         style={{
           // transform: "translateX(-50%)",
           zIndex: "500",
@@ -249,7 +249,7 @@ export default function AiWindowPopUp(props) {
           </svg>
         </div>
         <div
-          className="w-[calc(100%-4px)] ml-[2px] h-[calc(100%-4px)] rounded-xl border-[1.5px] border-[#2f2f2f12] bg-[#ffffff] boxShadowLight1  flex flex-col justify-start items-start font-[geistRegular] text-[18px]"
+          className="w-[calc(100%-4px)] ml-[2px] h-[calc(100%-4px)] rounded-xl border-[1.5px] border-[#2f2f2f12] bg-[#ffffff] boxShadowLight1  flex flex-col justify-start items-start font-[DMSr] text-[18px]"
           // style={{ transform: "translateX(-50%)", zIndex: "300" }}
         >
           <div className="w-full h-[45px] flex justify-start items-center border-b-[1.5px] border-b-[#2f2f2f12] px-[20px]">
@@ -475,7 +475,7 @@ export default function AiWindowPopUp(props) {
       </Rnd>
       {/* </div> */}
       {/* <div
-        className="w-[500px] h-[300px] rounded-xl fixed top-[50px] left-[50%] flex flex-col justify-center items-center font-[geistRegular]"
+        className="w-[500px] h-[300px] rounded-xl fixed top-[50px] left-[50%] flex flex-col justify-center items-center font-[DMSr]"
         style={{ transform: "translateX(-50%)", zIndex: "300" }}
       >
         <div className="w-full h-[18px] flex justify-between items-center mb-[-16px] z-[100]">
@@ -509,7 +509,7 @@ export default function AiWindowPopUp(props) {
           </svg>
         </div>
         <div
-          className="w-[calc(100%-4px)] h-[calc(100%-4px)] rounded-xl border-[1.5px] border-[#2f2f2f12] bg-white boxShadowLight1  flex flex-col justify-start items-start font-[geistRegular] text-[18px]"
+          className="w-[calc(100%-4px)] h-[calc(100%-4px)] rounded-xl border-[1.5px] border-[#2f2f2f12] bg-white boxShadowLight1  flex flex-col justify-start items-start font-[DMSr] text-[18px]"
           // style={{ transform: "translateX(-50%)", zIndex: "300" }}
         >
           <div className="w-full h-[45px] flex justify-start items-center border-b-[1.5px] border-b-[#2f2f2f12] px-[20px]">

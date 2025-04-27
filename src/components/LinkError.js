@@ -44,7 +44,7 @@ export default function LinkError() {
   return (
     <div
       className={
-        "w-full h-[100svh] flex flex-col justify-center items-center font-[geistRegular]" +
+        "w-full h-[100svh] flex flex-col justify-center items-center font-[DMSr]" +
         (theme
           ? " bg-[#141414] text-[#686868]"
           : " bg-[#ffffff] text-[#000000]")

@@ -72,7 +72,7 @@ export default function Documentation() {
               aurora.ai
             </div>
             <button
-              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[80px] font-[geistRegular] text-[#cecece] font-normal "
+              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[80px] font-[DMSr] text-[#cecece] font-normal "
               onClick={() => {
                 // navigateToLoginPage();
               }}
@@ -80,7 +80,7 @@ export default function Documentation() {
               Pricing
             </button>
             <button
-              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[50px] font-[geistRegular] text-[#cecece] font-normal "
+              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[50px] font-[DMSr] text-[#cecece] font-normal "
               onClick={() => {
                 navigateToDocs();
               }}
@@ -88,7 +88,7 @@ export default function Documentation() {
               Docs
             </button>
             <button
-              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[50px] font-[geistRegular] text-[#cecece] font-normal "
+              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[50px] font-[DMSr] text-[#cecece] font-normal "
               onClick={() => {
                 // navigateToLoginPage();
               }}
@@ -137,7 +137,7 @@ export default function Documentation() {
             </div>
           </div>
         </div>
-        <div className="w-full h-[calc(100%-60px)] md:h-[calc(100%-80px)] lg:h-[calc(100%-80px)]  flex flex-col justify-start items-start pt-[50px] md:pt-[130px] lg:pt-[130px] pb-[200px] font-[geistRegular] px-[20px] md:px-[100px] lg:px-[100px]  ">
+        <div className="w-full h-[calc(100%-60px)] md:h-[calc(100%-80px)] lg:h-[calc(100%-80px)]  flex flex-col justify-start items-start pt-[50px] md:pt-[130px] lg:pt-[130px] pb-[200px] font-[DMSr] px-[20px] md:px-[100px] lg:px-[100px]  ">
           <span className="text-[40px] font-extrabold mb-[10px]">
             {data[0]?.heading}
           </span>

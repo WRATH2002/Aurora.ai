@@ -20,7 +20,6 @@ import {
   Trash,
   X,
 } from "lucide-react";
-import { db } from "../firebase";
 import {
   arrayRemove,
   arrayUnion,
@@ -29,6 +28,9 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import firebase from "../firebase";
+import { useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../firebase";
 import NewAIChatModal from "./NewAIChatModal";
 import ShowArchiveChats from "./ShowArchiveChats";
 import ConfirmModal, { RenameChatModal, ShareChat } from "./ConfirmModal";
@@ -37,7 +39,7 @@ import ShowSharedChats from "./ShowSharedChats";
 export default function AiChatBotSidebar(props) {
   const [archiveModal, setArchiveModal] = useState(false);
   const [shareShowModal, setShareShowModal] = useState(false);
-
+  const [theme, setTheme] = useState(props?.theme);
   const [chatSettings, setChatSettings] = useState("");
   const [newChat, setNewChat] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false);
@@ -55,6 +57,21 @@ export default function AiChatBotSidebar(props) {
   });
   const divRef = useRef(null);
 
+  const navigate = useNavigate();
+  function navigateToWelcomePgae() {
+    navigate(`/user/login`);
+  }
+
+  // -------------------------------- Function to fetch Theme form Firebase  ## Called inside auth checking UseEffect
+  function fetchTheme() {
+    const user = firebase.auth().currentUser;
+    const channelRef = db.collection("user").doc(user?.uid);
+    onSnapshot(channelRef, (snapshot) => {
+      setTheme(snapshot?.data()?.Theme);
+    });
+  }
+
+  // ------------------------- Checking for outside div clicks
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (divRef.current && !divRef.current.contains(event.target)) {
@@ -90,9 +107,9 @@ export default function AiChatBotSidebar(props) {
   }
 
   // ------------------------- Calling `fetchAllChatInfo()` function
-  useEffect(() => {
-    fetchAllChatInfo();
-  }, []);
+  // useEffect(() => {
+  //   fetchAllChatInfo();
+  // }, []);
 
   // ------------------------- Delete Chat Space from Firebase
   function deleteChatFromFirebase(path, chatInfo) {
@@ -247,6 +264,22 @@ export default function AiChatBotSidebar(props) {
       });
   }
 
+  // -------------------------- Checking if the user is logged in or not
+  useEffect(() => {
+    const listen = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        fetchTheme();
+        fetchAllChatInfo();
+      } else {
+        // setAuthUser(null);
+        navigateToWelcomePgae();
+      }
+    });
+    return () => {
+      listen();
+    };
+  }, []);
+
   return (
     <>
       {props?.searchChat ? (
@@ -254,7 +287,7 @@ export default function AiChatBotSidebar(props) {
           // aiChatNames={aiChatNames}
           setSearchChat={props?.setSearchChat}
           searchChat={props?.searchChat}
-          theme={props?.theme}
+          theme={theme}
           AIChatInfo={AIChatInfo}
         />
       ) : (
@@ -266,7 +299,7 @@ export default function AiChatBotSidebar(props) {
           <div
             className={
               "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
-              (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
+              (theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
             }
             onClick={() => {
               setConfirmModalData([]);
@@ -276,7 +309,7 @@ export default function AiChatBotSidebar(props) {
             <div
               className={
                 "w-[350px] h-auto rounded-2xl border-[1.5px] boxShadowLight2 flex flex-col justify-start items-start p-[25px] pt-[18px] " +
-                (props?.theme
+                (theme
                   ? " bg-[#1A1A1A] border-[#252525]"
                   : " bg-[#ffffff] border-[#eaeaea]")
               }
@@ -287,7 +320,7 @@ export default function AiChatBotSidebar(props) {
               <span
                 className={
                   "text-[22px] font-[geistMedium] w-full flex justify-between items-center" +
-                  (props?.theme ? " text-[white]" : " text-[black]")
+                  (theme ? " text-[white]" : " text-[black]")
                 }
               >
                 Delete Chat ?
@@ -297,7 +330,7 @@ export default function AiChatBotSidebar(props) {
                   strokeWidth={2.2}
                   className={
                     "cursor-pointer " +
-                    (props?.theme
+                    (theme
                       ? " text-[#828282] hover:text-[white]"
                       : " text-[#828282] hover:text-[black]")
                   }
@@ -310,14 +343,14 @@ export default function AiChatBotSidebar(props) {
               <div
                 className={
                   "w-full mt-[20px]" +
-                  (props?.theme ? " text-[#828282]" : " text-[#828282]")
+                  (theme ? " text-[#828282]" : " text-[#828282]")
                 }
               >
                 This operation will delete :{" "}
                 <span
                   className={
                     "font-[geistMedium]" +
-                    (props?.theme ? " text-[white]" : " text-[black]")
+                    (theme ? " text-[white]" : " text-[black]")
                   }
                 >
                   {confirmModalData[0]}
@@ -327,7 +360,7 @@ export default function AiChatBotSidebar(props) {
                 <button
                   className={
                     "px-[15px] h-[30px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[14px] cursor-pointer " +
-                    (props?.theme
+                    (theme
                       ? " bg-[#dc3737] hover:bg-[#f33636] border-[#fa5e5e] text-[#ffffff]"
                       : " bg-[#222222] text-[#828282]")
                   }
@@ -345,7 +378,7 @@ export default function AiChatBotSidebar(props) {
             </div>
           </div>
           {/* deleteChatFromFirebase(data?.ChatName, data); */}
-          {/* <ConfirmModal theme={props?.theme} closeFunction={setConfirmModal} performFunction={} confirmModalData={confirmModalData} /> */}
+          {/* <ConfirmModal theme={theme} closeFunction={setConfirmModal} performFunction={} confirmModalData={confirmModalData} /> */}
         </>
       ) : (
         <></>
@@ -354,7 +387,7 @@ export default function AiChatBotSidebar(props) {
       {renameModal ? (
         <>
           <RenameChatModal
-            theme={props?.theme}
+            theme={theme}
             setRenameModal={setRenameModal}
             renameModal={renameModal}
             setRenameModalData={setRenameModalData}
@@ -369,7 +402,7 @@ export default function AiChatBotSidebar(props) {
       {shareModal ? (
         <>
           <ShareChat
-            theme={props?.theme}
+            theme={theme}
             setShareModal={setShareModal}
             shareModal={shareModal}
             setShareModalData={setShareModalData}
@@ -383,7 +416,7 @@ export default function AiChatBotSidebar(props) {
 
       {newChat ? (
         <NewAIChatModal
-          theme={props?.theme}
+          theme={theme}
           setNewChat={setNewChat}
           newChat={newChat}
           AIChatInfo={AIChatInfo}
@@ -394,7 +427,7 @@ export default function AiChatBotSidebar(props) {
 
       {archiveModal ? (
         <ShowArchiveChats
-          theme={props?.theme}
+          theme={theme}
           setArchiveModal={setArchiveModal}
           archiveModal={archiveModal}
           AIChatInfo={AIChatInfo}
@@ -406,7 +439,7 @@ export default function AiChatBotSidebar(props) {
 
       {shareShowModal ? (
         <ShowSharedChats
-          theme={props?.theme}
+          theme={theme}
           setShareShowModal={setShareShowModal}
           shareShowModal={shareShowModal}
           AIChatInfo={AIChatInfo}
@@ -418,14 +451,15 @@ export default function AiChatBotSidebar(props) {
 
       <div
         className={
-          " h-full bg-transparent rounded-l-lg hidden md:flex lg:flex flex-col justify-start items-start px-[30px] md:px-[7px] lg:px-[7px] overflow-y-scroll overflow-x-visible" +
+          " h-full bg-transparent rounded-l-lg hidden md:flex lg:flex flex-col justify-start items-start px-[30px] md:px-[7px] lg:px-[7px] overflow-x-visible border-r-[1.5px]" +
+          (theme ? " border-[white]" : " border-[#f7f7f7]") +
           (props?.chatSidebarModal ? " w-[250px]" : " w-[0px]")
         }
       >
         <div
           className={
             "w-full flex justify-between items-center min-h-[50px] px-[10px] " +
-            (props?.theme ? " text-[#828282]" : " text-[#6e6e7c]")
+            (theme ? " text-[#828282]" : " text-[#797979]")
           }
         >
           <Search
@@ -434,7 +468,7 @@ export default function AiChatBotSidebar(props) {
             strokeWidth={2}
             className={
               "cursor-pointer " +
-              (props?.theme ? " hover:text-[#ffffff]" : " hover:text-[#000000]")
+              (theme ? " hover:text-[#ffffff]" : " hover:text-[#000000]")
             }
             onClick={() => {
               props?.setSearchChat(!props?.searchChat);
@@ -448,9 +482,7 @@ export default function AiChatBotSidebar(props) {
               strokeWidth={2}
               className={
                 "cursor-pointer mr-[13px]" +
-                (props?.theme
-                  ? " hover:text-[#ffffff]"
-                  : " hover:text-[#000000]")
+                (theme ? " hover:text-[#ffffff]" : " hover:text-[#000000]")
               }
               onClick={() => {
                 setShareShowModal(!shareShowModal);
@@ -463,9 +495,7 @@ export default function AiChatBotSidebar(props) {
               strokeWidth={2}
               className={
                 "cursor-pointer mr-[13px]" +
-                (props?.theme
-                  ? " hover:text-[#ffffff]"
-                  : " hover:text-[#000000]")
+                (theme ? " hover:text-[#ffffff]" : " hover:text-[#000000]")
               }
               onClick={() => {
                 setArchiveModal(!archiveModal);
@@ -478,9 +508,7 @@ export default function AiChatBotSidebar(props) {
               strokeWidth={2}
               className={
                 "cursor-pointer mr-[13px]" +
-                (props?.theme
-                  ? " hover:text-[#ffffff]"
-                  : " hover:text-[#000000]")
+                (theme ? " hover:text-[#ffffff]" : " hover:text-[#000000]")
               }
               onClick={() => {
                 setNewChat(!newChat);
@@ -493,9 +521,7 @@ export default function AiChatBotSidebar(props) {
                 strokeWidth={2}
                 className={
                   "cursor-pointer -rotate-90" +
-                  (props?.theme
-                    ? " hover:text-[#ffffff]"
-                    : " hover:text-[#000000]")
+                  (theme ? " hover:text-[#ffffff]" : " hover:text-[#000000]")
                 }
                 onClick={() => {
                   props?.setChatSidebarModal(false);
@@ -508,9 +534,7 @@ export default function AiChatBotSidebar(props) {
                 strokeWidth={2}
                 className={
                   "cursor-pointer -rotate-90" +
-                  (props?.theme
-                    ? " hover:text-[#ffffff]"
-                    : " hover:text-[#000000]")
+                  (theme ? " hover:text-[#ffffff]" : " hover:text-[#000000]")
                 }
                 onClick={() => {
                   props?.setChatSidebarModal(true);
@@ -523,7 +547,7 @@ export default function AiChatBotSidebar(props) {
           onScroll={() => {
             setChatSettings("");
           }}
-          className="w-full h-[calc(100%-50px)] overflow-y-scroll flex flex-col-reverse justify-end items-start"
+          className="w-full h-[calc(100%-107px)] overflow-y-scroll flex flex-col-reverse justify-end items-start"
         >
           {AIChatInfo?.ChatNameInfo?.map((data, index) => {
             return (
@@ -531,32 +555,24 @@ export default function AiChatBotSidebar(props) {
                 key={index}
                 className={
                   "w-full min-h-[33px] max-h-[33px] group rounded-lg flex justify-start items-center px-[10px] cursor-pointer" +
-                  (props?.theme
+                  (theme
                     ? " hover:bg-[#222222] hover:text-[#eaeaea]"
-                    : " text-[#6e6e7c] hover:text-[#000000]") +
+                    : " hover:bg-[#F3F3F3] hover:text-[#000000]") +
                   (props?.selectedChatName == data?.ChatName
-                    ? props?.theme
+                    ? theme
                       ? " bg-[#2A2A2A] text-[#eaeaea]"
-                      : " bg-[#2A2A2A] text-[#eaeaea]"
-                    : props?.theme
+                      : " bg-[#eaeaea] text-[#000000]"
+                    : theme
                     ? " bg-transparent text-[#828282]"
-                    : " bg-transparent text-[#6e6e7c]")
+                    : " bg-transparent text-[#797979]")
                 }
                 onClick={() => {
                   props?.setSelectedChatName(data?.ChatName);
                 }}
               >
-                {/* <div className="w-[30px] flex justify-start items-center">
-                <MessageSquare
-                  width={18}
-                  height={18}
-                  strokeWidth={1.8}
-                  className=""
-                />
-              </div> */}
                 <div
                   className={
-                    " group-hover:w-[calc(100%-30px)] text-ellipsis overflow-hidden whitespace-nowrap" +
+                    " group-hover:w-[calc(100%-30px)] text-ellipsis overflow-hidden whitespace-nowrap font-[DMSr]" +
                     (chatSettings == data?.ChatName
                       ? " w-[calc(100%-30px)]"
                       : " w-[calc(100%-00px)]")
@@ -583,9 +599,9 @@ export default function AiChatBotSidebar(props) {
                   <div
                     className={
                       "w-full min-h-full flex justify-end items-center " +
-                      (props?.theme
+                      (theme
                         ? " text-[#828282] hover:text-[#eaeaea]"
-                        : " text-[#828282] hover:text-[#eaeaea]")
+                        : " text-[#797979] hover:text-[#000000]")
                     }
                   >
                     {chatSettings == data?.ChatName ? (
@@ -604,12 +620,12 @@ export default function AiChatBotSidebar(props) {
                     className={
                       "w-auto h-auto rounded-[10px] p-[15px] py-[12px]  flex-col justify-start items-start z-40 mt-[5px] mr-[-10px]" +
                       (chatSettings == data?.ChatName
-                        ? props?.theme
+                        ? theme
                           ? " opacity-100 bg-[#2A2A2A] flex"
-                          : " opacity-100 bg-[#2A2A2A] flex"
-                        : props?.theme
+                          : " opacity-100 bg-[#F3F3F3] flex"
+                        : theme
                         ? " opacity-0 bg-[#2A2A2A] hidden"
-                        : " opacity-0 bg-[#2A2A2A] hidden")
+                        : " opacity-0 bg-[#F3F3F3] hidden")
                     }
                     onClick={(e) => {
                       e.stopPropagation();
@@ -618,9 +634,9 @@ export default function AiChatBotSidebar(props) {
                     <div
                       className={
                         "w-full h-[28px] flex justify-start items-center" +
-                        (props?.theme
+                        (theme
                           ? " text-[#bdbdbd] hover:text-[#ffffff]"
-                          : " text-[#bdbdbd] hover:text-[#ffffff]")
+                          : " text-[#797979] hover:text-[#000000]")
                       }
                       onClick={(e) => {
                         archiveChatInFirebase(data?.ChatName, data);
@@ -637,9 +653,9 @@ export default function AiChatBotSidebar(props) {
                     <div
                       className={
                         "w-full h-[28px] flex justify-start items-center" +
-                        (props?.theme
+                        (theme
                           ? " text-[#bdbdbd] hover:text-[#ffffff]"
-                          : " text-[#828282] hover:text-[#eaeaea]")
+                          : " text-[#797979] hover:text-[#000000]")
                       }
                       onClick={(e) => {
                         setShareModalData([data?.ChatName, data]);
@@ -657,9 +673,9 @@ export default function AiChatBotSidebar(props) {
                     <div
                       className={
                         "w-full h-[28px] flex justify-start items-center" +
-                        (props?.theme
+                        (theme
                           ? " text-[#bdbdbd] hover:text-[#ffffff]"
-                          : " text-[#828282] hover:text-[#eaeaea]")
+                          : " text-[#797979] hover:text-[#000000]")
                       }
                       onClick={(e) => {
                         // renameChatInFirebase(
@@ -682,9 +698,9 @@ export default function AiChatBotSidebar(props) {
                     <div
                       className={
                         "w-full h-[28px] flex justify-start items-center" +
-                        (props?.theme
+                        (theme
                           ? " text-[#bf3838] hover:text-[#ff5353]"
-                          : " text-[#828282] hover:text-[#eaeaea]")
+                          : " text-[#e84d3a] hover:text-[#ff2308]")
                       }
                       onClick={(e) => {
                         setConfirmModalData([data?.ChatName, data]);
@@ -706,6 +722,14 @@ export default function AiChatBotSidebar(props) {
             );
           })}
         </div>
+        <div
+          className={
+            "w-full h-[40px] flex justify-start items-center  mt-[10px] mb-[7px] px-[10px]" +
+            (theme ? " text-[white]" : " text-[black]")
+          }
+        >
+          Create New Agent
+        </div>
       </div>
     </>
   );
@@ -714,6 +738,7 @@ export default function AiChatBotSidebar(props) {
 const SearchChat = (props) => {
   const [searchPrompt, setSearchPrompt] = useState("");
   const [resultArr, setResultArr] = useState([]);
+  const [theme, setTheme] = useState(props?.theme);
   const [caseSensitive, setCaseSensitive] = useState(false);
   const debounceRef = useRef(null);
 
@@ -770,7 +795,7 @@ const SearchChat = (props) => {
       <div
         className={
           "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
-          (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
+          (theme ? " bg-[#00000078]" : " bg-[#d4d4d4a7]")
         }
       >
         <div
@@ -781,9 +806,9 @@ const SearchChat = (props) => {
             <div
               className={
                 "h-[35px] boxShadowLight2 flex justify-center items-center px-[10px] pr-[5px] rounded-lg py-[5px] cursor-pointer border-[1.5px] text-[14px]" +
-                (props?.theme
+                (theme
                   ? " bg-[#1A1A1A] border-[#252525] text-[#828282] hover:text-[#ffffff]"
-                  : " bg-[#ffffff] border-[#eaeaea] text-[#6e6e7c] hover:text-[#000000]")
+                  : " bg-[#ffffff] border-[#f0f0f0] text-[#797979] hover:text-[#000000]")
               }
               onClick={() => {
                 props?.setSearchChat(false);
@@ -799,9 +824,9 @@ const SearchChat = (props) => {
               <div
                 className={
                   " h-[23px] ml-[10px] rounded-[4px] flex justify-center items-center text-[12px] px-[7px] cursor-default border-[1.5px]" +
-                  (props?.theme
+                  (theme
                     ? " bg-[#272727] text-[#828282] border-[#292929]"
-                    : " bg-[#222222] text-[#6e6e7c] border-[#404b56]")
+                    : " bg-[#f3f3f3] text-[#797979] border-[#cfcfcf]")
                 }
               >
                 <Command
@@ -816,10 +841,10 @@ const SearchChat = (props) => {
           </div>
           <div
             className={
-              "w-full flex flex-col justify-start items-start rounded-2xl max-h-[calc(100%-45px)] h-auto  boxShadowLight2 px-[7px] pr-[4px] py-[7px] font-[geistRegular] text-[14px] border-[1.5px]" +
-              (props?.theme
+              "w-full flex flex-col justify-start items-start rounded-2xl max-h-[calc(100%-45px)] h-auto  boxShadowLight2 px-[7px] pr-[4px] py-[7px] font-[DMSr] text-[14px] border-[1.5px]" +
+              (theme
                 ? " bg-[#1A1A1A] border-[#252525]"
-                : " bg-[#ffffff] border-[#eaeaea]")
+                : " bg-[#ffffff] border-[#f0f0f0]")
             }
             style={{ transition: ".2s" }}
           >
@@ -827,9 +852,9 @@ const SearchChat = (props) => {
               <div
                 className={
                   "flex justify-start items-center w-[30px] cursor-pointer  " +
-                  (props?.theme
+                  (theme
                     ? " text-[#828282] hover:text-[white]"
-                    : " text-[#828282] hover:text-[black]")
+                    : " text-[#797979] hover:text-[black]")
                 }
                 onClick={() => {
                   //   setSearchPrompt("");
@@ -843,9 +868,9 @@ const SearchChat = (props) => {
                   (searchPrompt.length == 0
                     ? " w-[calc(100%-58px)]"
                     : " w-[calc(100%-88px)]") +
-                  (props?.theme
+                  (theme
                     ? " placeholder:text-[#5b5b5b]"
-                    : " placeholder:text-[#828282]")
+                    : " placeholder:text-[#a7a7a7]")
                 }
                 placeholder="Search in Splitwise ..."
                 value={searchPrompt}
@@ -858,12 +883,12 @@ const SearchChat = (props) => {
                 className={
                   "flex justify-center items-center w-[30px] h-[30px] mr-[-5px] rounded-[6px] cursor-pointer " +
                   (!caseSensitive
-                    ? props?.theme
+                    ? theme
                       ? " text-[#828282] hover:text-[#ffffff]"
-                      : " text-[#6e6e7c] hover:text-[#000000]"
-                    : props?.theme
+                      : " text-[#797979] hover:text-[#000000]"
+                    : theme
                     ? " text-[#ffffff] bg-[#2a2a2a]"
-                    : " text-[#000000] bg-[#222222]")
+                    : " text-[#000000] bg-[#eeeeee]")
                 }
                 onClick={() => {
                   setCaseSensitive(!caseSensitive);
@@ -877,9 +902,9 @@ const SearchChat = (props) => {
                   (searchPrompt.length > 0
                     ? " w-[30px] opacity-100"
                     : " w-[0px] opacity-0") +
-                  (props?.theme
+                  (theme
                     ? " text-[#828282] hover:text-[#eaeaea]"
-                    : " text-[#000000] hover:text-[#000000]")
+                    : " text-[#797979] hover:text-[#000000]")
                 }
                 style={{ transition: ".1s" }}
                 onClick={() => {
@@ -892,15 +917,13 @@ const SearchChat = (props) => {
             <div
               className={
                 "w-[calc(100%+11px)] ml-[-7px] border-t-[1.5px] mt-[7px] mb-[6px]" +
-                (props?.theme ? " border-[#252525]" : " border-[#eaeaea]")
+                (theme ? " border-[#252525]" : " border-[#f1f1f1]")
               }
             ></div>
             <div
               className={
                 "w-full flex flex-col justify-start items-start h-[calc(100%-45.5px)] overflow-y-auto pr-[4px] text-[14px] " +
-                (props?.theme
-                  ? " searchChatScrollDark"
-                  : " searchChatScrollLight")
+                (theme ? " searchChatScrollDark" : " searchChatScrollLight")
               }
             >
               {searchPrompt.length == 0 && resultArr?.length == 0 ? (
@@ -908,9 +931,7 @@ const SearchChat = (props) => {
                   <div
                     className={
                       "py-[7px] h-[35px] w-full cursor-pointer flex justify-center items-center my-[1px] px-[10px] rounded-[6px]" +
-                      (props?.theme
-                        ? " text-[#828282] "
-                        : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
+                      (theme ? " text-[#828282] " : " text-[#797979] ")
                     }
                   >
                     <div
@@ -932,9 +953,9 @@ const SearchChat = (props) => {
                   <div
                     className={
                       "py-[7px] h-[35px] w-full cursor-pointer flex justify-start items-start my-[1px] px-[10px] rounded-[8px]" +
-                      (props?.theme
+                      (theme
                         ? " hover:bg-[#2a2a2a] text-[#828282] hover:text-[#eaeaea] "
-                        : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
+                        : " hover:bg-[#F3F3F3] text-[#797979] hover:text-[#000000]")
                     }
                     onClick={() => {
                       //   setSection(data);
@@ -969,7 +990,7 @@ const SearchChat = (props) => {
                     <div
                       className={
                         "flex justify-end items-center w-[90px] h-full" +
-                        (props?.theme ? " text-[#606060] " : " text-[#6e6e7c] ")
+                        (theme ? " text-[#606060] " : " text-[#9c9c9c] ")
                       }
                     >
                       <CornerDownRight
@@ -986,9 +1007,7 @@ const SearchChat = (props) => {
                   <div
                     className={
                       "py-[7px] h-[35px] w-full cursor-pointer flex justify-center items-center my-[1px] px-[10px] rounded-[6px]" +
-                      (props?.theme
-                        ? " text-[#828282] "
-                        : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
+                      (theme ? " text-[#828282] " : " text-[#797979] ")
                     }
                     onClick={() => {
                       //   setSection(data);
@@ -1012,9 +1031,9 @@ const SearchChat = (props) => {
                   <div
                     className={
                       "py-[7px] h-[35px] w-full cursor-pointer justify-start items-start my-[1px] px-[10px] rounded-[8px]" +
-                      (props?.theme
+                      (theme
                         ? " hover:bg-[#2a2a2a] text-[#828282] hover:text-[#eaeaea] "
-                        : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]") +
+                        : " hover:bg-[#F3F3F3] text-[#797979] hover:text-[#000000]") +
                       (searchPrompt.length > 0 ? " flex" : " hidden")
                     }
                     onClick={() => {
@@ -1050,7 +1069,7 @@ const SearchChat = (props) => {
                     <div
                       className={
                         "flex justify-end items-center w-[90px] h-full" +
-                        (props?.theme ? " text-[#606060]" : " text-[#606060]")
+                        (theme ? " text-[#606060]" : " text-[#9c9c9c]")
                       }
                     >
                       <CornerDownRight
@@ -1069,9 +1088,9 @@ const SearchChat = (props) => {
                       <div
                         className={
                           "py-[7px] h-[35px] w-full cursor-pointer flex justify-start items-start my-[1px] px-[10px] rounded-[8px]" +
-                          (props?.theme
+                          (theme
                             ? " hover:bg-[#2a2a2a] text-[#828282] hover:text-[#eaeaea] "
-                            : " text-[#6e6e7c] hover:text-[#000000] border-[#e9e9e9]")
+                            : " hover:bg-[#F3F3F3] text-[#797979] hover:text-[#000000]")
                         }
                         onClick={() => {
                           //   setSection(data);

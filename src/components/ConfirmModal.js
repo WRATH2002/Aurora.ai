@@ -1,5 +1,5 @@
-import { Bot, Files, PenLine, Plus, X } from "lucide-react";
-import React, { useState } from "react";
+import { Bot, Files, Info, PenLine, Plus, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import {
   arrayRemove,
@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import firebase from "../firebase";
 import { QR } from "react-qr-rounded";
+import { useSearchParams } from "react-router-dom";
 
 export default function ConfirmModal(props) {
   return (
@@ -312,6 +313,13 @@ export function ShareChat(props) {
   const [durationModal, setDurationModal] = useState("1 day");
   const [accessGrantedUser, setAccessGrantedUser] = useState([]);
   const [isShared, setIsShared] = useState(false);
+  const [searchParams] = useSearchParams(); //   const [userID, setUserID] = useState("")
+
+  //   useEffect(() => {
+  // setUserID()
+  //   },[])
+
+  // cost sear
 
   // ------------------------- Function to get current Date & Time
   function getCurrentDateTime() {
@@ -423,6 +431,19 @@ export function ShareChat(props) {
       });
   }
 
+  // --------------------------- Function to copy text
+  function copyToClipboard(text) {
+    // const text = "Add note at cursor location";
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("Text copied to clipboard");
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  }
+
   return (
     <>
       <div
@@ -485,6 +506,21 @@ export function ShareChat(props) {
                 }
               >
                 Chat to be shared :{" "}
+                {/* <span
+                  className={
+                    "font-[geistMedium] " +
+                    (props?.theme ? " text-[white]" : " text-[black]")
+                  }
+                >
+                  {props?.shareModalData[0]}
+                </span> */}
+              </div>
+              <div
+                className={
+                  "w-full overflow-hidden text-ellipsis line-clamp-1 mt-[5px] text-[16px]" +
+                  (props?.theme ? " text-[#828282]" : " text-[#828282]")
+                }
+              >
                 <span
                   className={
                     "font-[geistMedium] " +
@@ -505,7 +541,7 @@ export function ShareChat(props) {
               <div className="w-full flex justify-start items-center mt-[10px]">
                 <input
                   className={
-                    "w-full h-[35px] px-[15px] outline-none rounded-[10px] border-[1.5px] bg-transparent" +
+                    "w-full h-[35px] px-[12px] outline-none rounded-[10px] border-[1.5px] bg-transparent" +
                     (props?.theme
                       ? " text-[white] placeholder:text-[#5b5b5b] border-[#2c2c2c]"
                       : " text-[black] placeholder:text-[#828282] border-[#2c2c2c]")
@@ -661,105 +697,139 @@ export function ShareChat(props) {
                   </div>
                 </div>
               </div>
-              <span
-                className={
-                  "mt-[20px] " +
-                  (props?.theme ? " text-[#828282]" : " text-[#828282]")
-                }
-              >
-                Add users
-              </span>
-              <div className="w-full flex justify-start items-center mt-[10px]">
-                <input
-                  className={
-                    "w-[calc(100%)] h-[35px] px-[12px] pr-[75px] outline-none rounded-[10px] border-[1.5px] bg-transparent" +
-                    (props?.theme
-                      ? " text-[white] placeholder:text-[#5b5b5b] border-[#2c2c2c]"
-                      : " text-[black] placeholder:text-[#828282] border-[#2c2c2c]")
-                  }
-                  value={addUser}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    const alphanumericRegex = /^[a-zA-Z0-9]*$/; // Matches only alphanumeric characters (letters and numbers)
-
-                    if (alphanumericRegex.test(inputValue)) {
-                      setAddUser(inputValue);
-                    }
-                  }}
-                  placeholder="Enter User ID"
-                ></input>
-                <button
-                  className={
-                    " h-[25px] w-[60px] mr-[5px] ml-[-65px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[13px] " +
-                    (props?.theme
-                      ? addUser.length > 0
-                        ? " bg-[#404040] hover:bg-[#656565] border-[#515151] hover:border-[#717171]  text-[#ffffff] opacity-100 cursor-pointer"
-                        : " bg-[#404040] border-[#515151] text-[#ffffff] opacity-20 cursor-not-allowed"
-                      : " bg-[#222222] text-[#828282]")
-                  }
-                  onClick={() => {
-                    setAccessGrantedUser((prev) => [...prev, addUser]);
-                    setAddUser("");
-                  }}
-                >
-                  <Plus
-                    width={14}
-                    height={14}
-                    strokeWidth={2.2}
-                    className="ml-[-5px] mr-[4px]"
-                  />{" "}
-                  Add
-                </button>
-              </div>
-              <div className="w-full mt-[20px] flex justify-start items-center">
-                {accessGrantedUser?.map((data, index) => {
-                  return (
-                    <>
-                      {index < 4 ? (
-                        <div
-                          key={index}
-                          className={
-                            "w-[45px] h-[45px] rounded-full p-[3px] " +
-                            (props?.theme ? " bg-[#1A1A1A]" : " bg-[#1A1A1A]") +
-                            (index == 0 ? " ml-[0px]" : " ml-[-22px]")
-                          }
-                        >
-                          <img
-                            className={
-                              "w-full h-full rounded-full object-fill " +
-                              (props?.theme ? " bg-[#2d2d2d]" : " bg-[#1A1A1A]")
-                            }
-                            src="https://images.pexels.com/photos/31566261/pexels-photo-31566261/free-photo-of-majestic-maine-coon-cat-in-lush-outdoor-setting.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                          ></img>
-                        </div>
-                      ) : (
-                        <></>
-                      )}
-                    </>
-                  );
-                })}
-                <div
-                  className={
-                    "w-[45px] h-[45px] rounded-full p-[3px] ml-[-22px]" +
-                    (props?.theme ? " bg-[#1A1A1A]" : " bg-[#1A1A1A]") +
-                    (accessGrantedUser.length > 4 ? " flex" : " hidden")
-                  }
-                >
-                  <div
+              {visibilityModal == "Private" ? (
+                <>
+                  <span
                     className={
-                      "w-full h-full rounded-full flex justify-center items-center text-[12px] " +
-                      (props?.theme ? " bg-[#2d2d2d]" : " bg-[#1A1A1A]")
+                      "mt-[20px] " +
+                      (props?.theme ? " text-[#828282]" : " text-[#828282]")
                     }
                   >
-                    <Plus
-                      width={12}
-                      height={12}
-                      strokeWidth={3.2}
-                      className="mr-[2px]"
-                    />{" "}
-                    {accessGrantedUser.length - 4}
+                    Add users
+                  </span>
+                  <div className="w-full flex justify-start items-center mt-[10px]">
+                    <input
+                      className={
+                        "w-[calc(100%)] h-[35px] px-[12px] pr-[75px] outline-none rounded-[10px] border-[1.5px] bg-transparent" +
+                        (props?.theme
+                          ? " text-[white] placeholder:text-[#5b5b5b] border-[#2c2c2c]"
+                          : " text-[black] placeholder:text-[#828282] border-[#2c2c2c]")
+                      }
+                      value={addUser}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const alphanumericRegex = /^[a-zA-Z0-9]*$/; // Matches only alphanumeric characters (letters and numbers)
+
+                        if (alphanumericRegex.test(inputValue)) {
+                          setAddUser(inputValue);
+                        }
+                      }}
+                      placeholder="Enter User ID"
+                    ></input>
+                    <button
+                      className={
+                        " h-[25px] w-[60px] mr-[5px] ml-[-65px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[13px] " +
+                        (props?.theme
+                          ? addUser.length > 0
+                            ? " bg-[#404040] hover:bg-[#656565] border-[#515151] hover:border-[#717171]  text-[#ffffff] opacity-100 cursor-pointer"
+                            : " bg-[#404040] border-[#515151] text-[#ffffff] opacity-20 cursor-not-allowed"
+                          : " bg-[#222222] text-[#828282]")
+                      }
+                      onClick={() => {
+                        setAccessGrantedUser((prev) => [...prev, addUser]);
+                        setAddUser("");
+                      }}
+                    >
+                      <Plus
+                        width={14}
+                        height={14}
+                        strokeWidth={2.2}
+                        className="ml-[-5px] mr-[4px]"
+                      />{" "}
+                      Add
+                    </button>
                   </div>
+                  <div className="w-full mt-[20px] flex justify-start items-center">
+                    {accessGrantedUser?.map((data, index) => {
+                      return (
+                        <>
+                          {index < 4 ? (
+                            <div
+                              key={index}
+                              className={
+                                "w-[45px] h-[45px] rounded-full p-[3px] " +
+                                (props?.theme
+                                  ? " bg-[#1A1A1A]"
+                                  : " bg-[#1A1A1A]") +
+                                (index == 0 ? " ml-[0px]" : " ml-[-22px]")
+                              }
+                            >
+                              <img
+                                className={
+                                  "w-full h-full rounded-full object-fill " +
+                                  (props?.theme
+                                    ? " bg-[#2d2d2d]"
+                                    : " bg-[#1A1A1A]")
+                                }
+                                src="https://images.pexels.com/photos/31566261/pexels-photo-31566261/free-photo-of-majestic-maine-coon-cat-in-lush-outdoor-setting.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                              ></img>
+                            </div>
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      );
+                    })}
+                    <div
+                      className={
+                        "w-[45px] h-[45px] rounded-full p-[3px] ml-[-22px]" +
+                        (props?.theme ? " bg-[#1A1A1A]" : " bg-[#1A1A1A]") +
+                        (accessGrantedUser.length > 4 ? " flex" : " hidden")
+                      }
+                    >
+                      <div
+                        className={
+                          "w-full h-full rounded-full flex justify-center items-center text-[12px] " +
+                          (props?.theme ? " bg-[#2d2d2d]" : " bg-[#1A1A1A]")
+                        }
+                      >
+                        <Plus
+                          width={12}
+                          height={12}
+                          strokeWidth={3.2}
+                          className="mr-[2px]"
+                        />{" "}
+                        {accessGrantedUser.length - 4}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <></>
+              )}
+              <div
+                className={
+                  "w-full flex justify-start items-start mt-[20px] " +
+                  (props?.theme ? " text-[#fb600cc8]" : " text-[#828282]") +
+                  (visibilityModal == "Private" ? " hidden" : " flex")
+                }
+              >
+                <div
+                  className={
+                    "w-[20px] flex justify-start items-center mr-[8px]" +
+                    (props?.theme ? " text-[#fb600cc8]" : " text-[#828282]")
+                  }
+                >
+                  <Info
+                    width={16}
+                    height={16}
+                    strokeWidth={2.2}
+                    className=" mt-[3px]"
+                  />
                 </div>
+                <span className="w-[calc(100%-28px])] ml-[0px]">
+                  The chat will be visible to anyone accessing with the link.
+                </span>
               </div>
               <div className="w-full mt-[20px] flex justify-end items-center">
                 <button
@@ -806,12 +876,14 @@ export function ShareChat(props) {
               <div className="w-full flex justify-start items-center mt-[10px]">
                 <input
                   className={
-                    "w-full h-[35px] px-[15px] pr-[40px] outline-none rounded-[10px] border-[1.5px] bg-transparent" +
+                    "w-full h-[35px] px-[12px] pr-[40px] outline-none rounded-[10px] border-[1.5px] bg-transparent" +
                     (props?.theme
                       ? " text-[white] border-[#2c2c2c]"
                       : " text-[black] border-[#2c2c2c]")
                   }
-                  value={`https://auroranoteai.vercel.app/shared?chat=${props?.shareModalData[0]}?userID=${props?.shareModalData[1]}`}
+                  value={`https://auroranoteai.vercel.app/shared?chat=${
+                    props?.shareModalData[0]
+                  }?userID=${searchParams.get("ID")?.split("?section=")[0]}`}
                 ></input>
                 <div
                   className={
@@ -820,6 +892,14 @@ export function ShareChat(props) {
                       ? " text-[#7b798b] hover:text-[#eaeaea]"
                       : " text-[#7b798b] hover:text-[#eaeaea]")
                   }
+                  onClick={() => {
+                    copyToClipboard(
+                      `https://auroranoteai.vercel.app/shared?chat=${
+                        props?.shareModalData[0]
+                      }?userID=${searchParams.get("ID")?.split("?section=")[0]}`
+                    );
+                  }}
+                  // copyToClipboard
                 >
                   <Files width={16} height={16} strokeWidth="2" className="" />
                 </div>
@@ -888,7 +968,11 @@ export function ShareChat(props) {
                       rounding={50}
                       errorCorrectionLevel="M"
                     >
-                      {`https://auroranoteai.vercel.app/shared?chat=${props?.shareModalData[0]}?userID=${props?.shareModalData[1]}`}
+                      {`https://auroranoteai.vercel.app/shared?chat=${
+                        props?.shareModalData[0]
+                      }?userID=${
+                        searchParams.get("ID")?.split("?section=")[0]
+                      }`}
                     </QR>
                   </div>
                   <div className="w-full h-[18px] flex justify-between items-center mt-[-6px]">

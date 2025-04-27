@@ -353,7 +353,7 @@ export default function APIKeyAdd(props) {
             <div
               className={`h-auto w-[200px] ${
                 isHovered ? "flex" : "hidden"
-              } z-50 text-[12px] rounded-lg p-[10px] font-[geistRegular] mt-[5px] bg-[white] border-[1.5px] border-[#ededed] boxShadowLight1 ml-[-11px]`}
+              } z-50 text-[12px] rounded-lg p-[10px] font-[DMSr] mt-[5px] bg-[white] border-[1.5px] border-[#ededed] boxShadowLight1 ml-[-11px]`}
             >
               All API Key IDs are securely encrypted and stored.
             </div>
@@ -446,7 +446,7 @@ export default function APIKeyAdd(props) {
           >
             <input
               className={
-                "w-[calc(100%-255px)] flex justify-start items-center bg-transparent text-[13px] font-[geistRegular] outline-none" +
+                "w-[calc(100%-255px)] flex justify-start items-center bg-transparent text-[13px] font-[DMSr] outline-none" +
                 (props?.theme ? " text-[#ffffff]" : " text-[black]")
               }
               placeholder="Enter new API Key ID"
@@ -836,7 +836,7 @@ const APIKeyDisplay = (props) => {
         {showAPI ? (
           <div
             className={
-              "w-[calc(100%-255px)] font-[geistRegular] text-[13px] text-ellipsis overflow-hidden whitespace-nowrap break-words" +
+              "w-[calc(100%-255px)] font-[DMSr] text-[13px] text-ellipsis overflow-hidden whitespace-nowrap break-words" +
               (props?.theme ? " text-[#ffffff]" : " text-[black]")
             }
           >
