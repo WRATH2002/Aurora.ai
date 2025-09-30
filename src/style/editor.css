@@ -2,21 +2,29 @@
   /* background-color: #f9f9f9; */
   width: auto;
   display: block;
-  padding: 15px 20px;
-  font-size: 15px;
+  padding: 8px 16px;
+  /* font-size: 15px; */
   tab-size: 2;
+  line-height: 26px;
   overflow-x: auto;
   border-radius: 8px;
   position: relative;
-  /* border: 1.5px solid #f0f0f0; */
   white-space: nowrap;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  /* font-family: jet;
+  font-size: 14px; */
 }
 
 .d {
   background-color: #3a3a3a;
+  border: 0px solid transparent;
+  border-radius: 12px;
 }
 .l {
-  background-color: #f9f9f9;
+  background-color: #f9f8f7;
+  border: 0px solid transparent;
+  border-radius: 10px;
 }
 
 .editor-tokenAttr {
@@ -196,7 +204,28 @@
 }
 
 .clickable-link {
-  color: #b092ff !important;
+  color: #8e8e8e !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+}
+
+.clickable-link-alt {
+  color: #0e8dd1 !important;
+}
+
+.highlightLight {
+  background-color: #fff1d0;
+  color: #4d3600;
+  /* padding: 2px 4px; */
+  padding: 1px 0px;
+  border-radius: 2px;
+}
+
+.highlightDark {
+  background-color: #fff1d0;
+  color: #4d3600;
+  padding: 1px 0px;
+  border-radius: 2px;
 }
 
 .playing {

@@ -19,6 +19,17 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import AccountPage from "./AccountPage";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  CommandIcon,
+  Key01Icon,
+  Logout03Icon,
+  PackageOpenIcon,
+  PaintBoardIcon,
+  PenTool03Icon,
+  QuillWrite01Icon,
+  UserEdit01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 function SettingsPage(props) {
   const [section, setSection] = useState("");
@@ -60,28 +71,35 @@ function SettingsPage(props) {
     <div
       className={
         "w-full h-full fixed left-0 top-0 text-[14px] font-[DMSr] flex justify-center items-center z-[800]  backdrop-blur-[5px]  " +
-        (props?.theme ? " bg-[#161b1e5c]" : " bg-[#b0b0b081]")
+        (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
       }
       // style={{ transform: "translate(-50%,-50%)" }}
+      onClick={() => {
+        navigateBack();
+        props?.setIsSettings(false);
+      }}
     >
       <div
         className={
-          "w-[100%] h-[100%] md:w-[70%] md:h-[80%] lg:w-[70%] lg:h-[80%] rounded-none md:rounded-xl lg:rounded-xl  fixed left-[50%] top-[50%] text-[15px] md:text-[14px] lg:text-[14px] font-[DMSr] flex justify-start items-start z-20 boxShadowLight2" +
+          "w-[100%] h-[100%] md:w-[85%] md:h-[80%] lg:w-[85%] lg:h-[80%] rounded-none md:rounded-2xl lg:rounded-2xl  fixed left-[50%] top-[50%] text-[15px] md:text-[14px] lg:text-[14px] font-[DMSr] flex justify-start items-start z-20 boxShadowLight2" +
           (props?.theme
-            ? " text-[#9ba6aa] bg-[#1A1A1A] border-[2px] border-[#222d37]"
+            ? " text-[#9ba6aa] bg-[#1A1A1A] border-[2px] border-[#252525]"
             : " text-[#9999aa] bg-[#ffffff] border-[2px] border-[#d4d4d400]")
         }
         style={{ transform: "translate(-50%,-50%)" }}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         <div
           className={
             "w-full md:w-[200px] lg:w-[200px] h-full border-r-[2px]  p-[20px] md:p-[30px] lg:p-[30px] fixed md:static lg:static flex flex-col justify-start items-start" +
             (props?.theme
-              ? " border-[#222d3700] md:border-[#222d37] lg:border-[#222d37]"
+              ? " border-[#25252500] md:border-[#252525] lg:border-[#252525]"
               : " border-[#eaeaea00] md:border-[#eaeaea6f] lg:border-[#eaeaea6f]")
           }
         >
-          <div
+          {/* <div
             className={
               "w-[30px] h-[30px] cursor-pointer rounded-full flex justify-center items-center mb-[20px]" +
               (props?.theme
@@ -94,168 +112,204 @@ function SettingsPage(props) {
             }}
           >
             <X width={18} height={18} strokeWidth={2.1} />
-          </div>
-          <div className="flex flex-col justify-start items-start w-full h-[calc(100%-110px)]">
+          </div> */}
+          <div className="flex flex-col justify-start items-start w-full h-[calc(100%-60px)]">
             <button
               className={
-                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[2px] group " +
                 (section == "Account"
                   ? props?.theme
-                    ? " bg-[#222222] text-[white]"
-                    : " bg-[#eaebf4] text-[black]"
+                    ? " bg-[#242424] text-[#eaeaea]"
+                    : " bg-[#eaeaea] text-[black]"
                   : props?.theme
-                  ? " bg-[#6e52da00] text-[#9ba6aa]"
-                  : " bg-[#6e52da00] text-[#9999aa]") +
+                  ? " bg-[#2a2a2a00] text-[#828282]"
+                  : " bg-[#eaeaea00] text-[#797979]") +
                 (props?.theme
-                  ? " hover:bg-[#222222] hover:text-[white]"
-                  : " hover:bg-[#eaebf4] hover:text-[black]")
+                  ? " hover:bg-[#222222] hover:text-[#eaeaea]"
+                  : " hover:bg-[#F3F3F3] hover:text-[black]")
               }
               onClick={() => {
                 navigateToSettingsSection("Account");
                 setSection("Account");
               }}
             >
-              <UserPen
+              {/* <UserPen
                 width={16}
                 height={16}
                 strokeWidth={2}
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
-              />{" "}
+              />{" "} */}
+              <HugeiconsIcon
+                className="mr-[10px] md:mr-[10px] lg:mr-[10px] "
+                icon={UserEdit01Icon}
+                size={18}
+                strokeWidth={1.8}
+              />
               Account
             </button>
             <button
               className={
-                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[2px] group " +
                 (section == "Editor"
                   ? props?.theme
-                    ? " bg-[#222222] text-[white]"
-                    : " bg-[#eaebf4] text-[black]"
+                    ? " bg-[#242424] text-[#eaeaea]"
+                    : " bg-[#eaeaea] text-[black]"
                   : props?.theme
-                  ? " bg-[#6e52da00] text-[#9ba6aa]"
-                  : " bg-[#6e52da00] text-[#9999aa]") +
+                  ? " bg-[#2a2a2a00] text-[#828282]"
+                  : " bg-[#eaeaea00] text-[#797979]") +
                 (props?.theme
-                  ? " hover:bg-[#222222] hover:text-[white]"
-                  : " hover:bg-[#eaebf4] hover:text-[black]")
+                  ? " hover:bg-[#222222] hover:text-[#eaeaea]"
+                  : " hover:bg-[#F3F3F3] hover:text-[black]")
               }
               onClick={() => {
                 navigateToSettingsSection("Editor");
                 setSection("Editor");
               }}
             >
-              <FilePenLine
+              {/* <FilePenLine
                 width={16}
                 height={16}
                 strokeWidth={2}
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
-              />{" "}
+              />{" "} */}
+              <HugeiconsIcon
+                className="mr-[10px] md:mr-[10px] lg:mr-[10px] "
+                icon={QuillWrite01Icon}
+                size={18}
+                strokeWidth={1.8}
+              />
               Editor
             </button>
             <button
               className={
-                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[2px] group " +
                 (section == "Toolbar"
                   ? props?.theme
-                    ? " bg-[#222222] text-[white]"
-                    : " bg-[#eaebf4] text-[black]"
+                    ? " bg-[#242424] text-[#eaeaea]"
+                    : " bg-[#eaeaea] text-[black]"
                   : props?.theme
-                  ? " bg-[#6e52da00] text-[#9ba6aa]"
-                  : " bg-[#6e52da00] text-[#9999aa]") +
+                  ? " bg-[#2a2a2a00] text-[#828282]"
+                  : " bg-[#eaeaea00] text-[#797979]") +
                 (props?.theme
-                  ? " hover:bg-[#222222] hover:text-[white]"
-                  : " hover:bg-[#eaebf4] hover:text-[black]")
+                  ? " hover:bg-[#222222] hover:text-[#eaeaea]"
+                  : " hover:bg-[#F3F3F3] hover:text-[black]")
               }
               onClick={() => {
                 navigateToSettingsSection("Toolbar");
                 setSection("Toolbar");
               }}
             >
-              <PenTool
+              {/* <PenTool
                 width={16}
                 height={16}
                 strokeWidth={2}
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
-              />{" "}
+              />{" "} */}
+              <HugeiconsIcon
+                className="mr-[10px] md:mr-[10px] lg:mr-[10px] "
+                icon={PenTool03Icon}
+                size={18}
+                strokeWidth={1.8}
+              />
               Toolbar
             </button>
             <button
               className={
-                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[2px] group " +
                 (section == "Appearance"
                   ? props?.theme
-                    ? " bg-[#222222] text-[white]"
-                    : " bg-[#eaebf4] text-[black]"
+                    ? " bg-[#242424] text-[#eaeaea]"
+                    : " bg-[#eaeaea] text-[black]"
                   : props?.theme
-                  ? " bg-[#6e52da00] text-[#9ba6aa]"
-                  : " bg-[#6e52da00] text-[#9999aa]") +
+                  ? " bg-[#2a2a2a00] text-[#828282]"
+                  : " bg-[#eaeaea00] text-[#797979]") +
                 (props?.theme
-                  ? " hover:bg-[#222222] hover:text-[white]"
-                  : " hover:bg-[#eaebf4] hover:text-[black]")
+                  ? " hover:bg-[#222222] hover:text-[#eaeaea]"
+                  : " hover:bg-[#F3F3F3] hover:text-[black]")
               }
               onClick={() => {
                 navigateToSettingsSection("Appearance");
                 setSection("Appearance");
               }}
             >
-              <PaintbrushVertical
+              {/* <PaintbrushVertical
                 width={16}
                 height={16}
                 strokeWidth={2}
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
-              />{" "}
+              />{" "} */}
+              <HugeiconsIcon
+                className="mr-[10px] md:mr-[10px] lg:mr-[10px] "
+                icon={PaintBoardIcon}
+                size={18}
+                strokeWidth={1.8}
+              />
               Appearance
             </button>
             <button
               className={
-                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[2px] group " +
                 (section == "API Key"
                   ? props?.theme
-                    ? " bg-[#222222] text-[white]"
-                    : " bg-[#eaebf4] text-[black]"
+                    ? " bg-[#242424] text-[#eaeaea]"
+                    : " bg-[#eaeaea] text-[black]"
                   : props?.theme
-                  ? " bg-[#6e52da00] text-[#9ba6aa]"
-                  : " bg-[#6e52da00] text-[#9999aa]") +
+                  ? " bg-[#2a2a2a00] text-[#828282]"
+                  : " bg-[#eaeaea00] text-[#797979]") +
                 (props?.theme
-                  ? " hover:bg-[#222222] hover:text-[white]"
-                  : " hover:bg-[#eaebf4] hover:text-[black]")
+                  ? " hover:bg-[#222222] hover:text-[#eaeaea]"
+                  : " hover:bg-[#F3F3F3] hover:text-[black]")
               }
               onClick={() => {
                 navigateToSettingsSection("API-Key");
                 setSection("API-Key");
               }}
             >
-              <Key
+              {/* <Key
                 width={16}
                 height={16}
                 strokeWidth={2}
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
-              />{" "}
+              />{" "} */}
+              <HugeiconsIcon
+                className="mr-[10px] md:mr-[10px] lg:mr-[10px] "
+                icon={Key01Icon}
+                size={18}
+                strokeWidth={1.8}
+              />
               API Key
             </button>
             <button
               className={
-                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[1.5px] group " +
+                "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[30px] max-h-[30px] md:min-h-[27px] md:max-h-[27px] lg:min-h-[27px] lg:max-h-[27px] my-[2px] group " +
                 (section == "Hot Keys"
                   ? props?.theme
-                    ? " bg-[#222222] text-[white]"
-                    : " bg-[#eaebf4] text-[black]"
+                    ? " bg-[#242424] text-[#eaeaea]"
+                    : " bg-[#eaeaea] text-[black]"
                   : props?.theme
-                  ? " bg-[#6e52da00] text-[#9ba6aa]"
-                  : " bg-[#6e52da00] text-[#9999aa]") +
+                  ? " bg-[#2a2a2a00] text-[#828282]"
+                  : " bg-[#eaeaea00] text-[#797979]") +
                 (props?.theme
-                  ? " hover:bg-[#222222] hover:text-[white]"
-                  : " hover:bg-[#eaebf4] hover:text-[black]")
+                  ? " hover:bg-[#222222] hover:text-[#eaeaea]"
+                  : " hover:bg-[#F3F3F3] hover:text-[black]")
               }
               onClick={() => {
                 navigateToSettingsSection("Hot-Keys");
                 setSection("Hot-Keys");
               }}
             >
-              <Command
+              {/* <Command
                 width={16}
                 height={16}
                 strokeWidth={2}
                 className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
-              />{" "}
+              />{" "} */}
+              <HugeiconsIcon
+                className="mr-[10px] md:mr-[10px] lg:mr-[10px] "
+                icon={CommandIcon}
+                size={18}
+                strokeWidth={1.8}
+              />
               Hot Keys
             </button>
             {/* <span
@@ -289,31 +343,39 @@ function SettingsPage(props) {
               "outline-none  cursor-pointer rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[27px] max-h-[27px] my-[1.5px] group " +
               (section == "Log Out"
                 ? props?.theme
-                  ? " bg-[#222222] text-[white]"
-                  : " bg-[#eaebf4] text-[black]"
+                  ? " bg-[#242424] text-[#eaeaea]"
+                  : " bg-[#eaeaea] text-[black]"
                 : props?.theme
-                ? " bg-[#6e52da00] text-[#9ba6aa]"
-                : " bg-[#6e52da00] text-[#9999aa]") +
-              (props?.theme ? " hover:text-[white]" : " hover:text-[black]")
+                ? " bg-[#2a2a2a00] text-[#828282]"
+                : " bg-[#eaeaea00] text-[#797979]") +
+              (props?.theme
+                ? " hover:bg-[#222222] hover:text-[#eaeaea]"
+                : " hover:bg-[#F3F3F3] hover:text-[black]")
             }
             onClick={() => {
               // setSection("Log Out");
               userSignOut();
             }}
           >
-            <LogOut
+            {/* <LogOut
               width={16}
               height={16}
               strokeWidth={2}
               className="mr-[10px] md:mr-[10px] lg:mr-[10px] w-[18px] h-[18px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]"
-            />{" "}
+            />{" "} */}
+            <HugeiconsIcon
+              className="mr-[10px] md:mr-[10px] lg:mr-[10px] "
+              icon={Logout03Icon}
+              size={18}
+              strokeWidth={1.8}
+            />
             Log Out
           </button>
           <span
             className={
-              "text-[12px] tracking-widest rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[27px] max-h-[27px] my-[1.5px] group " +
+              "text-[12px] tracking-widest rounded-[4px] flex justify-start items-center px-[7px] w-full min-h-[27px] max-h-[27px] my-[1.5px] group font-bold " +
               (props?.theme
-                ? " bg-[#6e52da00] text-[#636c70]"
+                ? " bg-[#6e52da00] text-[#505050]"
                 : " bg-[#6e52da00] text-[#9999aa]")
             }
           >

@@ -52,6 +52,18 @@ import {
 import firebase from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { processStringDecrypt } from "../utils/functions";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  ArrowRight01Icon,
+  CursorMagicSelection02Icon,
+  CursorMagicSelection04Icon,
+  Mic02Icon,
+  TextBoldIcon,
+  TextItalicIcon,
+  TextStrikethroughIcon,
+  TextUnderlineIcon,
+} from "@hugeicons/core-free-icons";
+import { AIPrompts, languages, systemPrompt } from "../utils/constant";
 
 // import { Box, styled, IconButton } from "@mui/material";
 
@@ -115,6 +127,7 @@ function TextFormatFloatingToolbar({
   const [summarizeModal, setSummarizeModal] = useState(false);
   const [helpModal, setHelpModal] = useState(false);
   const [toneModal, setToneModal] = useState(false);
+  const [translateModal, setTranslateModal] = useState(false);
   const [formatModal, setFormatModal] = useState(false);
   const [selectionNode, setSelectionNode] = useState(null);
   const [selectedText, setSelectedText] = useState("");
@@ -201,7 +214,10 @@ function TextFormatFloatingToolbar({
 
   const genAI = new GoogleGenerativeAI(processStringDecrypt(activeApiKeyID));
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-pro",
+    model: "gemini-2.0-flash",
+    systemInstruction: {
+      parts: [{ text: systemPrompt }],
+    },
   });
 
   const generationConfig = {
@@ -209,7 +225,8 @@ function TextFormatFloatingToolbar({
     top_p: 0.95,
     top_k: 64,
     max_output_tokens: 8192,
-    response_mime_type: "text/plain",
+    // response_mime_type: "text/plain",
+    response_mime_type: "application/json",
   };
 
   async function run(chosenPrompt, sec) {
@@ -226,15 +243,30 @@ function TextFormatFloatingToolbar({
     });
 
     try {
-      const result = await chatSession.sendMessage(
-        `${selectedText}` +
-          `
-        ${chosenPrompt}`
-      );
+      const result = await chatSession.sendMessage(`${chosenPrompt}
+        ${selectedText}`);
+      const parsedResponse = JSON.parse(result.response.text());
+      console.log(parsedResponse);
 
-      console.log(result?.response?.text());
+      if (parsedResponse?.code == 100) {
+        editorr.update(() => {
+          const selection = $getSelection();
+          if (selection !== null) {
+            selection.insertText(parsedResponse?.promptResponse);
+          }
+        });
+      }
+
       setLoading(false);
-      setAiOutput([{ Section: sec, Message: [result?.response?.text()] }]);
+      // const result = await chatSession.sendMessage(
+      //   `${chosenPrompt}
+      //   ${selectedText}`
+      // );
+
+      // console.log(result?.response?.text());
+      // setLoading(false);
+      // setAiOutput([{ Section: sec, Message: [result?.response?.text()] }]);
+      // ----------
       // replaceSelectedTextt(result?.response?.text(), selection);
     } catch (error) {
       setLoading(false);
@@ -371,7 +403,7 @@ function TextFormatFloatingToolbar({
       {editor.isEditable() && (
         <>
           <div
-            className="flex flex-col justify-start items-start h-[40px] overflow-visible"
+            className="flex flex-col justify-start items-start h-[35px] overflow-visible"
             ref={popupCharStylesEditorRef}
             style={{
               verticalAlign: "middle",
@@ -382,107 +414,150 @@ function TextFormatFloatingToolbar({
               opacity: 0,
               // boxShadow: "0px 5px 10px rgba(0, 0, 0, 0.5)",
               borderRadius: 8,
-              transition: "opacity 0.5s",
+              transition: "opacity 0.2s",
               //   height: 35,
               willChange: "transform",
             }}
           >
             <div
               className={
-                "flex justify-start items-center backdrop-blur-[20px] drop-shadow-md px-[5px] min-w-[30px] min-h-[40px]  border-[1px]  rounded-xl w-auto" +
-                (theme
-                  ? " border-[#252525] bg-[#181b20]"
-                  : " bg-[#ffffffc4] border-[#f1f1f1]")
+                "font-[r] flex justify-start items-center rounded-[10px] h-[35px] border border-[#d2d2d2]" +
+                (theme ? " bg-[#181b20]" : " bg-[#ffffff]")
               }
-              // style={{
-              //   boxShadow: "0px 1px 15px rgba(0, 0, 0, 0.15)",
-              // }}
+              style={{
+                background: "#fff",
+                padding: "4px 4px",
+                boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
+                zIndex: "200",
+                whiteSpace: "nowrap",
+              }}
             >
               <button
                 className={
-                  "w-auto h-[30px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer " +
+                  "h-full aspect-square px-[10px] rounded-lg flex justify-center items-center cursor-pointer " +
                   (showAiMenu
                     ? theme
                       ? " text-[white] bg-[#313C40]"
-                      : " text-[black] bg-[#e6e6f4]"
+                      : " text-[black] bg-[#e9e9e9]"
                     : theme
-                    ? " text-[#f4efff] hover:text-[white] hover:bg-[#313C40]"
-                    : " text-[#6e6e7c] hover:text-[black] hover:bg-[#ffffff]")
+                    ? " text-[#f4efff] hover:bg-[#313C40]"
+                    : " text-[#454545] hover:bg-[#e9e9e9]")
                 }
                 onClick={() => {
                   setShowAiMenu(!showAiMenu);
                 }}
               >
-                <Wand width={18} height={18} strokeWidth="1.8" />{" "}
-                <span className="text-[15px] ml-[7px]">Improve writing</span>
+                <HugeiconsIcon
+                  icon={CursorMagicSelection04Icon}
+                  size={16}
+                  strokeWidth="1.7"
+                  className="rotate-90"
+                />{" "}
+                <span className="text-[13px] ml-[7px]">Improve writing</span>
               </button>
+              <div className="mx-[5px] h-[16px] border-l-[1.5px] border-[#e9e9e9]"></div>
               <button
                 className={
-                  "w-[30px] h-[30px] ml-[5px] rounded-lg flex justify-center items-center    cursor-pointer  " +
-                  (isBold
-                    ? theme
-                      ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
-                      : " bg-[#e6e6f4] text-[#000000] cursor-pointer"
-                    : theme
-                    ? " hover:bg-[#313C40] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#F7F7F7] text-[#6e6e7c] hover:text-[black] ")
-                }
-                onClick={() => {
-                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-                }}
-              >
-                <Bold width={18} height={18} strokeWidth="1.8" />
-              </button>
-              <button
-                className={
-                  "w-[30px] h-[30px] ml-[5px] rounded-lg flex justify-center items-center    cursor-pointer  " +
-                  (isItalic
-                    ? theme
-                      ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
-                      : " bg-[#e6e6f4] text-[#000000] cursor-pointer"
-                    : theme
-                    ? " hover:bg-[#313C40] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#F7F7F7] text-[#6e6e7c] hover:text-[black] ")
-                }
-                onClick={() => {
-                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-                }}
-              >
-                <Italic width={18} height={18} strokeWidth="1.8" />
-              </button>
-              <button
-                className={
-                  "w-[30px] h-[30px] ml-[5px] rounded-lg flex justify-center items-center    cursor-pointer  " +
-                  (isUnderline
-                    ? theme
-                      ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
-                      : " bg-[#e6e6f4] text-[#000000] cursor-pointer"
-                    : theme
-                    ? " hover:bg-[#313C40] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#F7F7F7] text-[#6e6e7c] hover:text-[black] ")
-                }
-                onClick={() => {
-                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-                }}
-              >
-                <Underline width={18} height={18} strokeWidth="1.8" />
-              </button>
-              <button
-                className={
-                  "w-[30px] h-[30px] ml-[5px] rounded-lg flex justify-center items-center    cursor-pointer  " +
+                  "h-full aspect-square  ml-[0px] rounded-lg flex justify-center items-center    cursor-pointer  " +
                   (isStrikethrough
                     ? theme
                       ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
-                      : " bg-[#e6e6f4] text-[#000000] cursor-pointer"
+                      : " bg-[#e9e9e9] text-[#000000] cursor-pointer"
                     : theme
-                    ? " hover:bg-[#313C40] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#F7F7F7] text-[#6e6e7c] hover:text-[black] ")
+                    ? " hover:bg-[#313C40] text-[#f4efff] "
+                    : " hover:bg-[#e9e9e9] text-[#454545] ")
                 }
                 onClick={() => {
                   editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
                 }}
               >
-                <Strikethrough width={18} height={18} strokeWidth="1.8" />
+                <HugeiconsIcon icon={Mic02Icon} size={14} strokeWidth="2.1" />
+              </button>
+              <div className="mx-[5px] h-[16px] border-l-[1.5px] border-[#e9e9e9]"></div>
+              {/* ---- Section */}
+              <button
+                className={
+                  "h-full aspect-square  rounded-lg flex justify-center items-center    cursor-pointer  " +
+                  (isBold
+                    ? theme
+                      ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
+                      : " bg-[#e9e9e9] text-[#000000] cursor-pointer"
+                    : theme
+                    ? " hover:bg-[#313C40] text-[#f4efff] "
+                    : " hover:bg-[#e9e9e9] text-[#454545] ")
+                }
+                onClick={() => {
+                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
+                }}
+              >
+                <HugeiconsIcon
+                  icon={TextBoldIcon}
+                  size={14}
+                  strokeWidth="2.9"
+                />
+              </button>
+              <button
+                className={
+                  "h-full aspect-square  ml-[0px] rounded-lg flex justify-center items-center    cursor-pointer  " +
+                  (isItalic
+                    ? theme
+                      ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
+                      : " bg-[#e9e9e9] text-[#000000] cursor-pointer"
+                    : theme
+                    ? " hover:bg-[#313C40] text-[#f4efff] "
+                    : " hover:bg-[#e9e9e9] text-[#454545]")
+                }
+                onClick={() => {
+                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
+                }}
+              >
+                <HugeiconsIcon
+                  icon={TextItalicIcon}
+                  size={14}
+                  strokeWidth="2.1"
+                />
+              </button>
+              <button
+                className={
+                  "h-full aspect-square  ml-[0px] rounded-lg flex justify-center items-center    cursor-pointer  " +
+                  (isUnderline
+                    ? theme
+                      ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
+                      : " bg-[#e9e9e9] text-[#000000] cursor-pointer"
+                    : theme
+                    ? " hover:bg-[#313C40] text-[#f4efff] "
+                    : " hover:bg-[#e9e9e9] text-[#454545]")
+                }
+                onClick={() => {
+                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
+                }}
+              >
+                <HugeiconsIcon
+                  icon={TextUnderlineIcon}
+                  size={14}
+                  strokeWidth="2.1"
+                />
+              </button>
+              <button
+                className={
+                  "h-full aspect-square  ml-[0px] rounded-lg flex justify-center items-center    cursor-pointer  " +
+                  (isStrikethrough
+                    ? theme
+                      ? " bg-[#313C40] text-[#f4efff] cursor-pointer"
+                      : " bg-[#e9e9e9] text-[#000000] cursor-pointer"
+                    : theme
+                    ? " hover:bg-[#313C40] text-[#f4efff] "
+                    : " hover:bg-[#e9e9e9] text-[#454545] ")
+                }
+                onClick={() => {
+                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
+                }}
+              >
+                <HugeiconsIcon
+                  icon={TextStrikethroughIcon}
+                  size={14}
+                  strokeWidth="2.1"
+                />
               </button>
 
               {/* <IconButton
@@ -539,14 +614,14 @@ function TextFormatFloatingToolbar({
             </div>
             <div
               className={
-                "mt-[5px]  flex-col justify-start items-center border-[1.5px] rounded-lg  boxShadowLight0 w-[150px] p-[5px]  " +
+                "mt-[5px] z-[300] flex-col justify-start items-center font-[r] rounded-[10px] p-[4px] text-[13px] border w-[142px] " +
                 (showAiMenu ? " flex" : " hidden") +
                 (theme
                   ? " border-[#252525] bg-[#353e42]"
-                  : " border-[#E5E7EB] bg-[#ffffff]")
+                  : " border-[#d2d2d2] bg-[#ffffff]")
               }
               style={{
-                boxShadow: "0px 1px 15px rgba(0, 0, 0, 0.15)",
+                boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
               }}
             >
               {/* <div
@@ -565,368 +640,81 @@ function TextFormatFloatingToolbar({
                   <BriefcaseBusiness width={18} height={18} strokeWidth="2.2" />
                 </button>
               </div> */}
+
+              {/* ---- Summarize -> */}
               <button
                 className={
-                  "w-full h-[30px] text-[14px] font-[geistRegular]  flex justify-start  items-start bg-transparent cursor-pointer rounded-md overflow-visible"
+                  "w-full h-[27px] flex justify-start  items-start bg-transparent cursor-pointer rounded-lg overflow-visible"
                 }
               >
                 <button
                   className={
-                    "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-between pl-[10px]  items-center cursor-pointer rounded-md " +
+                    "min-w-full h-[27px]  p-[5px] flex justify-between pl-[10px]  items-center cursor-pointer rounded-lg " +
                     (summarizeModal
                       ? theme
                         ? " bg-[#1D2528] text-[#ffffff]"
-                        : " bg-[#e6e6f4] text-[#000000]"
+                        : " bg-[#e9e9e9] text-[#000000]"
                       : theme
-                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] hover:text-[white] "
-                      : " hover:bg-[#e6e6f4] bg-transparent text-[#6e6e7c] hover:text-[black] ")
+                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] "
+                      : " hover:bg-[#e9e9e9] bg-transparent text-[#454545] ")
                   }
                   onClick={() => {
                     setHelpModal(false);
                     setToneModal(false);
                     setFormatModal(false);
+                    setTranslateModal(false);
                     setSummarizeModal(!summarizeModal);
                   }}
                 >
                   Summarize{" "}
-                  <ChevronRight width={18} height={18} strokeWidth={1.8} />
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={16}
+                    strokeWidth={1.8}
+                  />
                 </button>
+                {/* ---- Summarize options -> */}
                 <div
                   className={
-                    "min-w-[150px] h-auto rounded-lg mt-[-5.5px] border-[1.5px] ml-[10px] flex flex-col justify-start items-start p-[5px]" +
+                    "min-w-[120px] h-auto mt-[-4px] font-[r] rounded-[10px] p-[4px] text-[13px] border ml-[10px] flex flex-col justify-start items-start#" +
                     (summarizeModal ? " flex" : " hidden") +
                     (theme
                       ? " border-[#252525] bg-[#353e42]"
-                      : " border-[#E5E7EB] bg-[#ffffff]")
+                      : " border-[#d2d2d2] bg-[#ffffff]")
                   }
                   style={{
-                    boxShadow: "0px 1px 15px rgba(0, 0, 0, 0.15)",
+                    boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
                   }}
                 >
                   <button
                     className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
                       (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
                     }
                     onClick={() => {
-                      run(
-                        "Summarize the following text in a detailed and coherent manner, capturing all key points and providing context. Ensure the response is in plain text without using formatting-related symbols for emphasis or bullets. Normal special characters, emojis, and punctuation can be used as needed. Provide only the summary, nothing else.",
-                        "Summary/Extended"
-                      );
-                      setAiSection("Summary/Extended");
+                      run(`${AIPrompts.bulleted_summary}`, "summary/bulleted");
+                      setAiSection("summary/bulleted");
                       setLoading(true);
                       // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
                     }}
                   >
-                    Extended
+                    Bulleted
                   </button>
                   <button
                     className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
                       (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
                     }
                     onClick={() => {
                       run(
-                        "Summarize the following text by listing the key points clearly and concisely. Do not use symbols like *, -, or any formatting-related characters for bullets. Normal special characters, emojis, and punctuation can be included where appropriate. Provide each point on a new line as plain text. Do not include additional commentary or instructions.",
-                        "Summary/Bullete"
+                        `${AIPrompts.paragraph_summary}`,
+                        "summary/paragraph"
                       );
-                      setAiSection("Summary/Bullete");
-                      setLoading(true);
-                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                    }}
-                  >
-                    Bullete
-                  </button>
-                  <button
-                    className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                      (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                    }
-                    onClick={() => {
-                      run(
-                        "Summarize the following text into a single concise sentence. Do not use any formatting symbols like *, -, or ``` for emphasis. Normal special characters, emojis, and punctuation can be included if relevant. Provide only the summary, without any additional details or instructions.",
-                        "Summary/Micro"
-                      );
-                      setAiSection("Summary/Micro");
-                      setLoading(true);
-                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                    }}
-                  >
-                    Micro
-                  </button>
-                </div>
-              </button>
-              <button
-                className={
-                  "w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular] mt-[1.2px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                  (theme
-                    ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                }
-                onClick={() => {
-                  run(
-                    "Check the following text for typos and spelling errors. Provide only the corrected version of the text in plain text. Do not include formatting-related symbols like *, -, or ``` for emphasis. Retain normal special characters and emojis as needed. Provide only the corrected text without any commentary or additional explanations.",
-                    "Fix Typos"
-                  );
-                  setAiSection("Fix Typos");
-                  setLoading(true);
-                  // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                }}
-              >
-                Fix Typos
-              </button>
-              <button
-                className={
-                  "w-full h-[30px] text-[14px] font-[geistRegular] mt-[1.2px]  flex justify-start  items-start  cursor-pointer rounded-md overflow-visible"
-                }
-              >
-                <button
-                  className={
-                    "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-between pl-[10px]  items-center  cursor-pointer rounded-md " +
-                    (helpModal
-                      ? theme
-                        ? " bg-[#1D2528] text-[#ffffff]"
-                        : " bg-[#e6e6f4] text-[#000000]"
-                      : theme
-                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] hover:text-[white] "
-                      : " hover:bg-[#e6e6f4] bg-transparent text-[#6e6e7c] hover:text-[black] ")
-                  }
-                  onClick={() => {
-                    setSummarizeModal(false);
-                    setToneModal(false);
-                    setFormatModal(false);
-                    setHelpModal(!helpModal);
-                  }}
-                >
-                  Help Me Write{" "}
-                  <ChevronRight width={18} height={18} strokeWidth={1.8} />
-                </button>
-                <div
-                  className={
-                    "min-w-[150px] h-auto rounded-lg mt-[-5.5px] border-[1.5px] ml-[10px] flex flex-col justify-start items-start p-[5px]" +
-                    (helpModal ? " flex" : " hidden") +
-                    (theme
-                      ? " border-[#252525] bg-[#353e42]"
-                      : " border-[#E5E7EB] bg-[#ffffff]")
-                  }
-                  style={{
-                    boxShadow: "0px 1px 15px rgba(0, 0, 0, 0.15)",
-                  }}
-                >
-                  <button
-                    className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                      (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                    }
-                    onClick={() => {
-                      run(
-                        "Create an engaging and concise introduction for the following text. The introduction should summarize the main topic and set the tone for the content. Avoid using formatting-related symbols like *, -, or ``` for emphasis, but normal special characters and emojis are allowed if relevant. Provide only the introduction without any additional commentary or instructions.",
-                        "Help Me Write/Introduction"
-                      );
-                      setAiSection("Help Me Write/Introduction");
-                      setLoading(true);
-                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                    }}
-                  >
-                    Introduction
-                  </button>
-                  <button
-                    className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                      (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                    }
-                    onClick={() => {
-                      run(
-                        "Write a clear and impactful conclusion for the following text. The conclusion should summarize the key takeaways and provide a sense of closure. Do not use formatting-related symbols like *, -, or ``` for emphasis. Normal special characters and emojis can be included as needed. Provide only the conclusion without any additional commentary or instructions.",
-                        "Help Me Write/Conclusion"
-                      );
-                      setAiSection("Help Me Write/Conclusion");
-                      setLoading(true);
-                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                    }}
-                  >
-                    Conclusion
-                  </button>
-                  <button
-                    className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                      (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                    }
-                    onClick={() => {
-                      run(
-                        "Generate a concise and attention-grabbing title for the following text. The title should capture the essence of the content and entice the reader. Avoid using formatting-related symbols like *, -, or ``` for emphasis, but normal special characters and emojis are allowed if relevant. Provide only the title without any additional commentary or instructions.",
-                        "Help Me Write/Title"
-                      );
-                      setAiSection("Help Me Write/Title");
-                      setLoading(true);
-                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                    }}
-                  >
-                    Title
-                  </button>
-                </div>
-              </button>
-
-              <button
-                className={
-                  "w-full h-[30px] text-[14px] font-[geistRegular] mt-[1.2px]  flex justify-start  items-start  cursor-pointer rounded-md overflow-visible"
-                }
-              >
-                <button
-                  className={
-                    "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-between pl-[10px]  items-center  cursor-pointer rounded-md " +
-                    (toneModal
-                      ? theme
-                        ? " bg-[#1D2528] text-[#ffffff]"
-                        : " bg-[#e6e6f4] text-[#000000]"
-                      : theme
-                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] hover:text-[white] "
-                      : " hover:bg-[#e6e6f4] bg-transparent text-[#6e6e7c] hover:text-[black] ")
-                  }
-                  onClick={() => {
-                    setSummarizeModal(false);
-                    setHelpModal(false);
-                    setFormatModal(false);
-                    setToneModal(!toneModal);
-                  }}
-                >
-                  Change Tone{" "}
-                  <ChevronRight width={18} height={18} strokeWidth={1.8} />
-                </button>
-                <div
-                  className={
-                    "min-w-[150px] h-auto rounded-lg mt-[-5.5px] border-[1.5px] ml-[10px] flex flex-col justify-start items-start p-[5px]" +
-                    (toneModal ? " flex" : " hidden") +
-                    (theme
-                      ? " border-[#252525] bg-[#353e42]"
-                      : " border-[#E5E7EB] bg-[#ffffff]")
-                  }
-                  style={{
-                    boxShadow: "0px 1px 15px rgba(0, 0, 0, 0.15)",
-                  }}
-                >
-                  <button
-                    className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                      (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                    }
-                    onClick={() => {
-                      run(
-                        "Rewrite the following text in a professional tone. Ensure the response is formal, clear, and respectful, suitable for business or academic contexts. Avoid using formatting-related symbols like *, -, or ``` for emphasis, but normal special characters and punctuation are allowed. Provide only the revised text without any additional commentary or instructions.",
-                        "Change Tone/Professional"
-                      );
-                      setAiSection("Change Tone/Professional");
-                      setLoading(true);
-                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                    }}
-                  >
-                    Professional
-                  </button>
-                  <button
-                    className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                      (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                    }
-                    onClick={() => {
-                      run(
-                        "Rewrite the following text in a friendly tone. Make it conversational, approachable, and warm while maintaining clarity. Avoid using formatting-related symbols like *, -, or ``` for emphasis, but normal special characters and emojis are allowed. Provide only the revised text without any additional commentary or instructions.",
-                        "Change Tone/Friendly"
-                      );
-                      setAiSection("Change Tone/Friendly");
-                      setLoading(true);
-                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                    }}
-                  >
-                    Friendly
-                  </button>
-                  <button
-                    className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                      (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                    }
-                    onClick={() => {
-                      run(
-                        "Rewrite the following text in a humorous tone. Add lightheartedness, wit, or playful language while ensuring the message remains clear. Avoid using formatting-related symbols like *, -, or ``` for emphasis, but normal special characters, emojis, and punctuation are allowed. Provide only the revised text without any additional commentary or instructions.",
-                        "Change Tone/Humorous"
-                      );
-                      setAiSection("Change Tone/Humorous");
-                      setLoading(true);
-                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
-                    }}
-                  >
-                    Humorous
-                  </button>
-                </div>
-              </button>
-              <button
-                className={
-                  "w-full h-[30px] text-[14px] font-[geistRegular] mt-[1.2px]  flex justify-start  items-start  cursor-pointer rounded-md overflow-visible"
-                }
-              >
-                <button
-                  className={
-                    "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-between pl-[10px]  items-center  cursor-pointer rounded-md " +
-                    (formatModal
-                      ? theme
-                        ? " bg-[#1D2528] text-[#ffffff]"
-                        : " bg-[#e6e6f4] text-[#000000]"
-                      : theme
-                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] hover:text-[white] "
-                      : " hover:bg-[#e6e6f4] bg-transparent text-[#6e6e7c] hover:text-[black] ")
-                  }
-                  onClick={() => {
-                    setSummarizeModal(false);
-                    setHelpModal(false);
-                    setToneModal(false);
-                    setFormatModal(!formatModal);
-                  }}
-                >
-                  Change Format{" "}
-                  <ChevronRight width={18} height={18} strokeWidth={1.8} />
-                </button>
-                <div
-                  className={
-                    "min-w-[150px] h-auto rounded-lg mt-[-5.5px] border-[1.5px] ml-[10px] flex flex-col justify-start items-start p-[5px]" +
-                    (formatModal ? " flex" : " hidden") +
-                    (theme
-                      ? " border-[#252525] bg-[#353e42]"
-                      : " border-[#E5E7EB] bg-[#ffffff]")
-                  }
-                  style={{
-                    boxShadow: "0px 1px 15px rgba(0, 0, 0, 0.15)",
-                  }}
-                >
-                  <button
-                    className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
-                      (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
-                    }
-                    onClick={() => {
-                      run(
-                        "Rewrite the following text into well-structured multiple paragraphs. Each paragraph should focus on a single idea or topic to enhance readability and clarity. Ensure the text flows naturally and is easy to understand. Avoid using formatting-related symbols like *, -, or ``` for emphasis, but normal special characters and punctuation are allowed. Provide only the rewritten text without any additional commentary or instructions.",
-                        "Change Format/Paragraph"
-                      );
-                      setAiSection("Change Format/Paragraph");
+                      setAiSection("summary/paragraph");
                       setLoading(true);
                       // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
                     }}
@@ -935,44 +723,500 @@ function TextFormatFloatingToolbar({
                   </button>
                   <button
                     className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
                       (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
                     }
                     onClick={() => {
                       run(
-                        "Rewrite the following text as concise and clear bulleted notes. Each note should represent a key point, but avoid using symbols like *, -, or ``` for bullets. Instead, start each note on a new line with plain text. Normal special characters and punctuation are allowed as needed. Provide only the bulleted notes without any additional commentary or instructions.",
-                        "Change Format/Bulleted Note"
+                        `${AIPrompts.one_sentence_summary}`,
+                        "summary/oneLiner"
                       );
-                      setAiSection("Change Format/Bulleted Note");
+                      setAiSection("summary/oneLiner");
                       setLoading(true);
                       // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
                     }}
                   >
-                    Bulleted Note
+                    One-Liner
+                  </button>
+                </div>
+              </button>
+              {/* ---- Fix Typos -> */}
+              <button
+                className={
+                  "w-full h-[27px]  p-[5px] mt-[1.2px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                  (theme
+                    ? " hover:bg-[#1D2528] text-[#f4efff] "
+                    : " hover:bg-[#e9e9e9] text-[#454545] ")
+                }
+                onClick={() => {
+                  run(`${AIPrompts.fix_typos}`, "fixTypos");
+                  setAiSection("fixTypos");
+                  setLoading(true);
+                  // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                }}
+              >
+                Fix Typos
+              </button>
+              {/* ---- Improve Writing -> */}
+              <button
+                className={
+                  "w-full h-[27px]  p-[5px] mt-[1.2px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                  (theme
+                    ? " hover:bg-[#1D2528] text-[#f4efff] "
+                    : " hover:bg-[#e9e9e9] text-[#454545] ")
+                }
+                onClick={() => {
+                  run(`${AIPrompts.improve_writing}`, "improveWriting");
+                  setAiSection("improveWriting");
+                  setLoading(true);
+                  // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                }}
+              >
+                Improve Writing
+              </button>
+              {/* ---- Help me Write -> */}
+              <button
+                className={
+                  "w-full h-[27px] mt-[1.2px]  flex justify-start  items-start  cursor-pointer rounded-lg overflow-visible"
+                }
+              >
+                <button
+                  className={
+                    "min-w-full h-[27px] p-[5px] flex justify-between pl-[10px]  items-center  cursor-pointer rounded-lg " +
+                    (helpModal
+                      ? theme
+                        ? " bg-[#1D2528] text-[#ffffff]"
+                        : " bg-[#e9e9e9] text-[#000000]"
+                      : theme
+                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] "
+                      : " hover:bg-[#e9e9e9] bg-transparent text-[#454545] ")
+                  }
+                  onClick={() => {
+                    setSummarizeModal(false);
+                    setToneModal(false);
+                    setFormatModal(false);
+                    setTranslateModal(false);
+                    setHelpModal(!helpModal);
+                  }}
+                >
+                  Help Me Write{" "}
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={16}
+                    strokeWidth={1.8}
+                  />
+                </button>
+                {/* ---- Help me write options -> */}
+                <div
+                  className={
+                    "min-w-[120px] h-auto mt-[-4px] font-[r] rounded-[10px] p-[4px] text-[13px] border ml-[10px] flex flex-col justify-start items-start#" +
+                    (helpModal ? " flex" : " hidden") +
+                    (theme
+                      ? " border-[#252525] bg-[#353e42]"
+                      : " border-[#d2d2d2] bg-[#ffffff]")
+                  }
+                  style={{
+                    boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
+                    }
+                    onClick={() => {
+                      run(`${AIPrompts.title}`, "helpMeWrite/title");
+                      setAiSection("helpMeWrite/title");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Title
                   </button>
                   <button
                     className={
-                      "min-w-full h-[30px]  p-[5px] text-[14px] font-[geistRegular]  flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-md " +
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
                       (theme
-                        ? " hover:bg-[#1D2528] text-[#f4efff] hover:text-[white] "
-                        : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] ")
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
                     }
                     onClick={() => {
                       run(
-                        "Rewrite the following text in the format of an email. Include a subject line, greeting, body text, and a closing statement. The tone should be clear and appropriate for email communication. Avoid using formatting-related symbols like *, -, or ``` for emphasis, but normal special characters and punctuation are allowed. Provide only the email content without any additional commentary or instructions.",
-                        "Change Format/Email"
+                        `${AIPrompts.introduction}`,
+                        "helpMeWrite/introduction"
                       );
-                      setAiSection("Change Format/Email");
+                      setAiSection("helpMeWrite/introduction");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Introduction
+                  </button>
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
+                    }
+                    onClick={() => {
+                      run(`${AIPrompts.conclusion}`, "helpMeWrite/conclusion");
+                      setAiSection("helpMeWrite/conclusion");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Conclusion
+                  </button>
+                </div>
+              </button>
+              {/* ---- Change Tone -> */}
+              <button
+                className={
+                  "w-full h-[27px] mt-[1.2px]  flex justify-start  items-start  cursor-pointer rounded-lg overflow-visible"
+                }
+              >
+                <button
+                  className={
+                    "min-w-full h-[27px] p-[5px] flex justify-between pl-[10px]  items-center  cursor-pointer rounded-lg" +
+                    (toneModal
+                      ? theme
+                        ? " bg-[#1D2528] text-[#ffffff]"
+                        : " bg-[#e9e9e9] text-[#000000]"
+                      : theme
+                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] "
+                      : " hover:bg-[#e9e9e9] bg-transparent text-[#454545]")
+                  }
+                  onClick={() => {
+                    setSummarizeModal(false);
+                    setHelpModal(false);
+                    setFormatModal(false);
+                    setTranslateModal(false);
+                    setToneModal(!toneModal);
+                  }}
+                >
+                  Change Tone{" "}
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={16}
+                    strokeWidth={1.8}
+                  />
+                </button>
+                {/* ---- Change Tone options -> */}
+                <div
+                  className={
+                    "min-w-[120px] h-auto mt-[-4px] font-[r] rounded-[10px] p-[4px] text-[13px] border ml-[10px] flex flex-col justify-start items-start#" +
+                    (toneModal ? " flex" : " hidden") +
+                    (theme
+                      ? " border-[#252525] bg-[#353e42]"
+                      : " border-[#d2d2d2] bg-[#ffffff]")
+                  }
+                  style={{
+                    boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545]")
+                    }
+                    onClick={() => {
+                      run(
+                        `${AIPrompts.tone_professional}`,
+                        "changeTone/professional"
+                      );
+                      setAiSection("changeTone/professional");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Professional
+                  </button>
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545]")
+                    }
+                    onClick={() => {
+                      run(`${AIPrompts.tone_casual}`, "changeTone/casual");
+                      setAiSection("changeTone/casual");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Casual
+                  </button>
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545]")
+                    }
+                    onClick={() => {
+                      run(
+                        `${AIPrompts.tone_straightforward}`,
+                        "changeTone/straightforward"
+                      );
+                      setAiSection("changeTone/straightforward");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Straightforward
+                  </button>
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545]")
+                    }
+                    onClick={() => {
+                      run(`${AIPrompts.tone_confdent}`, "changeTone/confident");
+                      setAiSection("changeTone/confident");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Confident
+                  </button>
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545]")
+                    }
+                    onClick={() => {
+                      run(`${AIPrompts.tone_friendly}`, "changeTone/friendly");
+                      setAiSection("changeTone/friendly");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Friendly
+                  </button>
+                </div>
+              </button>
+              {/* ---- Change Format -> */}
+              <button
+                className={
+                  "w-full h-[27px] mt-[1.2px]  flex justify-start  items-start  cursor-pointer rounded-lg overflow-visible"
+                }
+              >
+                <button
+                  className={
+                    "min-w-full h-[27px] p-[5px] flex justify-between pl-[10px]  items-center  cursor-pointer rounded-lg " +
+                    (formatModal
+                      ? theme
+                        ? " bg-[#1D2528] text-[#ffffff]"
+                        : " bg-[#e9e9e9] text-[#000000]"
+                      : theme
+                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] "
+                      : " hover:bg-[#e9e9e9] bg-transparent text-[#454545]")
+                  }
+                  onClick={() => {
+                    setSummarizeModal(false);
+                    setHelpModal(false);
+                    setToneModal(false);
+                    setTranslateModal(false);
+                    setFormatModal(!formatModal);
+                  }}
+                >
+                  Change Format{" "}
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={16}
+                    strokeWidth={1.8}
+                  />
+                </button>
+                {/* ---- Change format options -> */}
+                <div
+                  className={
+                    "min-w-[120px] h-auto mt-[-4px] font-[r] rounded-[10px] p-[4px] text-[13px] border ml-[10px] flex flex-col justify-start items-start#" +
+                    (formatModal ? " flex" : " hidden") +
+                    (theme
+                      ? " border-[#252525] bg-[#353e42]"
+                      : " border-[#d2d2d2] bg-[#ffffff]")
+                  }
+                  style={{
+                    boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px] items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
+                    }
+                    onClick={() => {
+                      run(`${AIPrompts.change_to_email}`, "changeFormat/email");
+                      setAiSection("changeFormat/email");
                       setLoading(true);
                       // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
                     }}
                   >
                     Email
                   </button>
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px] items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
+                    }
+                    onClick={() => {
+                      run(
+                        `${AIPrompts.change_to_paragraph}`,
+                        "changeFormat/paragraph"
+                      );
+                      setAiSection("changeFormat/paragraph");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Paragraph
+                  </button>
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px] items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
+                    }
+                    onClick={() => {
+                      run(
+                        `${AIPrompts.change_to_shorter}`,
+                        "changeFormat/makeShorter"
+                      );
+                      setAiSection("changeFormat/makeShorter");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Make shorter
+                  </button>
+                  <button
+                    className={
+                      "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px] items-center bg-transparent cursor-pointer rounded-lg " +
+                      (theme
+                        ? " hover:bg-[#1D2528] text-[#f4efff] "
+                        : " hover:bg-[#e9e9e9] text-[#454545] ")
+                    }
+                    onClick={() => {
+                      run(
+                        `${AIPrompts.change_to_longer}`,
+                        "changeFormat/makeLonger"
+                      );
+                      setAiSection("changeFormat/makeLonger");
+                      setLoading(true);
+                      // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                    }}
+                  >
+                    Make longer
+                  </button>
                 </div>
               </button>
+              {/* ---- Translate to -> */}
+              <button
+                className={
+                  "w-full h-[27px] mt-[1.2px]  flex justify-start  items-start  cursor-pointer rounded-lg overflow-visible"
+                }
+              >
+                <button
+                  className={
+                    "min-w-full h-[27px] p-[5px] flex justify-between pl-[10px]  items-center  cursor-pointer rounded-lg" +
+                    (translateModal
+                      ? theme
+                        ? " bg-[#1D2528] text-[#ffffff]"
+                        : " bg-[#e9e9e9] text-[#000000]"
+                      : theme
+                      ? " hover:bg-[#1D2528] bg-transparent text-[#f4efff] "
+                      : " hover:bg-[#e9e9e9] bg-transparent text-[#454545]")
+                  }
+                  onClick={() => {
+                    setSummarizeModal(false);
+                    setHelpModal(false);
+                    setFormatModal(false);
+                    setToneModal(false);
+                    setTranslateModal(!translateModal);
+                  }}
+                >
+                  Translate to{" "}
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={16}
+                    strokeWidth={1.8}
+                  />
+                </button>
+                {/* ---- Translate to options -> */}
+                <div
+                  className={
+                    "min-w-[120px] max-h-[198px] overflow-y-scroll mt-[-4px] font-[r] rounded-[10px] p-[4px] text-[13px] border ml-[10px] flex flex-col justify-start items-start#" +
+                    (translateModal ? " flex" : " hidden") +
+                    (theme
+                      ? " border-[#252525] bg-[#353e42]"
+                      : " border-[#d2d2d2] bg-[#ffffff]")
+                  }
+                  style={{
+                    boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  {languages?.map((data, index) => {
+                    return (
+                      <button
+                        key={index}
+                        className={
+                          "min-w-full h-[27px] p-[5px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                          (theme
+                            ? " hover:bg-[#1D2528] text-[#f4efff] "
+                            : " hover:bg-[#e9e9e9] text-[#454545]")
+                        }
+                        onClick={() => {
+                          run(
+                            `Translate the following text into ${data}.${AIPrompts.translate_to_language}`,
+                            `translateTo/${data}`
+                          );
+                          // console.log(
+                          //   `Translate the following text into ${data}.${AIPrompts.translate_to_language}`
+                          // );
+                          setAiSection(`translateTo/${data}`);
+                          setLoading(true);
+                          // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                        }}
+                      >
+                        {data}
+                      </button>
+                    );
+                  })}
+                </div>
+              </button>
+              {/* <button
+                className={
+                  "w-full h-[27px]  p-[5px] mt-[1.2px] flex justify-start pl-[10px]  items-center bg-transparent cursor-pointer rounded-lg " +
+                  (theme
+                    ? " hover:bg-[#1D2528] text-[#f4efff] "
+                    : " hover:bg-[#e9e9e9] text-[#454545] ")
+                }
+                onClick={() => {
+                  run(`${AIPrompts.fix_typos}`, "translateTo");
+                  setAiSection("translateTo");
+                  setLoading(true);
+                  // editor.dispatchCommand(FORMAT_TEXT_COMMAND, "ai");
+                }}
+              >
+                Translate to
+              </button> */}
             </div>
           </div>
         </>

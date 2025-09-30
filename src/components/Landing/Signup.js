@@ -15,6 +15,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toolbarItems } from "../../utils/constant";
 import { processStringEncrypt } from "../../utils/functions";
 import { formatDate } from "../../utils/functionsConstant";
+import logo from "../../assets/img/brandLogo.svg";
+import ClickSpark from "../Animations/ClickSpark";
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -25,6 +27,12 @@ export default function Signup() {
   const [passwordField, setPasswordField] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
+  const [errorInfo, setErrorInfo] = useState({
+    Name: false,
+    email: false,
+    password: false,
+    errorDetails: "",
+  });
 
   const provider = new GoogleAuthProvider();
 
@@ -135,6 +143,25 @@ export default function Signup() {
         DeletedAPIKeys: [],
       });
 
+    db.collection("user")
+      .doc(user.uid)
+      .collection("APIKeys")
+      .doc(
+        "APIKey_" +
+          processStringEncrypt("AIzaSyDViziRgn4Bj7gKX_486zR-SgBqBFLyg0U")
+      )
+      .set({
+        CurrentDate:
+          new Date().getDate() +
+          "/" +
+          parseInt(new Date().getMonth() + 1) +
+          "/" +
+          new Date().getFullYear(),
+        TotalTokens: 10000000,
+        CurrentUsage: 0,
+        RequestInADay: [],
+      });
+
     // User Note Space ----->
     db.collection("user")
       .doc(user.uid)
@@ -206,6 +233,29 @@ export default function Signup() {
         ChatAccessRequest: [],
       });
 
+    // AIAgentSpace ---------->
+    db.collection("user")
+      .doc(user.uid)
+      .collection("AIAgents")
+      .doc("AllAIAgents")
+      .set({
+        AllAIAgentInfo: [],
+        AllAgentName: [],
+      });
+
+    // TaskInfo space ----------->
+    db.collection("taskSpace")
+      .doc(user.uid)
+      .collection("taskInfo")
+      .doc("taskInfo")
+      .set({
+        Todo: [],
+        InProgress: [],
+        Pause: [],
+        Done: [],
+        AllTasks: [],
+      });
+
     console.log("Account created successfully");
     navigateToLoggedInPage(user.uid);
   }
@@ -213,13 +263,58 @@ export default function Signup() {
   const signUp = () => {
     const letterPattern = /[a-zA-Z]/;
     // e.preventDefault();
+    // if (name.length == 0) {
+    //   setError("Name can't be empty");
+    // } else if (email.length === 0 || !email.includes("@gmail.com")) {
+    //   setError("Email must contain '@gmail.com'");
+    // } else if (password.length < 8) {
+    //   setError("Password should be atleast 8 characters");
+    // } else {
+    //   createUserWithEmailAndPassword(auth, email, password)
+    //     .then((userCredential) => {
+    //       // console.log(userCredential.user.uid);
+    //       // console.log(userCredential.user.email);
+    //       // console.log(userCredential);
+    //       createUserCollection(userCredential.user);
+    //     })
+    //     .catch((error) => {
+    //       console.log(error.message);
+    //       setError("Oops! Email already in use");
+    //     });
+    // }
+
+    let obj = errorInfo;
+
     if (name.length == 0) {
-      setError("Name can't be empty");
-    } else if (email.length === 0 || !email.includes("@gmail.com")) {
-      setError("Email must contain '@gmail.com'");
-    } else if (password.length < 8) {
-      setError("Password should be atleast 8 characters");
-    } else {
+      obj = {
+        Name: true,
+        email: obj.email,
+        password: obj.password,
+        errorDetails: "",
+      };
+    }
+    if (!email?.toLowerCase()?.includes("@gmail.com")) {
+      obj = {
+        Name: obj.Name,
+        email: true,
+        password: obj.password,
+        errorDetails: "",
+      };
+    }
+    if (password?.length < 8) {
+      obj = {
+        Name: obj.Name,
+        email: obj.email,
+        password: true,
+        errorDetails: "",
+      };
+    }
+
+    if (
+      email?.toLowerCase()?.includes("@gmail.com") &&
+      password?.length >= 8 &&
+      name.length > 0
+    ) {
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           // console.log(userCredential.user.uid);
@@ -229,9 +324,17 @@ export default function Signup() {
         })
         .catch((error) => {
           console.log(error.message);
-          setError("Oops! Email already in use");
+          // setError("Oops! Email already in use");
+          setErrorInfo({
+            name: false,
+            email: false,
+            password: false,
+            errorDetails: "Oops! Invalid Login Credentials",
+          });
         });
     }
+
+    setErrorInfo(obj);
   };
 
   const signUpWithGoogle = () => {
@@ -256,6 +359,10 @@ export default function Signup() {
     navigate(`/user/login`);
   }
 
+  function navigateToHome() {
+    navigate(`/`);
+  }
+
   function navigateToLoggedInPage(id) {
     navigate(`/user/welcomeUser/user?ID=${id}?section=Notes`);
   }
@@ -277,194 +384,294 @@ export default function Signup() {
   }, []);
 
   return (
-    <div className="w-full h-[100svh] flex justify-center items-center font-[geistRegular]">
-      <div className="w-full lg:w-[350px] md:w-[350px] p-[40px] rounded-none md:rounded-xl lg:rounded-xl h-[100svh] md:h-[70%] lg:h-[70%] max-h-full md:max-h-[550px] lg:max-h-[550px]  flex flex-col justify-center md:justify-center lg:justify-center items-start bg-[white] px-[50px] font-[geistRegular] text-[14px] z-0">
-        <div className="font-[geistSemibold] text-[35px] mb-[20px] w-full flex justify-center">
-          Sign Up
-        </div>
-        <div className="w-full h-[40px] flex flex-col justify-start items-start mt-[20px] ">
+    <>
+      <ClickSpark
+        sparkColor="#000"
+        sparkSize={10}
+        sparkRadius={15}
+        sparkCount={8}
+        duration={400}
+      />
+      <div className="w-full h-[100svh] flex justify-center items-center font-[r]">
+        <div
+          className="w-full lg:w-[400px] md:w-[400px] p-[40px] py-[20px] rounded-none md:rounded-xl lg:rounded-xl min-h-[100svh] md:min-h-[75%] lg:min-h-[75%]  flex flex-col justify-center md:justify-center lg:justify-center items-start bg-[white] px-[50px] font-[r] text-[14px] max-h-full md:max-h-[100%] lg:max-h-[100%]"
+          // style={{ zIndex: "0" }}
+        >
           <div
-            className={
-              "w-full min-h-full max-h-full mb-[-40px] flex items-start justify-start pl-[10px] " +
-              (nameField || name.length > 0
-                ? " pt-[0px] text-[11px]"
-                : " pt-[20px] text-[14px]")
-            }
-            style={{ transition: ".3s" }}
+            style={{ zIndex: "10" }}
+            className="w-full flex justify-center items-center mb-[30px]"
           >
-            <div
-              className={
-                "bg-[#ffffff] h-[4px] mt-[-2px]  flex justify-center items-center px-[3px] text-[#9ba6aa]" +
-                (nameField || name.length > 0 ? " z-[10]" : " z-[0]")
-              }
-              style={{
-                zIndex: nameField || name.length > 0 ? "100" : "0",
-                // transition: ".3s",
+            <button
+              className="w-[80px] h-[80px] p-[13px] rounded-lg bg-[#f7f7f7]"
+              onClick={() => {
+                navigateToHome();
               }}
             >
-              Name
-            </div>
+              <img src={logo} className=" w-full h-full object-fill "></img>
+            </button>
           </div>
-          <input
-            className="w-full h-[40px] border-[1.5px] border-[#ededed] rounded-lg bg-transparent px-[12px] outline-none "
-            style={{ zIndex: "5" }}
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setError("");
-            }}
-            onFocus={() => {
-              setNameField(true);
-            }}
-            onBlur={() => {
-              setNameField(false);
-            }}
-          ></input>
-        </div>
-        <div className="w-full h-[40px] flex flex-col justify-start items-start mt-[15px] ">
           <div
-            className={
-              "w-full min-h-full max-h-full mb-[-40px] flex items-start justify-start pl-[10px] " +
-              (emailField || email.length > 0
-                ? " pt-[0px] text-[11px]"
-                : " pt-[20px] text-[14px]")
-            }
-            style={{ transition: ".3s" }}
+            style={{ zIndex: "10" }}
+            className=" font-[geistSemibold] text-[26px] mb-[5px] w-full flex justify-center"
           >
-            <div
-              className={
-                "bg-[#ffffff] h-[4px] mt-[-2px]  flex justify-center items-center px-[3px] text-[#9ba6aa]" +
-                (emailField || email.length > 0 ? " z-[10]" : " z-[0]")
-              }
-              style={{
-                zIndex: emailField || email.length > 0 ? "100" : "0",
-                // transition: ".3s",
+            Hey , join us today!
+          </div>
+          <div
+            style={{ zIndex: "10" }}
+            className=" w-full flex justify-center items-center text-[#00000078] mb-[20px]"
+          >
+            Already have an account ?{" "}
+            <button
+              className="px-[3px] mx-[2px] text-[black] cursor-pointer"
+              onClick={() => {
+                navigateToSection();
               }}
             >
-              Email
-            </div>
+              Log In here
+            </button>
           </div>
-          <input
-            className="w-full h-[40px] border-[1.5px] border-[#ededed] rounded-lg bg-transparent px-[12px] outline-none "
-            style={{ zIndex: "5" }}
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setError("");
-            }}
-            onFocus={() => {
-              setEmailField(true);
-            }}
-            onBlur={() => {
-              setEmailField(false);
-            }}
-          ></input>
-        </div>
-        <div className="w-full h-[40px] flex flex-col justify-start items-start mt-[15px] ">
-          <div
-            className={
-              "w-full min-h-full max-h-full mb-[-40px] flex items-start justify-start pl-[10px] " +
-              (passwordField || password.length > 0
-                ? " pt-[0px] text-[11px]"
-                : " pt-[20px] text-[14px]")
-            }
-            style={{ transition: ".3s" }}
-          >
+
+          <div className="w-full h-[40px] flex flex-col justify-start items-start mt-[20px] ">
             <div
               className={
-                "bg-[#ffffff] h-[4px] mt-[-2px]  flex justify-center items-center px-[3px] text-[#9ba6aa]" +
-                (passwordField || password.length > 0 ? " z-[10]" : " z-[0]")
+                "w-full min-h-full max-h-full mb-[-40px] flex items-start justify-start pl-[10px] " +
+                (nameField || name.length > 0
+                  ? " pt-[0px] text-[11px]"
+                  : " pt-[20px] text-[13px]")
               }
-              style={{
-                zIndex: passwordField || password.length > 0 ? "100" : "0",
-                // transition: ".3s",
-              }}
+              style={{ transition: ".3s" }}
             >
-              Password
+              <div
+                className={
+                  "bg-[#ffffff] h-[4px] mt-[-2px] flex justify-center items-center px-[3px] text-[#0000004d]" +
+                  (nameField || name.length > 0 ? " z-[10]" : " z-[0]")
+                }
+                style={{
+                  zIndex: nameField || name.length > 0 ? "100" : "0",
+                  // transition: ".3s",
+                }}
+              >
+                Name
+              </div>
             </div>
-          </div>
-          <div
-            className="w-full h-[40px]  bg-transparent flex justify-start items-center "
-            style={{ zIndex: "5" }}
-          >
             <input
-              className="w-full h-[40px] border-[1.5px] border-[#ededed] rounded-lg bg-transparent px-[12px] pr-[52px] outline-none "
-              style={{ zIndex: "5" }}
-              value={password}
-              type={!showPass ? "password" : "text"}
+              className="w-full h-[40px] border-[1px] border-[#d5d5d500] rounded-lg bg-transparent px-[12px] "
+              style={{
+                zIndex: "5",
+                outline: errorInfo?.name
+                  ? "2px solid #ce3d00"
+                  : "1px solid #d5d5d5" /* Force an outline */,
+                outlineOffset: "0px",
+              }}
+              value={name}
               onChange={(e) => {
-                setPassword(e.target.value);
+                if (errorInfo?.name) {
+                  setErrorInfo({
+                    Name: false,
+                    email: errorInfo?.email,
+                    password: errorInfo?.password,
+                    errorDetails: "",
+                  });
+                }
+                setName(e.target.value);
                 setError("");
               }}
               onFocus={() => {
-                setPasswordField(true);
+                setNameField(true);
               }}
               onBlur={() => {
-                setPasswordField(false);
+                setNameField(false);
               }}
             ></input>
+          </div>
+          <div className="w-full h-[40px] flex flex-col justify-start items-start mt-[15px] ">
             <div
-              className="w-[40px] h-full ml-[-40px] flex justify-center items-center cursor-pointer z-20"
-              onClick={() => {
-                setShowPass(!showPass);
-              }}
+              className={
+                "w-full min-h-full max-h-full mb-[-40px] flex items-start justify-start pl-[10px] " +
+                (emailField || email.length > 0
+                  ? " pt-[0px] text-[11px]"
+                  : " pt-[20px] text-[13px]")
+              }
+              style={{ transition: ".3s" }}
             >
-              {showPass ? (
-                <EyeOff width={15} height={15} strokeWidth={1.9} />
-              ) : (
-                <Eye width={15} height={15} strokeWidth={1.9} />
-              )}
+              <div
+                className={
+                  "bg-[#ffffff] h-[4px] mt-[-2px]  flex justify-center items-center px-[3px] text-[#0000004d]" +
+                  (emailField || email.length > 0 ? " z-[10]" : " z-[0]")
+                }
+                style={{
+                  zIndex: emailField || email.length > 0 ? "100" : "0",
+                  // transition: ".3s",
+                }}
+              >
+                Email
+              </div>
+            </div>
+            <input
+              className="w-full h-[40px] border-[1px] border-[#d5d5d500] rounded-lg bg-transparent px-[12px]"
+              style={{
+                zIndex: "5",
+                outline: errorInfo?.email
+                  ? "2px solid #ce3d00"
+                  : "1px solid #d5d5d5" /* Force an outline */,
+                outlineOffset: "0px",
+              }}
+              value={email}
+              onChange={(e) => {
+                if (errorInfo?.email) {
+                  setErrorInfo({
+                    name: errorInfo?.Name,
+                    email: false,
+                    password: errorInfo?.password,
+                    errorDetails: "",
+                  });
+                }
+                setEmail(e.target.value);
+                setError("");
+              }}
+              onFocus={() => {
+                setEmailField(true);
+              }}
+              onBlur={() => {
+                setEmailField(false);
+              }}
+            ></input>
+          </div>
+          <div className="w-full h-[40px] flex flex-col justify-start items-start mt-[15px] ">
+            <div
+              className={
+                "w-full min-h-full max-h-full mb-[-40px] flex items-start justify-start pl-[10px] " +
+                (passwordField || password.length > 0
+                  ? " pt-[0px] text-[11px]"
+                  : " pt-[20px] text-[13px]")
+              }
+              style={{ transition: ".3s" }}
+            >
+              <div
+                className={
+                  "bg-[#ffffff] h-[4px] mt-[-2px]  flex justify-center items-center px-[3px] text-[#0000004d]" +
+                  (passwordField || password.length > 0 ? " z-[10]" : " z-[0]")
+                }
+                style={{
+                  zIndex: passwordField || password.length > 0 ? "100" : "0",
+                  // transition: ".3s",
+                }}
+              >
+                Password
+              </div>
+            </div>
+            <div
+              className="w-full h-[40px]  bg-transparent flex justify-start items-center "
+              style={{ zIndex: "5" }}
+            >
+              <input
+                className="w-full h-[40px] border-[1px] border-[#d5d5d500] rounded-lg bg-transparent px-[12px]"
+                style={{
+                  zIndex: "5",
+                  outline: errorInfo?.password
+                    ? "2px solid #ce3d00"
+                    : "1px solid #d5d5d5" /* Force an outline */,
+                  outlineOffset: "0px",
+                }}
+                value={password}
+                type={!showPass ? "password" : "text"}
+                onChange={(e) => {
+                  if (errorInfo?.password) {
+                    setErrorInfo({
+                      Name: errorInfo?.Name,
+                      email: errorInfo?.email,
+                      password: false,
+                      errorDetails: "",
+                    });
+                  }
+                  setPassword(e.target.value);
+                  setError("");
+                }}
+                onFocus={() => {
+                  setPasswordField(true);
+                }}
+                onBlur={() => {
+                  setPasswordField(false);
+                }}
+              ></input>
+              <div
+                className="w-[40px] h-full ml-[-40px] flex justify-center items-center cursor-pointer z-20"
+                onClick={() => {
+                  setShowPass(!showPass);
+                }}
+              >
+                {showPass ? (
+                  <EyeOff width={15} height={15} strokeWidth={1.7} />
+                ) : (
+                  <Eye width={15} height={15} strokeWidth={1.7} />
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        <div
-          className={
-            "w-full flex justify-end items-center text-[12px] mt-[5px] text-[#ff3b00]" +
-            (error.length > 0 ? " flex" : " hidden")
-          }
-        >
-          <div>{error} *</div>
-        </div>
+          <div
+            className={
+              "w-full flex justify-end items-center text-[12px] mt-[5px] text-[#ff3b00]" +
+              (error.length > 0 ? " flex" : " hidden")
+            }
+          >
+            <div>{error} *</div>
+          </div>
 
-        <div
-          className="w-full h-[40px] mt-[30px] rounded-lg bg-[#27344c] text-[white] text-[14px] flex justify-center items-center cursor-pointer"
-          onClick={() => {
-            signUp();
-          }}
-        >
-          Sign Up
-        </div>
-
-        <div className="w-full h-[40px] mt-[0px] rounded-lg text-[12px] flex justify-center items-center text-[#9ba6aa]">
-          Already have an account ?{" "}
-          <span
-            className="text-[black] ml-[5px] cursor-pointer"
+          <div
+            style={{ zIndex: "10" }}
+            className="w-full h-[40px] mt-[30px] rounded-lg bg-[#27344c] text-[white] text-[14px] flex justify-center items-center cursor-pointer"
             onClick={() => {
-              navigateToSection();
+              signUp();
             }}
           >
-            {" "}
-            Sign In
-          </span>
-        </div>
+            Sign Up
+          </div>
 
-        <div className="w-full h-[40px] mt-[0px] rounded-lg text-[12px] flex justify-between items-center text-[#9ba6aa]">
-          <div className="w-[calc((100%-40px)/2)] border-t-[1.5px] border-t-[#ededed]"></div>
-          <div className="">or</div>
-          <div className="w-[calc((100%-40px)/2)] border-t-[1.5px] border-t-[#ededed]"></div>
-        </div>
-        <div
-          className="w-full h-[40px] border-[1.5px] border-[#ededed] rounded-lg bg-transparent px-[12px] flex justify-center items-center  cursor-pointer"
-          onClick={() => {
-            signUpWithGoogle();
-          }}
-        >
-          <span>
-            <FcGoogle className="text-[18px] mr-[10px]" />
-          </span>
-          <span>Sign up with Google</span>
-        </div>
-      </div>{" "}
-    </div>
+          {/* <div className="w-full h-[40px] mt-[0px] rounded-lg text-[12px] flex justify-center items-center text-[#9ba6aa]">
+            Already have an account ?{" "}
+            <span
+              className="text-[black] ml-[5px] cursor-pointer"
+              onClick={() => {
+                navigateToSection();
+              }}
+            >
+              {" "}
+              Sign In
+            </span>
+          </div> */}
+
+          <div className="w-full h-[40px] mt-[0px] rounded-lg text-[12px] flex justify-between items-center text-[#9ba6aa]">
+            <div className="w-[calc((100%-40px)/2)] border-t-[1.5px] border-t-[#ededed]"></div>
+            <div className="">or</div>
+            <div className="w-[calc((100%-40px)/2)] border-t-[1.5px] border-t-[#ededed]"></div>
+          </div>
+          <div
+            style={{ zIndex: "10" }}
+            className="w-full h-[40px] border-[1.5px] border-[#ededed] rounded-lg bg-transparent px-[12px] flex justify-center items-center  cursor-pointer"
+            onClick={() => {
+              signUpWithGoogle();
+            }}
+          >
+            <span>
+              <FcGoogle className="text-[18px] mr-[10px]" />
+            </span>
+            <span>Sign up with Google</span>
+          </div>
+          <div className="text-[12px] text-center text-[#b3b3b3] mt-[30px] w-full z-[2]">
+            You acknowledge that you read, and agree, to our
+          </div>
+          <div className="text-[12px] text-center text-[#b3b3b3] mt-[0px] w-full z-[2]">
+            <button className="text-[#454545] mx-[0px] underline underline-offset-[2px]">
+              Terms of Service
+            </button>{" "}
+            and{" "}
+            <button className="text-[#454545] mx-[0px] underline underline-offset-[2px]">
+              Privacy Policy
+            </button>
+            .
+          </div>
+        </div>{" "}
+      </div>
+    </>
   );
 }

@@ -6,6 +6,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* input::placeholder {
+  color: rgb(158, 83, 83);
+  opacity: 1; 
+} */
+
 /* Default Cursor */
 /* body {
   cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLW1vdXNlLXBvaW50ZXItMiI+PHBhdGggZD0iTTQuMDM3IDQuNjg4YS40OTUuNDk1IDAgMCAxIC42NTEtLjY1MWwxNiA2LjVhLjUuNSAwIDAgMS0uMDYzLjk0N2wtNi4xMjQgMS41OGEyIDIgMCAwIDAtMS40MzggMS40MzVsLTEuNTc5IDYuMTI2YS41LjUgMCAwIDEtLjk0Ny4wNjN6Ii8+PC9zdmc+")
@@ -90,12 +95,33 @@ a,
   font-family: v;
   src: url(./assets/font/optionFont/verdana.ttf);
 }
+@font-face {
+  font-family: cms1;
+  src: url(./assets/font/optionFont/comic-shanns.otf);
+}
+@font-face {
+  font-family: cms2;
+  src: url(./assets/font/optionFont/comic\ shanns.otf);
+}
+@font-face {
+  font-family: cms3;
+  src: url(./assets/font/optionFont/comic\ shanns\ 2.ttf);
+}
+@font-face {
+  font-family: mnc;
+  src: url(./assets/font/optionFont/minecraft_font.ttf);
+}
+@font-face {
+  font-family: mno;
+  src: url(./assets/font/optionFont/Monocraft.ttc);
+}
 /* ---------------------- */
 
 @font-face {
   font-family: mo;
   src: url(./assets/font/optionFont/Mouser_o.ttf);
 }
+
 @font-face {
   font-family: iub;
   src: url(./assets/font/optionFont/IrishUncialfabeta-Bold.ttf);
@@ -193,6 +219,60 @@ a,
   src: url(./assets/font/JetBrainsMono-Medium.ttf);
 }
 
+/* -------------------------------------- */
+
+@font-face {
+  font-family: cs1;
+  src: url(./assets/font/comic-shanns.otf);
+}
+@font-face {
+  font-family: cs2;
+  src: url(./assets/font/comic\ shanns.otf);
+}
+@font-face {
+  font-family: cs3;
+  src: url(./assets/font/comic\ shanns\ 2.ttf);
+}
+@font-face {
+  font-family: mi;
+  src: url(./assets/font/minecraft_font.ttf);
+}
+@font-face {
+  font-family: dd;
+  src: url(./assets/font/Digital\ Dismay.otf);
+}
+/* ---------- */
+
+@font-face {
+  font-family: il;
+  src: url(./assets/font/Inter_28pt-Light.ttf);
+}
+@font-face {
+  font-family: ir;
+  src: url(./assets/font/Inter_28pt-Regular.ttf);
+}
+@font-face {
+  font-family: im;
+  src: url(./assets/font/Inter_28pt-Medium.ttf);
+}
+@font-face {
+  font-family: isb;
+  src: url(./assets/font/Inter_28pt-SemiBold.ttf);
+}
+@font-face {
+  font-family: ib;
+  src: url(./assets/font/Inter_28pt-Bold.ttf);
+}
+@font-face {
+  font-family: ieb;
+  src: url(./assets/font/Inter_28pt-ExtraBold.ttf);
+}
+
+@font-face {
+  font-family: jet;
+  src: url(./assets/font/JetBrainsMono-Regular.ttf);
+}
+
 .SCROLLHEIGHT::-webkit-scrollbar {
   height: 0px;
   width: 0px;
@@ -204,7 +284,7 @@ a,
 
 ::selection {
   /* color: red; */
-  background: #f8dcc5;
+  /* background: #f8dcc5; */
 }
 
 /* --------------------------------------------------- */
@@ -392,6 +472,20 @@ a,
   -webkit-box-shadow: 0px 0px 30px 1px rgba(0, 0, 0, 0.05);
   -moz-box-shadow: 0px 0px 30px 1px rgba(0, 0, 0, 0.05);
   box-shadow: 0px 0px 30px 1px rgba(0, 0, 0, 0.05);
+}
+
+.rotate {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .gradDiv {
@@ -806,4 +900,58 @@ button,
 }
 .embla__dot--selected:after {
   box-shadow: inset 0 0 0 0.2rem var(--text-body);
+}
+
+/* ---------------- */
+
+@layer base {
+  img {
+    display: initial;
+  }
+}
+.page-break {
+  page-break-before: always;
+}
+/* ------------------- */
+
+.glow-text {
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  /* filter: blur(px); */
+  -webkit-text-stroke: 0.4px #6fcfffa2;
+  text-shadow: 0 0 5px #00aaff, /* small glow */ 0 0 10px #00aaff,
+    /* medium glow */ 0 0 30px #00aaff, /* stronger glow */ 0 0 40px #00aaff,
+    0 0 60px #00aaff; /* outer glow */
+}
+.glow-text2 {
+  color: white;
+  font-weight: bold;
+  /* filter: blur(px); */
+  /* -webkit-text-stroke: 0.1px #6fcfffa2; */
+  text-shadow: 0 0 5px #00aaff, /* small glow */ 0 0 10px #00aaff,
+    /* medium glow */ 0 0 30px #00aaff, /* stronger glow */ 0 0 40px #00aaff,
+    0 0 60px #00aaff; /* outer glow */
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.curved-container {
+  /* width: 200px;
+  height: 100px;
+  background: #5c6b81; */
+  clip-path: path("M 0 0 H 200 V 100 Q 150 50 100 100 Q 50 150 0 100 Z");
+  /* position: relative;
+  overflow: hidden; */
 }

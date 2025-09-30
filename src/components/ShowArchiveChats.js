@@ -9,6 +9,14 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import firebase from "../firebase";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Comment01Icon,
+  Delete02Icon,
+  PackageOpenIcon,
+  PackageSentIcon,
+  SatelliteIcon,
+} from "@hugeicons/core-free-icons";
 
 export default function ShowArchiveChats(props) {
   const [anime, setAnime] = useState(false);
@@ -84,7 +92,7 @@ export default function ShowArchiveChats(props) {
         (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]") +
         (anime ? " opacity-100" : " opacity-0 ")
       }
-      style={{ transition: ".1s" }}
+      style={{ transition: ".3s" }}
       onClick={() => {
         props?.setArchiveModal(false);
       }}
@@ -95,9 +103,9 @@ export default function ShowArchiveChats(props) {
           (props?.theme
             ? " bg-[#1A1A1A] border-[#252525]"
             : " bg-[#ffffff] border-[#eaeaea]") +
-          (anime ? " mt-[0px] opacity-100" : " mt-[-50px] opacity-0 ")
+          (anime ? " mt-[0px] opacity-100" : " mt-[-80px] opacity-0 ")
         }
-        style={{ transition: ".1s" }}
+        style={{ transition: ".3s" }}
         onClick={(e) => {
           e.stopPropagation();
         }}
@@ -140,29 +148,35 @@ export default function ShowArchiveChats(props) {
               Created at
             </div>
             <div className=""></div>
-            <div className="flex justify-end items-center opacity-0 ml-[20px]">
-              <PackageOpen
-                width={16}
-                height={16}
-                strokeWidth={2}
+            <div className="flex justify-end items-center opacity-0 ml-[20px] h-full">
+              <div
                 className={
-                  " mr-[10px]" +
+                  "h-full w-[25px] flex justify-end items-center  mr-[5px] cursor-default" +
                   (props?.theme
                     ? " text-[#828282] hover:text-[white]"
                     : " text-[#828282] hover:text-[black]")
                 }
-              />
-              <Trash
-                width={16}
-                height={16}
-                strokeWidth={2}
+              >
+                <HugeiconsIcon
+                  icon={PackageOpenIcon}
+                  size={18}
+                  strokeWidth={1.8}
+                />
+              </div>
+              <div
                 className={
-                  " " +
+                  "h-full w-[25px] flex justify-end items-center cursor-default " +
                   (props?.theme
                     ? " text-[#828282] hover:text-[white]"
                     : " text-[#828282] hover:text-[black]")
                 }
-              />
+              >
+                <HugeiconsIcon
+                  icon={Delete02Icon}
+                  size={18}
+                  strokeWidth={1.8}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -180,7 +194,7 @@ export default function ShowArchiveChats(props) {
                   <div
                     key={index}
                     className={
-                      "h-[35px] w-full flex justify-between items-center" +
+                      "group h-[35px] w-full flex justify-between items-center" +
                       (props?.theme ? " text-[#828282]" : " text-[#828282]")
                     }
                   >
@@ -194,12 +208,18 @@ export default function ShowArchiveChats(props) {
                         props?.setArchiveModal(false);
                       }}
                     >
-                      <Bot
+                      <HugeiconsIcon
+                        className="mr-[10px] mb-[-2px]"
+                        icon={Comment01Icon}
+                        size={18}
+                        strokeWidth={1.8}
+                      />
+                      {/* <Bot
                         width="16"
                         height="16"
                         strokeWidth="2"
                         className="mr-[10px]"
-                      />{" "}
+                      />{" "} */}
                       {data?.ChatName}
                     </div>
 
@@ -221,8 +241,43 @@ export default function ShowArchiveChats(props) {
                         {getStructuredDate(data?.CreationDate)}
                       </div>
                       <div className=""></div>
-                      <div className="flex justify-end items-center ml-[20px]">
-                        <PackageOpen
+                      <div className="flex h-full justify-end items-center ml-[20px] opacity-100 group-hover:opacity-100">
+                        <div
+                          className={
+                            "h-full w-[25px] flex justify-end items-center  mr-[5px] cursor-pointer" +
+                            (props?.theme
+                              ? " text-[#828282] hover:text-[white]"
+                              : " text-[#828282] hover:text-[black]")
+                          }
+                          onClick={(e) => {
+                            getDataExceptArchive(data);
+                          }}
+                        >
+                          <HugeiconsIcon
+                            icon={PackageSentIcon}
+                            size={18}
+                            strokeWidth={1.8}
+                          />
+                        </div>
+                        <div
+                          className={
+                            "h-full w-[25px] flex justify-end items-center cursor-pointer " +
+                            (props?.theme
+                              ? " text-[#828282] hover:text-[white]"
+                              : " text-[#828282] hover:text-[black]")
+                          }
+                          onClick={(e) => {
+                            deleteArchiveChatSpace(data);
+                          }}
+                        >
+                          <HugeiconsIcon
+                            icon={Delete02Icon}
+                            size={18}
+                            strokeWidth={1.8}
+                          />
+                        </div>
+
+                        {/* <PackageOpen
                           width={16}
                           height={16}
                           strokeWidth={2}
@@ -235,8 +290,8 @@ export default function ShowArchiveChats(props) {
                           onClick={(e) => {
                             getDataExceptArchive(data);
                           }}
-                        />
-                        <Trash
+                        /> */}
+                        {/* <Trash
                           width={16}
                           height={16}
                           strokeWidth={2}
@@ -249,7 +304,7 @@ export default function ShowArchiveChats(props) {
                           onClick={(e) => {
                             deleteArchiveChatSpace(data);
                           }}
-                        />
+                        /> */}
                       </div>
                     </div>
                   </div>
@@ -265,12 +320,13 @@ export default function ShowArchiveChats(props) {
                 (props?.theme ? " text-[#828282]" : " text-[#828282]")
               }
             >
-              <Satellite
+              {/* <Satellite
                 width="16"
                 height="16"
                 strokeWidth="2"
                 className="mr-[10px]"
-              />
+              /> */}
+              <HugeiconsIcon icon={SatelliteIcon} size={18} strokeWidth={1.8} />
               You have no archived chats
             </div>
           </>

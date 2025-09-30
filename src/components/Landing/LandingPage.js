@@ -16,6 +16,7 @@ import ShinyText from "../Animations/ShinyText";
 import Threads from "../Animations/Threads";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import logoDark from "../../assets/img/logoDark.png";
 
 import { DotButton, useDotButton } from "../Carousel/EmblaCarouselDotButton";
 import {
@@ -23,6 +24,15 @@ import {
   NextButton,
   usePrevNextButtons,
 } from "../Carousel/EmblaCarouselArrowButtons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  FileAttachmentIcon,
+  FileShredderIcon,
+  Note02Icon,
+  PackageReceiveIcon,
+  StickyNote02Icon,
+} from "@hugeicons/core-free-icons";
+import HeroSection from "./HeroSection";
 
 export default function LandingPage() {
   const [nav, setNav] = useState(false);
@@ -128,48 +138,82 @@ export default function LandingPage() {
   }, []);
   return (
     <>
-      <div className="-z-30 left-0 top-0 fixed w-full h-[100svh] bg-[#0D101A] flex justify-end items-start">
-        <div className="w-[85%] h-[70%] rounded-b-[70%] bg-gradient-to-b from-[#232234] to-[#3b4554] blur-[150px] mt-[-50px] mr-[-100px] md:mt-[-150px] md:mr-[-400px] lg:mt-[-150px] lg:mr-[-400px]"></div>
+      <div className="-z-30 left-0 top-0 fixed w-full h-[100svh] bg-[#000712] flex flex-col justify-center items-start text-[white]">
+        {/* <div className="w-[85%] h-[70%] rounded-b-[70%] bg-gradient-to-b from-[#232234] to-[#3b4554] blur-[150px] mt-[-50px] mr-[-100px] md:mt-[-150px] md:mr-[-400px] lg:mt-[-150px] lg:mr-[-400px]"></div> */}
+        {/* <div className="h-[100px] flex justify-between items-center w-[400px]">
+          <HugeiconsIcon
+            className="mr-[8px]"
+            icon={Note02Icon}
+            size={28}
+            strokeWidth={1.8}
+          />
+        </div>{" "}
+        <div className="h-[100px] flex justify-between items-center w-[400px]">
+          <HugeiconsIcon
+            className="mr-[8px] blur-[2px]"
+            icon={StickyNote02Icon}
+            size={28}
+            strokeWidth={1.8}
+          />
+        </div>{" "}
+        <div className="h-[100px] flex justify-between items-center w-[400px]">
+          <HugeiconsIcon
+            className="mr-[8px]"
+            icon={FileAttachmentIcon}
+            size={28}
+            strokeWidth={1.8}
+          />
+        </div>{" "}
+        <div className="h-[100px] flex justify-between items-center w-[400px]">
+          <HugeiconsIcon
+            className="mr-[8px]"
+            icon={FileShredderIcon}
+            size={28}
+            strokeWidth={1.8}
+          />
+        </div> */}
       </div>
       <div className="w-full h-[100svh] flex flex-col justify-start items-center overflow-y-scroll">
         <div
           className={
-            "w-full h-[60px] md:h-[80px] lg:[80px]  flex justify-between items-center px-[20px] md:px-[100px] lg:px-[100px] z-40" +
-            (anime ? " mt-[0px] opacity-100" : " mt-[-60px] opacity-0")
+            "w-full min-h-[60px] md:min-h-[60px] lg:min-h-[60px]  flex justify-between items-center px-[20px] md:px-[100px] lg:px-[100px] z-[70] fixed left-0 top-0 backdrop-blur-[15px] bg-[#00071290] " +
+            (anime ? " mt-[0px] opacity-100" : " mt-[30px] opacity-0")
           }
           style={{
             transition: "margin-top .5s, opacity .6s",
             transitionDelay: "0s , .2s ",
           }}
         >
-          <div className="font-[recoleta] font-bold text-[20px] tracking-wider flex justify-start items-center text-[white]">
+          <div className=" font-bold text-[20px] tracking-wider flex justify-start items-center text-[white]">
             <div className="flex justify-start items-center">
-              <Rocket
+              {/* <Rocket
                 width={20}
                 height={20}
                 strokeWidth={2.5}
                 className="mr-[7px] moving-item"
               />{" "}
-              aurora.ai
+              aurora.ai */}
+              <img src={logoDark} className="w-[20px]"></img>
+              <span className="text-[20px] ml-[15px] font-[DMSm] ">Aurora</span>
             </div>
-            <button
+            {/* <button
               className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[80px] font-[geistRegular] text-[#cecece] font-normal "
               onClick={() => {
                 // navigateToLoginPage();
               }}
             >
               Pricing
-            </button>
+            </button> */}
             <button
-              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[50px] font-[geistRegular] text-[#cecece] font-normal "
+              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[80px] font-[DMSr] text-[#cecece] font-normal "
               onClick={() => {
                 navigateToDocs();
               }}
             >
-              Docs
+              Documentation
             </button>
             <button
-              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[50px] font-[geistRegular] text-[#cecece] font-normal "
+              className="text-[15px] hidden md:block lg:block tracking-normal hover:text-[white] ml-[50px] font-[DMSr] text-[#cecece] font-normal "
               onClick={() => {
                 // navigateToLoginPage();
               }}
@@ -218,9 +262,142 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-        <div className="w-full h-[calc(100%-60px)] md:h-[calc(100%-80px)] lg:h-[calc(100%-80px)]  flex flex-col justify-start items-center pt-[50px] md:pt-[130px] lg:pt-[130px] pb-[200px] font-[geistRegular] px-[20px] md:px-[100px] lg:px-[100px] text-[white] ">
-          {/* <span className="font-[gr] text-[70px]">Capture Every Idea</span>
-      <span className="font-[gr] text-[70px]">with Reimagined Note-Taking</span> */}
+        {/* <div className="flex flex-col justify-center items-center relative min-h-[600px] w-[80%] text-[white]">
+          <span
+            className={
+              "font-[DMSb] text-[50px] flex justify-center items-center relative" +
+              (anime
+                ? " mt-[0px] opacity-100 blur-0"
+                : " mt-[30px] opacity-0 blur-md")
+            }
+            style={{ transition: ".5s", transitionDelay: ".4s" }}
+          >
+            Redefining Note Taking
+          </span>
+          <span
+            className={
+              "font-[DMSb] text-[50px] flex justify-center items-center relative" +
+              (anime
+                ? " mt-[-10px] opacity-100 blur-0"
+                : " mt-[20px] opacity-0 blur-md")
+            }
+            style={{ transition: ".5s", transitionDelay: ".6s" }}
+          >
+            <div className="glow-text mr-[15px]">Reimagined</div> for You
+          </span>
+
+          {(() => {
+            const icons = [];
+            const positions = [];
+
+            const isTooClose = (x1, y1, x2, y2) =>
+              Math.hypot(x2 - x1, y2 - y1) < 8;
+
+            while (icons.length < 12) {
+              const top = Math.random() * 100;
+              const left = Math.random() * 100;
+
+              // Skip if in center (40-60%) or edges (<10% or >90%)
+              const inCenter = top > 40 && top < 60 && left > 40 && left < 60;
+              const tooCloseToEdge =
+                top < 10 || top > 90 || left < 10 || left > 90;
+
+              if (inCenter || tooCloseToEdge) continue;
+
+              const tooClose = positions.some(([t, l]) =>
+                isTooClose(top, left, t, l)
+              );
+              if (tooClose) continue;
+
+              positions.push([top, left]);
+
+              icons.push(
+                <HugeiconsIcon
+                  key={icons.length}
+                  className="absolute text-[white] animate-float"
+                  style={{
+                    top: `${top}%`,
+                    left: `${left}%`,
+                    transform: `translate(-50%, -50%) rotate(${
+                      Math.random() * 360
+                    }deg)`,
+                    animationDelay: `${Math.random() * 3}s`,
+                  }}
+                  icon={FileAttachmentIcon}
+                  size={28}
+                  strokeWidth={1.8}
+                />
+              );
+            }
+
+            console.log("Generated Icons:", icons);
+
+            return icons;
+          })()}
+        </div> */}
+        <div className="w-full min-h-[calc(100svh)] flex justify-center items-center">
+          <HeroSection anime={anime} />
+        </div>
+        <section className=" py-20 px-6 text-white font-[DMSr]">
+          <div className="max-w-6xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-[DMSb] mb-8">
+              Supercharged by <span className="glow-text">AI</span>
+            </h2>
+            <p className="text-lg md:text-xl text-gray-400 mb-16">
+              Experience next-gen productivity tools built with intelligence.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-10">
+              {/* Feature 1 */}
+              <div className="bg-[#131A2600] rounded-2xl p-8 shadow-xl hover:scale-[1.02] transition">
+                <div className="text-[#38BDF8] text-3xl mb-4">🧠</div>
+                <h3 className="text-xl font-[DMSm] whitespace-nowrap flex justify-center items-center mb-2">
+                  <div className="glow-text2 mr-[5px]">AI Note</div> Summarizer
+                </h3>
+                <p className="text-gray-400">
+                  Turn long notes into concise summaries instantly using our
+                  powerful AI engine.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="bg-[#131A2600] rounded-2xl p-8 shadow-xl hover:scale-[1.02] transition">
+                <div className="text-[#38BDF8] text-3xl mb-4">🤖</div>
+                <h3 className="text-xl font-[DMSm] whitespace-nowrap flex justify-center items-center mb-2">
+                  <div className="glow-text2 mr-[5px]">AI Chatbot</div>{" "}
+                  Assistant
+                </h3>
+                <p className="text-gray-400">
+                  Ask questions, generate ideas, or get help right inside your
+                  notes.
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="bg-[#131A2600] rounded-2xl p-8 shadow-xl hover:scale-[1.02] transition">
+                <div className="text-[#38BDF8] text-3xl mb-4">⚙️</div>
+                <h3 className="text-xl font-[DMSm] whitespace-nowrap flex justify-center items-center mb-2">
+                  Smart <div className="glow-text2 mr-[5px]">AI Agents</div>
+                </h3>
+                <p className="text-gray-400">
+                  Automate tasks like scheduling, organizing, or tagging —
+                  effortlessly.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div className="w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 opacity-20 my-10"></div>
+        <section className="text-center mt-20">
+          <h3 className="text-3xl font-bold text-white mb-4">
+            Ready to level up your notes?
+          </h3>
+          <button className="mt-4 px-8 py-3 bg-[#38BDF8] text-black font-semibold rounded-full shadow-lg hover:scale-105 transition">
+            Try It Now
+          </button>
+        </section>
+
+        <div className="w-full h-[calc(100%-60px)] md:h-[calc(100%-80px)] lg:h-[calc(100%-80px)]  flex flex-col justify-start items-center pt-[50px] md:pt-[130px] lg:pt-[130px] pb-[200px]  px-[20px] md:px-[100px] lg:px-[100px] text-[white] font-[DMSR] ">
           <div
             className={
               "px-[10px] min-h-[30px] max-w-[calc(100%-00px)] md:max-w-auto lg:max-w-auto text-[14px] flex flex-wrap justify-center items-center whitespace-normal md:whitespace-nowrap lg:whitespace-nowrap rounded-2xl border-[1.5px] border-[#404040] bg-[#2D2D3B] text-[#cecece] " +
@@ -395,48 +572,6 @@ export default function LandingPage() {
           >
             Hear what some of our users have to say about our product
           </div>
-          {/* <div className="mt-[100px] min-h-[800px] w-full flex flex-col justify-start items-center">
-            <div className="flex flex-col justify-start items-start w-[50%] p-[25px]  rounded-[23px] ">
-              <span className="text-[18px] text-[#CCCED8]">
-                " This app is a lifesaver! Whether I’m in a meeting or studying,
-                the AI keeps my notes neat, searchable, and super easy to find.
-                "
-              </span>
-              <span className="text-[14px] mt-[20px]">
-                - Himadri Purkait, Software Engineer
-              </span>
-            </div>
-            <div className="flex justify-center items-center w-full">
-              {Array(5)
-                .fill("")
-                .map((data, index) => {
-                  return (
-                    <div
-                      className={
-                        "w-[7px] h-[7px] mx-[4px] rounded-full  " +
-                        (activeIndex == index
-                          ? " bg-[white] "
-                          : " bg-[#535353] ")
-                      }
-                    ></div>
-                  );
-                })}
-            </div>
-          </div> */}
-
-          {/* <div className="embla h-[1000px]" ref={emblaRef}>
-            <div className="embla__container w-[400px] h-[300px] flex overflow-hidden">
-              <div className="embla__slide z-50 min-w-[400px] h-[300px] flex justify-center items-center bg-slate-200">
-                Slide 1
-              </div>
-              <div className="embla__slide z-50 min-w-[400px] h-[300px] flex justify-center items-center bg-slate-400">
-                Slide 2
-              </div>
-              <div className="embla__slide z-50 min-w-[400px] h-[300px] flex justify-center items-center bg-slate-200">
-                Slide 3
-              </div>
-            </div>
-          </div> */}
 
           {test ? (
             <div className="embla mt-[100px] w-[70%] flex flex-col justify-start items-center ">
@@ -504,65 +639,6 @@ export default function LandingPage() {
           ) : (
             <></>
           )}
-          {/* <div
-            className="min-h-[500px]"
-            style={{ width: "100%", height: "600px", position: "relative" }}
-          >
-            <Threads
-              amplitude={0.4}
-              distance={0.2}
-              enableMouseInteraction={true}
-            />
-          </div> */}
-
-          {/* ------------------------------- */}
-
-          {/* <div className="min-h-[100px]"></div>
-          <di className="font-[geistMedium] text-[14px] uppercase text-[#323DD6]">
-            Ai assistant
-          </di>
-
-          <div className="font-[gr] text-[40px]">Never Write Alone</div>
-          <div className="text-center sm:w-[80%] md:w-[60%] lg:w-[45%] text-[18px] mt-[20px] font-[sr] text-[#6e6e7c]">
-            Supercharge your productivity with our suite of AI features.
-            Automatically summarize key points, generate action items, and
-            connect related notes, all within a secure and private environment.
-            No training data used.
-          </div>
-          
-          <div className="flex justify-between items-center mt-[60px] w-full">
-            <div className="flex flex-col justify-start items-start w-[calc((100%-150px)/3)]">
-              <span className="font-[grm] text-[25px]">Unified Workspace</span>
-              <span className="font-[sr] text-[#6e6e7c]">
-                Keep everything in one place. Seamlessly manage your notes,
-                tasks, and reminders within a single, unified workspace. Your
-                data is kept secure and never used to train AI models.
-              </span>
-            </div>
-            <div className="h-[60px] w-[1.8px] bg-gradient-to-b from-[white] via-[#868686] to-[white] rounded-full"></div>
-            <div className="flex flex-col justify-start items-start w-[calc((100%-150px)/3)]">
-              <span className="font-[grm] text-[25px]">AI Powered</span>
-              <span className="font-[sr] text-[#6e6e7c]">
-                Supercharge your productivity with our suite of AI features.
-                Automatically summarize key points, generate action items, and
-                connect related notes, all within a secure and private
-                environment. No training data used.
-              </span>
-            </div>
-            <div className="h-[60px] w-[1.8px] bg-gradient-to-b from-[white] via-[#868686] to-[white] rounded-full"></div>
-
-            <div className="flex flex-col justify-start items-start w-[calc((100%-150px)/3)]">
-              <span className="font-[grm] text-[25px]">
-                End to End Encrypted
-              </span>
-              <span className="font-[sr] text-[#6e6e7c]">
-                We rigorously protect your information with industry-leading
-                security practices. Your notes are organized into secure,
-                encrypted folders, ensuring your sensitive data remains private
-                and confidential.
-              </span>
-            </div>
-          </div> */}
         </div>
       </div>
     </>

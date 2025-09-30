@@ -29,6 +29,8 @@ import {
   // INSERT_UNORDERED_LIST_COMMAND,
   $isTextNode,
   $getRoot,
+  KEY_TAB_COMMAND,
+  COMMAND_PRIORITY_LOW,
 } from "lexical";
 import {
   INSERT_ORDERED_LIST_COMMAND,
@@ -73,6 +75,7 @@ import {
   IndentDecrease,
   IndentIncrease,
   Italic,
+  Link,
   Link2,
   List,
   ListChecks,
@@ -124,6 +127,37 @@ import { formatDate, getDurationFromPresent } from "../utils/functionsConstant";
 import { INSERT_EXCALIDRAW_COMMAND } from "../plugins/ExcalidrawPlugin";
 import { VscCircleSmall } from "react-icons/vsc";
 import { FaExclamation } from "react-icons/fa";
+import {
+  Alert02Icon,
+  ArrowDown01Icon,
+  ArrowRight01Icon,
+  Book03Icon,
+  BookOpen01Icon,
+  BookOpen02Icon,
+  CheckmarkCircle02Icon,
+  CloudUploadIcon,
+  File02Icon,
+  FileEditIcon,
+  FileEmpty02Icon,
+  FileSyncIcon,
+  Folder02Icon,
+  Heading01FreeIcons,
+  Heading01Icon,
+  HeadingIcon,
+  HighlighterIcon,
+  Mic02Icon,
+  MoreVerticalIcon,
+  QuillWrite01Icon,
+  Redo03Icon,
+  SolidLine01Icon,
+  TextBoldIcon,
+  TextIcon,
+  TextItalicIcon,
+  TextStrikethroughIcon,
+  TextUnderlineIcon,
+  Undo03Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 export default function Toolbars(props) {
   const [editor] = useLexicalComposerContext();
@@ -154,6 +188,8 @@ export default function Toolbars(props) {
   const [loading, setLoading] = useState(false);
   const [tempContent, setTempContent] = useState(``);
   const [syncConfirm, setSyncConfirm] = useState(false);
+
+  const [saveState, setSaveState] = useState(true);
 
   function fetchNoteLastSaved() {
     const user = firebase.auth().currentUser;
@@ -397,16 +433,6 @@ export default function Toolbars(props) {
     });
   };
 
-  const formatOrderedList = () => {
-    if (blockType !== "ol") {
-      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-      // setBlockType("ol");
-    } else {
-      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
-      setBlockType("");
-    }
-  };
-
   const formatCheckedList = () => {
     // if (blockType !== "ol") {
     editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
@@ -417,6 +443,7 @@ export default function Toolbars(props) {
     // }
   };
 
+  // ---- Function for inserting link in a text
   const insertLink = () => {
     const url = prompt("Enter the link URL:");
     if (url) {
@@ -424,6 +451,17 @@ export default function Toolbars(props) {
     }
   };
 
+  // ---- Function for ordered list
+  const formatOrderedList = () => {
+    if (blockType !== "ol") {
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    } else {
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+      setBlockType("");
+    }
+  };
+
+  // ---- Function for unordered list
   const formatUnorderedList = () => {
     if (blockType !== "ul") {
       editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
@@ -447,6 +485,7 @@ export default function Toolbars(props) {
     });
   };
 
+  // ---- Function to change font size
   function handleFontSizeChange(size) {
     editor.update(() => {
       const selection = $getSelection();
@@ -458,6 +497,7 @@ export default function Toolbars(props) {
     });
   }
 
+  // ---- Function to change font family
   function handleFontFamilyChange(fontName) {
     editor.update(() => {
       const selection = $getSelection();
@@ -749,6 +789,63 @@ export default function Toolbars(props) {
     };
   }, [props?.fileStackedWithInfo]);
 
+  // ---- Auto Save Functionality
+  const debouncedAutoSave = useDebouncedCallback(() => {
+    editor.update(() => {
+      const editorState = editor.getEditorState();
+      let Content = props?.fileStackedWithInfo[props?.selected]?.Content;
+      let noteName = props?.fileStacked[props?.selected];
+
+      if (JSON.stringify(editorState) !== Content) {
+        console.log(
+          "• Action Function : -- None --\n• Action Message : Auto-saving note content to firebase"
+        );
+        handleSave(JSON.stringify(editorState), noteName, props?.selected);
+        setSaveState(true); // Update save state to true after auto-save
+        // Optionally: show a toast or indicator for auto-save
+      }
+    });
+  }, 2000); // 2 seconds
+
+  // ---- Debounced Auto Save State update
+  useEffect(() => {
+    // Listen for editor changes and trigger debounced auto-save
+
+    if (props?.fileStackedWithInfo[props?.selected] !== undefined) {
+      console.log("mount registerUpdateListener requested !");
+      console.log(props?.fileStackedWithInfo[props?.selected]);
+      const unregister = editor.registerUpdateListener(() => {
+        editor.update(() => {
+          const editorState = editor.getEditorState();
+          let Content = props?.fileStackedWithInfo[props?.selected]?.Content;
+
+          if (JSON.stringify(editorState) !== Content) {
+            if (saveState) setSaveState(false);
+          } else {
+            if (!saveState) setSaveState(true);
+          }
+        });
+
+        debouncedAutoSave();
+      });
+      return () => unregister();
+    }
+  }, [
+    editor,
+    debouncedAutoSave,
+    props?.fileStackedWithInfo,
+    // props?.selected,
+    saveState,
+  ]);
+
+  useEffect(() => {
+    // Listen for editor changes and trigger debounced auto-save
+    const unregister = editor.registerUpdateListener(() => {
+      debouncedAutoSave();
+    });
+    return () => unregister();
+  }, [editor, debouncedAutoSave, props?.fileStackedWithInfo, props?.selected]);
+
   const [currentNoteFirebaseData, setCurrentNoteFirebaseData] = useState("");
 
   function fetchFirebaseNoteData() {
@@ -800,12 +897,28 @@ export default function Toolbars(props) {
     );
   }
 
+  useEffect(() => {
+    return editor.registerCommand(
+      KEY_TAB_COMMAND,
+      (event) => {
+        event.preventDefault();
+        if (event.shiftKey) {
+          editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
+        } else {
+          editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
+        }
+        return true;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+  }, [editor]);
+
   return (
     <div className="w-full flex flex-col justify-start items-start">
       <div
         className={
           "w-full h-[100svh]  justify-center items-center fixed top-0 left-0 z-50 backdrop-blur-[5px]" +
-          (props?.theme ? " bg-[#1414146a]" : " bg-[#b0b0b081]") +
+          (props?.theme ? " bg-[#1414146a]" : " bg-[#ffffff81]") +
           (syncConfirm ? " flex" : " hidden")
         }
       >
@@ -886,7 +999,7 @@ export default function Toolbars(props) {
       </div>
       <div
         className={
-          "w-full h-[50px] flex justify-between items-center text-[#f4efff] rounded-l-md " +
+          "w-full h-[50px] flex justify-between items-center border-b-[1.5px] border-[#f6f6f6]  text-[#f4efff]  z-10 " +
           (props?.isMinimise
             ? " px-[30px] md:px-[27px] lg:px-[27px]"
             : " px-[30px] md:px-[27px] lg:px-[27px]")
@@ -911,16 +1024,30 @@ export default function Toolbars(props) {
                     <>
                       <span
                         className={
-                          "flex justify-start items-center cursor-default" +
-                          (props?.theme ? " text-[#ffffff]" : " text-[#000000]")
+                          "flex justify-start items-center cursor-default text-[13px]" +
+                          (props?.theme ? " text-[#ffffff]" : " text-[#949494]")
                         }
                       >
-                        <File
+                        {/* <File
                           width={16}
                           height={16}
                           strokeWidth="1.8"
                           className="mr-[5px]"
+                        /> */}
+                        {/* File Icon */}
+                        <HugeiconsIcon
+                          className="mr-[5px] mt-[-1px]"
+                          icon={File02Icon}
+                          size={14}
+                          strokeWidth={2.2}
                         />
+                        {/* Empty File Icon */}
+                        {/* <HugeiconsIcon
+                          className="mr-[5px] mt-[-2px]"
+                          icon={FileEmpty02Icon}
+                          size={16}
+                          strokeWidth={2}
+                        /> */}
                         {data}
                       </span>
                     </>
@@ -928,21 +1055,30 @@ export default function Toolbars(props) {
                     <>
                       <span
                         className={
-                          "flex justify-start items-center cursor-default"
-                          // +
-                          // (props?.theme
-                          //   ? " hover:text-[#ffffff]"
-                          //   : " hover:text-[#000000]")
+                          "flex justify-start items-center cursor-default text-[13px]" +
+                          (props?.theme ? " text-[#ffffff]" : " text-[#949494]")
                         }
                       >
-                        <FolderOpen
+                        {/* <FolderOpen
                           width={18}
                           height={18}
                           strokeWidth="1.8"
                           className="mr-[5px]"
+                        /> */}
+                        <HugeiconsIcon
+                          className="mr-[5px] mt-[-1px]"
+                          icon={Folder02Icon}
+                          size={14}
+                          strokeWidth={2.2}
                         />
                         {data}
-                        <ChevronRight
+                        <HugeiconsIcon
+                          className="mx-[5px]"
+                          icon={ArrowRight01Icon}
+                          size={12}
+                          strokeWidth={2.4}
+                        />
+                        {/* <ChevronRight
                           width={14}
                           height={14}
                           strokeWidth="2.5"
@@ -952,7 +1088,7 @@ export default function Toolbars(props) {
                               ? " text-[#6e6e7c]"
                               : " text-[#6e6e7c]")
                           }
-                        />
+                        /> */}
                       </span>
                     </>
                   )}
@@ -960,7 +1096,7 @@ export default function Toolbars(props) {
               );
             })}
         </div>
-        <div
+        {/* <div
           className={
             "flex justify-center items-center px-[7px] py-[3px] rounded-lg  text-[14px]" +
             (currentNoteFirebaseData ===
@@ -1002,10 +1138,6 @@ export default function Toolbars(props) {
                   // fill="currentColor"
                   className=" text-[#ffffff] absolute"
                 />
-
-                {/* <div className="text-[white] text-[14px] font-[geistBold] absolute">
-                  !
-                </div> */}
               </div>
               Synced
             </>
@@ -1024,33 +1156,23 @@ export default function Toolbars(props) {
               Sync
             </>
           )}
-          {/* <div
-            className={
-              " justify-center items-center mr-[-5px] mt-[-24px] ml-[5px]" +
-              (currentNoteFirebaseData ===
-                props?.fileStackedWithInfo[props?.selected]?.Content &&
-              currentNoteFirebaseData.length !== 0 &&
-              currentNoteFirebaseData !== undefined
-                ? " hidden"
-                : " flex")
+        </div> */}
+        {/* <div
+          className=""
+          onClick={() => {
+            // console.log(props?.fileStackedWithInfo[props?.selected]?.Content);
+            if (
+              JSON.stringify(editor.getEditorState()) ==
+              props?.fileStackedWithInfo[props?.selected]?.Content
+            ) {
+              console.log("true");
+            } else {
+              console.log("false");
             }
-          >
-            <Circle
-              width={12}
-              height={12}
-              strokeWidth="2"
-              fill="currentColor"
-              className="absolute text-[#ffffff]"
-            />
-            <Circle
-              width={9}
-              height={9}
-              strokeWidth="2"
-              fill="currentColor"
-              className="absolute text-[#e22f2f]"
-            />
-          </div> */}
-        </div>
+          }}
+        >
+          click
+        </div> */}
 
         {/* {currentNoteFirebaseData ===
         props?.fileStackedWithInfo[props?.selected]?.Content ? (
@@ -1071,7 +1193,7 @@ export default function Toolbars(props) {
           >
             no
           </button>*/}
-          <div className="flex md:flex lg:flex justify-center items-center">
+          {/* <div className="flex md:flex lg:flex justify-center items-center">
             {JSON.stringify(editor.getEditorState()) ==
             props?.fileStackedWithInfo[props?.selected]?.Content ? (
               <FileCheck
@@ -1094,7 +1216,7 @@ export default function Toolbars(props) {
                 }
               />
             )}
-          </div>
+          </div> */}
 
           {/* <button
             onClick={() => {
@@ -1111,7 +1233,7 @@ export default function Toolbars(props) {
           >
             yes
           </button> */}
-          <div
+          {/* <div
             className={
               "hidden md:flex lg:flex justify-start items-center w-auto mr-[10px]  text-[14px] whitespace-nowrap font-[DMSr]" +
               (props?.theme ? " text-[#9ba6aa]" : " text-[#9999aa]")
@@ -1134,10 +1256,43 @@ export default function Toolbars(props) {
                   strokeWidth={2.1}
                   className="mr-[5px]"
                 />
+                
                 {saveDuration?.length == 0 ? <></> : <>{saveDuration}</>}
               </>
             )}
-          </div>
+          </div> */}
+          {/* <HugeiconsIcon
+            className="text-[#50a41c]"
+            icon={CloudUploadIcon}
+            size={20}
+            strokeWidth={2}
+          /> */}
+          {saveState ? (
+            <>
+              <HugeiconsIcon
+                className="text-[#50a41c]"
+                icon={CheckmarkCircle02Icon}
+                size={14}
+                strokeWidth={2.2}
+              />
+              <span className="ml-[3px] mr-[10px] font-[ir] text-[13px] text-[#50a41c]">
+                saved
+              </span>
+            </>
+          ) : (
+            <>
+              <HugeiconsIcon
+                className="text-[#ee6e2e]"
+                icon={Alert02Icon}
+                size={14}
+                strokeWidth={2.2}
+              />
+              <span className="ml-[3px] mr-[10px] font-[ir] text-[13px] text-[#ee6e2e]">
+                not saved
+              </span>
+            </>
+          )}
+
           {props?.isEditMode ? (
             <div
               className={
@@ -1162,12 +1317,13 @@ export default function Toolbars(props) {
                 );
               }}
             >
-              <BookOpen
+              {/* <BookOpen
                 width={20}
                 height={20}
                 strokeWidth="1.8"
                 className="cursor-pointer"
-              />
+              />{" "} */}
+              <HugeiconsIcon icon={Book03Icon} size={20} strokeWidth={2} />
             </div>
           ) : (
             <div
@@ -1193,11 +1349,16 @@ export default function Toolbars(props) {
                 );
               }}
             >
-              <PenLine
+              {/* <PenLine
                 width={20}
                 height={20}
                 strokeWidth="1.8"
                 className="cursor-pointer"
+              /> */}
+              <HugeiconsIcon
+                icon={QuillWrite01Icon}
+                size={20}
+                strokeWidth={2}
               />
             </div>
           )}
@@ -1212,10 +1373,21 @@ export default function Toolbars(props) {
               // editor.setEditable(true);
             }}
           >
-            <EllipsisVertical
+            {/* <EllipsisVertical
               width={20}
               height={20}
               strokeWidth="1.8"
+              className={
+                "" +
+                (props?.theme
+                  ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
+                  : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
+              }
+            /> */}
+            <HugeiconsIcon
+              icon={MoreVerticalIcon}
+              size={20}
+              strokeWidth={3.5}
               className={
                 "" +
                 (props?.theme
@@ -1228,20 +1400,26 @@ export default function Toolbars(props) {
       </div>
       <div
         className={
-          " flex w-full justify-center items-center border-b-[1.5px] border-[#25252500] " +
-          (props?.isMinimise ? " px-[19.5px]" : " px-[19.5px]") +
+          " flex w-full justify-center items-end " +
+          (props?.isMinimise
+            ? " w-[calc(100%-50px)] left-[50px] px-[19.5px]"
+            : " w-[calc(100%-300px)] left-[300px] px-[19.5px]") +
           (props?.isEditMode
-            ? " h-[50px] opacity-100"
-            : " h-[0px] overflow-hidden opacity-0") +
+            ? " h-[50px] opacity-100 mt-[0px] z-10"
+            : " h-[50px] overflow-hidden opacity-0 mt-[-50px] -z-10") +
           (props?.theme
             ? " text-[#f4efff] hover:text-[white]"
-            : " text-[#6e6e7c] hover:text-[black]")
+            : " text-[#2c2c2c] hover:text-[black]")
         }
         style={{
+          // transition: "opacity .2s, margin .3s",
           transition: ".3s",
         }}
       >
-        <div className="w-auto max-w-[calc(100%-40px)] flex justify-center items-center h-[calc(100%-10px)] rounded-lg bg-[#F9F9F9] border-[1.5px] border-[#f0f0f0] px-[3px]">
+        {/* <div className="h-[40px] w-[40px] bg-[black] mr-[0px]">
+          <div className="w-full h-full rounded-br-[16px] bg-white"></div>
+        </div> */}
+        <div className="w-auto min-[100px] bg-[#d9979700] flex justify-start items-center h-[calc(100%-0px)] rounded-t-[16px]  px-[10px]">
           {SUPPORT_SPEECH_RECOGNITION && (
             <button
               onClick={() => {
@@ -1249,7 +1427,7 @@ export default function Toolbars(props) {
                 setIsSpeechToText(!isSpeechToText);
               }}
               className={
-                " px-[10px] h-[30px] mr-[5px] rounded-md flex justify-center items-center " +
+                " px-[10px] h-[30px] mr-[5px] rounded-[10px] flex justify-center items-center " +
                 (isSpeechToText
                   ? props?.theme
                     ? " bg-[#222222] w-auto"
@@ -1275,7 +1453,8 @@ export default function Toolbars(props) {
                     strokeWidth="1.8"
                   />
                 ) : (
-                  <Mic width={18} height={18} strokeWidth="1.8" />
+                  // <Mic width={18} height={18} strokeWidth="1.8" />
+                  <HugeiconsIcon icon={Mic02Icon} size={16} strokeWidth={1.7} />
                 )}
               </div>
               <div
@@ -1319,12 +1498,13 @@ export default function Toolbars(props) {
             className={
               `w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center` +
               (props?.theme
-                ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
-                : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
+                ? " hover:text-[white] hover:bg-[#222222]"
+                : " hover:text-[black] hover:bg-[#e6e6f4]")
             }
             aria-label="Undo"
           >
-            <Undo width={18} height={18} strokeWidth="1.8" />
+            {/* <Undo width={18} height={18} strokeWidth="1.8" /> */}
+            <HugeiconsIcon icon={Undo03Icon} size={16} strokeWidth={1.7} />
           </button>
 
           <button
@@ -1337,12 +1517,13 @@ export default function Toolbars(props) {
             className={
               `w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center cursor-pointer ` +
               (props?.theme
-                ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
-                : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
+                ? " hover:text-[white] hover:bg-[#222222]"
+                : " hover:text-[black] hover:bg-[#e6e6f4]")
             }
             aria-label="Redo"
           >
-            <Redo width={18} height={18} strokeWidth="1.8" />
+            {/* <Redo width={18} height={18} strokeWidth="1.8" /> */}
+            <HugeiconsIcon icon={Redo03Icon} size={16} strokeWidth={1.7} />
           </button>
           <div
             className={
@@ -1369,18 +1550,24 @@ export default function Toolbars(props) {
                   : props?.isEditMode
                   ? props?.fontModal
                     ? " bg-[#e6e6f4] text-[#000000]"
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] cursor-pointer"
+                    : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] cursor-pointer"
                   : " hover:bg-[#e6e6f400] text-[#f4efff00] cursor-default"
               }`}
             >
               <div className="flex justify-start items-center w-[25px] h-full">
-                <Type width={18} height={18} strokeWidth="1.8" />
+                {/* <Type width={18} height={18} strokeWidth="1.8" /> */}
+                <HugeiconsIcon icon={TextIcon} size={16} strokeWidth={1.7} />
               </div>
               <div className="w-[calc(100%-45px)] text-ellipsis overflow-hidden whitespace-nowrap text-[14px]">
                 {getFontNameByTag(fontFamily)}
               </div>
               <div className="flex justify-start items-center w-[20px] h-full">
-                <ChevronDown width={18} height={18} strokeWidth="1.8" />
+                {/* <ChevronDown width={18} height={18} strokeWidth="1.8" /> */}
+                <HugeiconsIcon
+                  icon={ArrowDown01Icon}
+                  size={16}
+                  strokeWidth={1.7}
+                />
               </div>
             </button>
 
@@ -1413,7 +1600,7 @@ export default function Toolbars(props) {
                           : "text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
                         : getFontNameByTag(fontFamily) == data?.fontName
                         ? " bg-[#e6e6f4] text-[black]"
-                        : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
+                        : " text-[#5d5d5d] hover:text-[black] hover:bg-[#e6e6f4]")
                     }
                     style={{ fontFamily: `${data?.tag}` }}
                   >
@@ -1449,7 +1636,7 @@ export default function Toolbars(props) {
                   : props?.isEditMode
                   ? props?.fontSizeModal
                     ? " bg-[#e6e6f4] text-[#000000]"
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] cursor-pointer"
+                    : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] cursor-pointer"
                   : " hover:bg-[#e6e6f400] text-[#f4efff00] cursor-default"
               }`}
             >
@@ -1457,7 +1644,12 @@ export default function Toolbars(props) {
                 {selectionFontSize.split("px")[0]}
               </div>
               <div className="flex justify-start items-center w-[20px] h-full">
-                <ChevronDown width={18} height={18} strokeWidth="1.8" />
+                {/* <ChevronDown width={18} height={18} strokeWidth="1.8" /> */}
+                <HugeiconsIcon
+                  icon={ArrowDown01Icon}
+                  size={16}
+                  strokeWidth={1.7}
+                />
               </div>
             </button>
 
@@ -1490,7 +1682,7 @@ export default function Toolbars(props) {
                         : selectionFontSize.split("px")[0] ==
                           data.split("px")[0]
                         ? " bg-[#e6e6f4] text-[black]"
-                        : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
+                        : " text-[#5d5d5d] hover:text-[black] hover:bg-[#e6e6f4]")
                     }
                     // style={{ fontFamily: `${data?.tag}` }}
                   >
@@ -1527,10 +1719,11 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center`}
           >
-            <Bold width={18} height={18} strokeWidth="1.8" />
+            {/* <Bold width={18} height={18} strokeWidth="1.8" /> */}
+            <HugeiconsIcon icon={TextBoldIcon} size={18} strokeWidth={2} />
           </button>
           <button
             onClick={() => {
@@ -1549,10 +1742,11 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center  ml-[0px]`}
           >
-            <Italic width={18} height={18} strokeWidth="1.8" />
+            {/* <Italic width={18} height={18} strokeWidth="1.8" /> */}
+            <HugeiconsIcon icon={TextItalicIcon} size={16} strokeWidth={1.7} />
           </button>
           <button
             onClick={() => {
@@ -1571,10 +1765,15 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center`}
           >
-            <Underline width={18} height={18} strokeWidth="1.8" />
+            {/* <Underline width={18} height={18} strokeWidth="1.8" /> */}
+            <HugeiconsIcon
+              icon={TextUnderlineIcon}
+              size={16}
+              strokeWidth={1.7}
+            />
           </button>
           <button
             onClick={() => {
@@ -1593,10 +1792,15 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center `}
           >
-            <Strikethrough width={18} height={18} strokeWidth="1.8" />
+            {/* <Strikethrough width={18} height={18} strokeWidth="1.8" /> */}
+            <HugeiconsIcon
+              icon={TextStrikethroughIcon}
+              size={16}
+              strokeWidth={1.7}
+            />
           </button>
           <button
             onClick={() => {
@@ -1615,10 +1819,11 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center `}
           >
-            <Highlighter width={18} height={18} strokeWidth="1.8" />
+            {/* <Highlighter width={18} height={18} strokeWidth="1.8" /> */}
+            <HugeiconsIcon icon={HighlighterIcon} size={16} strokeWidth={1.7} />
           </button>
 
           <button
@@ -1634,13 +1839,14 @@ export default function Toolbars(props) {
               props?.isEditMode
                 ? props?.theme
                   ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
-                  : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] cursor-pointer"
+                  : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] cursor-pointer"
                 : props?.theme
                 ? " text-[#f4efff00] cursor-default "
-                : " text-[#6e6e7c00] cursor-default "
+                : " text-[#5d5d5d00] cursor-default "
             }`}
           >
-            <Minus width={18} height={18} strokeWidth="1.8" />
+            {/* <Minus width={18} height={18} strokeWidth="1.8" /> */}
+            <HugeiconsIcon icon={SolidLine01Icon} size={16} strokeWidth={1.7} />
           </button>
 
           <div className="w-[30px] h-[30px] flex flex-col justify-start items-end mr-[5px] ">
@@ -1660,20 +1866,22 @@ export default function Toolbars(props) {
                   : props?.isEditMode
                   ? props?.headingModal
                     ? " bg-[#e6e6f4] text-[#000000]"
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] cursor-pointer"
+                    : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] cursor-pointer"
                   : " hover:bg-[#e6e6f400] text-[#f4efff00] cursor-default"
               }`}
             >
-              <Heading width={18} height={18} strokeWidth="1.8" />
+              {/* <Heading width={18} height={18} strokeWidth="1.8" /> */}
+              <HugeiconsIcon icon={HeadingIcon} size={16} strokeWidth={1.7} />
             </button>
             <div
               className={
-                "mt-[5px] min-w-[30px] min-h-[40px] p-[5px] justify-end items-center border-[1.5px]  rounded-lg z-10 boxShadowLight0" +
+                "mt-[5px] min-w-[30px] min-h-[40px] p-[5px] justify-end items-center border-[1.5px]  rounded-lg  boxShadowLight0 relative" +
                 (props?.headingModal ? " flex" : " hidden") +
                 (props?.theme
                   ? " border-[#252525] bg-[#232d31]"
                   : " border-[#E5E7EB] bg-[#ffffff]")
               }
+              style={{ zIndex: "400" }}
             >
               <button
                 onClick={() => {
@@ -1694,7 +1902,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 }`}
               >
@@ -1726,11 +1934,16 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 }`}
               >
-                <Heading1 width={23} height={23} strokeWidth="1.8" />
+                {/* <Heading1 width={23} height={23} strokeWidth="1.8" /> */}
+                <HugeiconsIcon
+                  icon={Heading01FreeIcons}
+                  size={16}
+                  strokeWidth={1.7}
+                />
               </button>
               <button
                 onClick={() => {
@@ -1750,7 +1963,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 }`}
               >
@@ -1774,7 +1987,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 }`}
               >
@@ -1798,7 +2011,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 }`}
               >
@@ -1822,7 +2035,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 }`}
               >
@@ -1848,7 +2061,7 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             }`}
           >
             <Quote width={20} height={20} strokeWidth="1.8" />
@@ -1871,7 +2084,7 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center `}
           >
             <Superscript width={20} height={20} strokeWidth="1.8" />
@@ -1893,7 +2106,7 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center `}
           >
             <Subscript width={20} height={20} strokeWidth="1.8" />
@@ -1944,7 +2157,7 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center `}
           >
             <List width={18} height={18} strokeWidth="1.8" />
@@ -1966,7 +2179,7 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center `}
           >
             <ListOrdered width={18} height={18} strokeWidth="1.8" />
@@ -1989,20 +2202,20 @@ export default function Toolbars(props) {
                   : " bg-[#e6e6f400] text-[#00000000] cursor-default"
                 : props?.theme
                 ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] "
-                : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] "
+                : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] "
             } flex justify-center items-center  `}
           >
             <ListChecks width={18} height={18} strokeWidth="1.8" />
           </button>
 
-          {/* <button
-        onClick={insertLink}
-        className={`w-[30px] h-[30px] mr-[5px] rounded-md ${
-          isItalic ? "bg-[#222222]" : ""
-        } flex justify-center items-center hover:bg-[#222222] hover:text-[white]`}
-      >
-        Check
-      </button> */}
+          <button
+            onClick={insertLink}
+            className={`w-[30px] h-[30px] mr-[5px] rounded-md ${
+              isItalic ? "bg-[#222222]" : ""
+            } flex justify-center items-center hover:bg-[#222222] hover:text-[white]`}
+          >
+            <Link width={18} height={18} strokeWidth="1.8" />
+          </button>
 
           {/* <button
         onClick={() => {
@@ -2029,7 +2242,7 @@ export default function Toolbars(props) {
                   : props?.isEditMode
                   ? props?.alignModal
                     ? " bg-[#e6e6f4] text-[#000000]"
-                    : " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[black] cursor-pointer"
+                    : " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[black] cursor-pointer"
                   : " hover:bg-[#e6e6f400] text-[#f4efff00] cursor-default"
               }`}
             >
@@ -2057,7 +2270,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 } `}
               >
@@ -2076,7 +2289,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 } `}
               >
@@ -2095,7 +2308,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 } `}
               >
@@ -2114,7 +2327,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 }`}
               >
@@ -2135,7 +2348,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 } flex justify-center items-center `}
               >
@@ -2156,7 +2369,7 @@ export default function Toolbars(props) {
                       ? " hover:bg-[#222222] text-[#f4efff] hover:text-[white] cursor-pointer"
                       : " hover:bg-[#22222200] text-[#f4efff00] cursor-default"
                     : props?.isEditMode
-                    ? " hover:bg-[#e6e6f4] text-[#6e6e7c] hover:text-[#000000] cursor-pointer"
+                    ? " hover:bg-[#e6e6f4] text-[#5d5d5d] hover:text-[#000000] cursor-pointer"
                     : " hover:bg-[#e6e6f400]  hover:text-[#00000000] cursor-default"
                 } flex justify-center items-center `}
               >
@@ -2181,12 +2394,24 @@ export default function Toolbars(props) {
               `w-[30px] h-[30px] mr-[5px] rounded-md flex justify-center items-center  cursor-pointer ` +
               (props?.theme
                 ? " text-[#f4efff] hover:text-[white] hover:bg-[#222222]"
-                : " text-[#6e6e7c] hover:text-[black] hover:bg-[#e6e6f4]")
+                : " text-[#5d5d5d] hover:text-[black] hover:bg-[#e6e6f4]")
             }
           >
             <Delete width={18} height={18} strokeWidth="1.8" />
           </button>
         </div>
+        {/* <div className="h-[40px] w-[40px] bg-[black] mr-[0px]">
+          <div className="w-full h-full rounded-bl-[16px] bg-white"></div>
+        </div> */}
+      </div>
+      <div className="w-full h-[0px] flex justify-start items-start  ">
+        <div
+          className={
+            "w-full min-h-[60px] bg-gradient-to-b  from-[10%] to-transparent fixed z-[50] " +
+            (props?.theme ? " from-[#1A1A1A]" : " from-[#ffffff]")
+          }
+          style={{ zIndex: "100" }}
+        ></div>
       </div>
     </div>
   );

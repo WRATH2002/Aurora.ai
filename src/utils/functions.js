@@ -185,10 +185,40 @@ function processStringDecrypt(encryptedStr) {
   return cleanedString.split("").map(swapAlphabet).join("");
 }
 
+function sortChatsAscToDesc(chatsArr) {
+  console.log(chatsArr);
+  return chatsArr;
+}
+
+function getUrlName(url) {
+  try {
+    const hostname = new URL(url).hostname; // Extract hostname
+    let parts = hostname.split(".");
+
+    // Remove common subdomains
+    if (
+      ["www", "in", "app", "blog", "m", "dev", "staging"].includes(parts[0])
+    ) {
+      parts.shift();
+    }
+
+    // Take the first part after removing subdomain
+    let name = parts[0];
+
+    // Capitalize first letter
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  } catch (e) {
+    console.error("Invalid URL:", url);
+    return "";
+  }
+}
+
 export {
   getMonthCalendar,
   camalCase,
   getFormattedDateAndTime,
   processStringEncrypt,
   processStringDecrypt,
+  sortChatsAscToDesc,
+  getUrlName,
 };

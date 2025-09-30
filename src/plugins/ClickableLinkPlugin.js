@@ -11,23 +11,16 @@ export default function ClickableLinkPlugin({ filter, newTab = true }) {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    // Function to add the "clickable-link" class to all links
     const applyRedLinks = () => {
       const linkDomNodes = editor.getRootElement().querySelectorAll("a");
       linkDomNodes.forEach((link) => {
         link.classList.add("clickable-link");
       });
     };
-
-    // Run this initially when the editor is ready
     applyRedLinks();
-
-    // Observe changes to the editor and reapply the red link class if necessary
     const unsubscribe = editor.registerUpdateListener(() => {
       applyRedLinks();
     });
-
-    // Cleanup the listener when the component is unmounted
     return () => {
       unsubscribe();
     };
@@ -77,7 +70,7 @@ export default function ClickableLinkPlugin({ filter, newTab = true }) {
         if (href !== null) {
           window.open(
             href,
-            newTab || event.metaKey || event.ctrlKey ? "_blank" : "_self"
+            newTab || event.metaKey || event.ctrlKey ? "_blank" : "_blank"
           );
         }
       } catch {

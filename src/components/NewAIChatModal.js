@@ -10,6 +10,12 @@ import {
 } from "firebase/firestore";
 import firebase from "../firebase";
 import { ring2 } from "ldrs";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Comment01Icon,
+  SecurityCheckIcon,
+  Shield01Icon,
+} from "@hugeicons/core-free-icons";
 ring2.register();
 
 // Default values shown
@@ -118,7 +124,7 @@ export default function NewAIChatModal(props) {
   return (
     <div
       className={
-        "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
+        "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px] font-[DMSr]" +
         (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
       }
       onClick={() => {
@@ -127,7 +133,7 @@ export default function NewAIChatModal(props) {
     >
       <div
         className={
-          "w-[350px] h-auto rounded-2xl border-[1.5px] boxShadowLight2 flex flex-col justify-start items-start p-[25px] pt-[18px] " +
+          "w-[350px] h-auto rounded-2xl border-[1.5px] boxShadowLight2 flex flex-col justify-start items-start p-[25px] pt-[18px]  " +
           (props?.theme
             ? " bg-[#1A1A1A] border-[#252525]"
             : " bg-[#ffffff] border-[#eaeaea]")
@@ -138,7 +144,7 @@ export default function NewAIChatModal(props) {
       >
         <span
           className={
-            "text-[22px] font-[geistMedium] w-full flex justify-between items-center" +
+            "text-[22px] font-[DMSm] w-full flex justify-between items-center" +
             (props?.theme ? " text-[white]" : " text-[black]")
           }
         >
@@ -160,11 +166,11 @@ export default function NewAIChatModal(props) {
         </span>
         <div className="w-full flex justify-start items-center  mt-[20px] ">
           <div className="h-[35px] w-[30px] flex justify-start items-center pl-[10px] ">
-            <Bot
-              width={16}
-              height={16}
-              strokeWidth="2"
+            <HugeiconsIcon
               className="text-[#7b798b]"
+              icon={Comment01Icon}
+              size={18}
+              strokeWidth={2}
             />
           </div>
           <input
@@ -215,37 +221,41 @@ export default function NewAIChatModal(props) {
             }
           >
             {security ? (
-              <ShieldCheck
-                width={16}
-                height={16}
-                strokeWidth={2}
-                className={
-                  "mr-[8px]" +
-                  (props?.theme
-                    ? security
-                      ? " text-[#2ec82efd]"
-                      : " text-[#828282]"
-                    : security
-                    ? " "
-                    : " text-[#6e6e7c]")
-                }
-              />
+              <>
+                <HugeiconsIcon
+                  className={
+                    "mr-[8px]" +
+                    (props?.theme
+                      ? security
+                        ? " text-[#2ec82efd]"
+                        : " text-[#828282]"
+                      : security
+                      ? " "
+                      : " text-[#6e6e7c]")
+                  }
+                  icon={SecurityCheckIcon}
+                  size={18}
+                  strokeWidth={2}
+                />
+              </>
             ) : (
-              <ShieldAlert
-                width={16}
-                height={16}
-                strokeWidth={2}
-                className={
-                  "mr-[8px]" +
-                  (props?.theme
-                    ? security
-                      ? " text-[#2ec82efd]"
-                      : " text-[#828282]"
-                    : security
-                    ? " "
-                    : " text-[#6e6e7c]")
-                }
-              />
+              <>
+                <HugeiconsIcon
+                  className={
+                    "mr-[8px]" +
+                    (props?.theme
+                      ? security
+                        ? " text-[#2ec82efd]"
+                        : " text-[#828282]"
+                      : security
+                      ? " "
+                      : " text-[#6e6e7c]")
+                  }
+                  icon={Shield01Icon}
+                  size={18}
+                  strokeWidth={2}
+                />
+              </>
             )}
             Enable PIN security
           </div>
@@ -282,33 +292,8 @@ export default function NewAIChatModal(props) {
             </div>
           </div>
         </div>
-        {/* <div className="w-full flex justify-center items-center">
-          <div className="flex justify-center items-center w-[190px] h-[40px] border-[1.5px] rounded-[10px] mt-[20px] border-[#2f2f2f] bg-transparent outline-none">
-            <input
-              className="tracking-[20px] h-[40px] bg-transparent outline-none w-[50px] overflow-visible"
-              autoFocus
-              value={securityPIN}
-              onChange={(e) => {
-                // if (
-                //   !e.target.value.includes(".") & !e.target.value.includes("/")
-                // ) {
-                setSecurityPIN(e.target.value);
-                // }
-              }}
-            ></input>
-          </div>
-        </div> */}
+
         <div className="w-full mt-[30px] flex justify-end items-center">
-          {/* <button
-            className={
-              "px-[15px] h-[30px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[14px] " +
-              (props?.theme
-                ? "  hover:bg-[#4040409d] border-[#383838] text-[#aeaeae] hover:text-[#ffffff] opacity-100 cursor-pointer mr-[15px]"
-                : " bg-[#222222] text-[#828282]")
-            }
-          >
-            Cancel
-          </button> */}
           <button
             className={
               "px-[15px] h-[30px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[14px] " +

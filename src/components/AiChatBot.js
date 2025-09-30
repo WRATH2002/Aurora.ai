@@ -38,7 +38,7 @@ import firebase from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 import { zoomies } from "ldrs";
-import { processStringDecrypt } from "../utils/functions";
+import { processStringDecrypt, processStringEncrypt } from "../utils/functions";
 import { TextShimmer } from "./motion-animations/text-shimmer";
 import { lineSpinner } from "ldrs";
 import { ring2 } from "ldrs";
@@ -47,6 +47,35 @@ import uplimg from "../assets/img/agriculture-farm-land-countryside-aerial-view-
 import uplimg2 from "../assets/img/macos-sequoia-4096x2264-17018.jpg";
 import Prism from "prismjs";
 import { ring } from "ldrs";
+import {
+  AiIdeaIcon,
+  Alert02Icon,
+  ArrowMoveDownRightIcon,
+  Cancel01Icon,
+  Copy01Icon,
+  CursorMagicSelection02Icon,
+  DocumentCodeIcon,
+  FileAttachmentIcon,
+  LinkBackwardIcon,
+  Mic02Icon,
+  NoodlesIcon,
+  Pdf01Icon,
+  QuoteDownIcon,
+  SatelliteIcon,
+  SentIcon,
+  SwarmIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
+  VolumeHighIcon,
+} from "@hugeicons/core-free-icons";
+// import { useRef } from "react";
+// import html2pdf from "html2pdf.js";
+import { HugeiconsIcon } from "@hugeicons/react";
+import AIChatInfo from "./AIChatInfo";
+import DownloadingToast, { APIErrorToast } from "../toast/DownloadingToast";
+import { useNavigate } from "react-router-dom";
+
+// Default values shown
 ring.register();
 
 // Default values shown
@@ -58,52 +87,62 @@ lineSpinner.register();
 zoomies.register();
 
 const aiModels = [
-  // {
-  //   Model: "gemini-2.5-pro-preview-03-25",
-  //   About: "Multimodal, coding, reasoning",
-  // },
-  // {
-  //   Model: "gemini-2.5-flash-preview-04-17",
-  //   About: "Thinking, no-thinking",
-  // },
+  {
+    Model: "gemini-2.5-pro-preview-05-06",
+    About: "Coding, reasoning, multimodal",
+    limit: 1500,
+    rpd: 25,
+  },
+  {
+    Model: "gemini-2.5-pro-preview-05-06",
+    About: "Coding, reasoning, multimodal",
+    limit: 1500,
+    rpd: 25,
+  },
   {
     Model: "gemini-2.0-flash",
     About: "Multimodal, realtime streaming",
     limit: 1500,
+    rpd: 1500,
   },
   {
     Model: "gemini-2.0-flash-lite",
     About: "Long context, realtime streaming",
     limit: 1500,
+    rpd: 1500,
   },
-  {
-    Model: "gemini-2.0-pro-exp-02-05",
-    About: "Multimodal, realtime streaming",
-    limit: 1500,
-  },
-  {
-    Model: "gemini-2.0-flash-thinking-exp-01-21",
-    About: "Multimodal, reasoning, coding",
-    limit: 1500,
-  },
+  // {
+  //   Model: "gemini-2.0-pro-exp-02-05",
+  //   About: "Multimodal, realtime streaming",
+  //   limit: 1500,rpd : 25,
+  // },
+  // {
+  //   Model: "gemini-2.0-flash-thinking-exp-01-21",
+  //   About: "Multimodal, reasoning, coding",
+  //   limit: 1500,rpd : 25,
+  // },
   {
     Model: "gemini-1.5-pro",
     About: "Long context, complex & math reasoning",
     limit: 50,
+    rpd: 50,
   },
   {
     Model: "gemini-1.5-flash",
     About: "Image, video, audio understanding",
     limit: 1500,
+    rpd: 1500,
   },
   {
     Model: "gemini-1.5-flash-8b",
     About: "Low latency, multilingual, summarization",
     limit: 1500,
+    rpd: 1500,
   },
 ];
 
 export default function AiChatBot(props) {
+  // ----------------------------- State Variables Declared
   const divRef = useRef(null);
   const subDivRef = useRef(null);
   const [height, setHeight] = useState(0);
@@ -115,13 +154,23 @@ export default function AiChatBot(props) {
   const [chatHistory, setChatHistory] = useState([]);
   const [chatHistoryTemp, setChatHistoryTemp] = useState([]);
   const [activeApiKeyID, setActiveAPIKeyID] = useState("");
-
+  const [replyMessageInfo, setReplyMessageInfo] = useState([]);
+  const [downloadStarting, setDownloadStarting] = useState(false);
+  const [downloadStartingSub, setDownloadStartingSub] = useState(false);
+  const [wholeChatReference, setWholeChatReference] = useState();
+  const [APIKeyInfo, setAPIKeyInfo] = useState({});
   const [isCopied, setIsCopied] = useState(false);
-
-  // ------------------------------------- For storing files
+  const [APIError, setAPIError] = useState(false);
+  const [APIErrorMessage, setAPIErrorMessage] = useState("false");
   const [filesInfo, setFilesInfo] = useState([]);
 
-  // ------------------------------------- For links of the files
+  // ----------------------------- For navigating to login page if not logged in
+  const navigate = useNavigate();
+  function navigateToSection() {
+    navigate(`/user/login`);
+  }
+
+  // ----------------------------- For media links and info
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
 
@@ -159,63 +208,24 @@ export default function AiChatBot(props) {
     });
   };
 
+  // const [models, setModels] = useState([]);
+  // const [error, setError] = useState(null);
+
+  // ---------------------------- Technique to scroll down to the end in any Chat
   const lastElementRef = useRef(null);
 
-  const [models, setModels] = useState([]);
-  const [error, setError] = useState(null);
-  //  const [loading, setLoading] = useState(true); // Add loading state
-
   useEffect(() => {
-    const fetchModels = async () => {
-      setLoading(true); // Set loading to true before fetching
-      try {
-        const genAI = new GoogleGenerativeAI(
-          processStringDecrypt(activeApiKeyID)
-        );
-        const response = await genAI.listModels();
-        console.log(response);
-        setError(null); // Clear any previous errors
-      } catch (err) {
-        console.error("Failed to fetch models:", err);
-        setError(err.message);
-        setModels([]); // Clear models on error
-      } finally {
-        setLoading(false); // Set loading to false regardless of success or failure
-      }
-    };
-
-    fetchModels();
-  }, []);
-
-  useEffect(() => {
-    // if (lastElementRef.current) {
-    //   lastElementRef.current.scrollIntoView({ behavior: "smooth" });
-    // }
     if (lastElementRef.current) {
       lastElementRef.current.scrollTop = lastElementRef.current.scrollHeight;
     }
   }, [chatHistoryTemp, props?.selectedChatName]);
 
-  // ---------------------------- Used to transfer data to different document --> ( depricated )
-  function g() {
-    const user = firebase.auth().currentUser;
-    const channelRef = db
-      .collection("user")
-      .doc(user?.uid)
-      .collection("AIChats")
-      .doc("UI_UX Design Convo")
-      .set({
-        chats: chatHistoryTemp,
-      });
-  }
-
-  // ---------------------------- Checking if Loggen In and then saving Active API Key ------------------------
-
+  // ---------------------------- Checking if Logged In and then saving Active API Key ------------------------
   useEffect(() => {
     function ActiveApiKey() {
-      // const user = firebase.auth().currentUser;
       const listen = onAuthStateChanged(auth, (user) => {
         if (user) {
+          console.log("✔️ You'r logged in, taking you to the desired page.");
           const channelRef = db
             .collection("user")
             .doc(user?.uid)
@@ -226,19 +236,24 @@ export default function AiChatBot(props) {
             setActiveAPIKeyID(snapshot?.data()?.ActiveAPIKey);
           });
         } else {
-          console.log("Not Logged in");
+          console.error("❌ You'r not logged in, Please login or signup.");
+          navigateToSection();
         }
       });
     }
+    console.log("⏳ Checking if you'r logged in or not");
     ActiveApiKey();
   }, []);
 
+  // ---------------------------- Showing Active API Key ID - Encrypted
   useEffect(() => {
-    console.log("api key");
-    console.log(activeApiKeyID);
+    if (activeApiKeyID.length > 0) {
+      console.log("🗝️ Active API Key ID ------>");
+      console.log(activeApiKeyID);
+    }
   }, [activeApiKeyID]);
 
-  // ---------------------------- Function to get formatted time ( dd/mm/yyyy ) -----------------------------------------
+  // ---------------------------- Function to get formatted time ( dd/mm/yyyy ) for Chats Timing
   function getFormattedTime() {
     const now = new Date();
     let hours = now.getHours();
@@ -249,7 +264,7 @@ export default function AiChatBot(props) {
     return `${hours}:${minutes.toString().padStart(2, "0")} ${period}`;
   }
 
-  // ------------------------- Function to get current Date & Time
+  // ---------------------------- Function to get current Date & Time for normal usage like creating or deletion time
   function getCurrentDateTime() {
     const now = new Date();
     let hours = now.getHours();
@@ -268,39 +283,125 @@ export default function AiChatBot(props) {
     return { Time: time, Date: date };
   }
 
-  // ---------------------------- Function to fetch chats from Firebase -----------------------------------------
+  // ---------------------------- Function to fetch API Key Info (Usage Data) from Firebase
   useEffect(() => {
-    function fetchChatsFromFirebase() {
+    function fetchAPIKeyInfoFromFirebase() {
       const user = firebase.auth().currentUser;
+
       const channelRef = db
         .collection("user")
         .doc(user?.uid)
-        .collection("AIChats")
-        .doc(props?.selectedChatName);
+        .collection("APIKeys")
+        .doc("APIKey_" + activeApiKeyID);
 
       onSnapshot(channelRef, (snapshot) => {
-        setChatHistoryTemp(snapshot?.data()?.chats);
-        console.log(snapshot?.data()?.chats);
+        setAPIKeyInfo({
+          CurrentDate: snapshot?.data()?.CurrentDate,
+          CurrentUsage: snapshot?.data()?.CurrentUsage,
+          RequestInADay: snapshot?.data()?.RequestInADay,
+          TotalTokens: snapshot?.data()?.TotalTokens,
+        });
+
+        if (
+          snapshot?.data()?.CurrentDate !=
+          new Date().getDate() +
+            "/" +
+            parseInt(parseInt(new Date().getMonth()) + 1) +
+            "/" +
+            new Date().getFullYear()
+        ) {
+          db.collection("user")
+            .doc(user?.uid)
+            .collection("APIKeys")
+            .doc("APIKey_" + activeApiKeyID)
+            .update({
+              CurrentDate:
+                new Date().getDate() +
+                "/" +
+                parseInt(parseInt(new Date().getMonth()) + 1) +
+                "/" +
+                new Date().getFullYear(),
+              CurrentUsage: 0,
+              RequestInADay: [],
+            });
+        }
       });
+    }
+    if (activeApiKeyID.length > 0) {
+      fetchAPIKeyInfoFromFirebase();
+    }
+  }, [activeApiKeyID, currentModel]);
+
+  // ---------------------------- Function to fetch normal / agent chats history from Firebase
+  useEffect(() => {
+    function fetchChatsFromFirebase() {
+      const user = firebase.auth().currentUser;
+      if (props?.isAgentMode) {
+        const channelRef = db
+          .collection("user")
+          .doc(user?.uid)
+          .collection("AIAgents")
+          .doc(props?.selectedChatName);
+
+        onSnapshot(channelRef, (snapshot) => {
+          setChatHistoryTemp((prev) => snapshot?.data()?.chats);
+          props?.setChatLoading((prev) => false);
+          console.log(snapshot?.data()?.chats);
+        });
+      } else {
+        const channelRef = db
+          .collection("user")
+          .doc(user?.uid)
+          .collection("AIChats")
+          .doc(props?.selectedChatName);
+
+        onSnapshot(channelRef, (snapshot) => {
+          setChatHistoryTemp((prev) => snapshot?.data()?.chats);
+          props?.setChatLoading((prev) => false);
+          console.log(snapshot?.data()?.chats);
+        });
+      }
     }
     if (props?.selectedChatName.length > 0) {
       fetchChatsFromFirebase();
     }
   }, [props?.selectedChatName]);
 
-  // ---------------------------- Function to store chats in Firebase ----------------------------------
+  // ---------------------------- Consoling if chat is loading or not
+  useEffect(() => {
+    if (props?.selectedChatName?.length > 0) {
+      if (props?.chatLoading) {
+        console.log("⏳ Please wait while your chat is loading !");
+      } else {
+        console.log("⏳ Chat has been loaded");
+      }
+    }
+  }, [props?.chatLoading]);
+
+  // ---------------------------- Function to store user prompt object in Firebase
   function storeToFirebase(data, path) {
     const user = firebase.auth().currentUser;
-    db.collection("user")
-      .doc(user?.uid)
-      .collection("AIChats")
-      .doc(path)
-      .update({
-        chats: arrayUnion(data),
-      });
+    if (props?.agentInfo?.length > 0) {
+      db.collection("user")
+        .doc(user?.uid)
+        .collection("AIAgents")
+        .doc(path)
+        .update({
+          chats: arrayUnion(data),
+        });
+    } else {
+      db.collection("user")
+        .doc(user?.uid)
+        .collection("AIChats")
+        .doc(path)
+        .update({
+          chats: arrayUnion(data),
+        });
+    }
+    console.log("📥 Chat has been stored to database.");
   }
 
-  // ---------------------------- Function to store chats in Firebase ----------------------------------
+  // ---------------------------- Function to store first user prompt object to new created chat space
   function storeToFirebaseAutoCreateChatSpace(data, path) {
     const user = firebase.auth().currentUser;
     db.collection("user")
@@ -310,9 +411,11 @@ export default function AiChatBot(props) {
       .update({
         chats: arrayUnion(data),
       });
+
+    console.log("📥 Chat has been stored to database.");
   }
 
-  // --------------------------- Function to get the first 15 words from promptsto create chat space
+  // --------------------------- Function to get the first 7 words from prompt for new chat space name
   function getFirst7Words(text) {
     const cleanText = text.replace(/[^\w\s]/gi, "");
 
@@ -323,8 +426,10 @@ export default function AiChatBot(props) {
     return words.slice(0, 7).join(" ");
   }
 
+  // --------------------------- Function to create user prompt object
   function addUserMessage(text) {
     if (props?.selectedChatName.length == 0) {
+      // ---- Condition if a New Chat Space
       let tempTime = getCurrentDateTime();
       const user = firebase.auth().currentUser;
       const chatRef2 = db
@@ -337,7 +442,7 @@ export default function AiChatBot(props) {
         });
 
       chatRef2.then(() => {
-        console.log("Chat space is created, ready to use !");
+        // console.log("Chat space is created, ready to use !");
 
         let tempData = chatHistory;
         let tempObj = {
@@ -374,31 +479,53 @@ export default function AiChatBot(props) {
           }),
         });
       chatRef1.then(() => {
-        console.log("Chat is added to all chats !");
+        // console.log("Chat is added to all chats !");
       });
     } else {
+      // ---- Condition if not a New Chat Space
       let tempData = chatHistory;
-      let tempObj = {
-        Message: text,
-        Date:
-          new Date().getDate() +
-          "/" +
-          (parseInt(new Date().getMonth()) + 1) +
-          "/" +
-          new Date().getFullYear(),
-        Time: getFormattedTime(),
-        Sender: "User",
-      };
+      let tempObj;
+      if (props?.agentInfo?.length > 0) {
+        // ---- Creating user prompt object for Agent Chat
+        tempObj = {
+          Message: text,
+          Date:
+            new Date().getDate() +
+            "/" +
+            (parseInt(new Date().getMonth()) + 1) +
+            "/" +
+            new Date().getFullYear(),
+          Time: getFormattedTime(),
+          Sender: "User",
+          Model: currentModel,
+        };
+      } else {
+        // ---- Creating user prompt object for Normal Chat
+        tempObj = {
+          Message: text,
+          Date:
+            new Date().getDate() +
+            "/" +
+            (parseInt(new Date().getMonth()) + 1) +
+            "/" +
+            new Date().getFullYear(),
+          Time: getFormattedTime(),
+          Sender: "User",
+          isReplied: replyMessageInfo.length > 0 ? true : false,
+          RepliedMessage:
+            replyMessageInfo.length > 0 ? replyMessageInfo[0]?.repliedText : "",
+          Model: currentModel,
+        };
+      }
       tempData.push(tempObj);
-      storeToFirebase(tempObj, props?.selectedChatName);
-      // setChatHistory((prev) => [...prev, tempObj]);
-
-      run(text, formatMessages(tempData), props?.selectedChatName);
-      setMessage("");
+      storeToFirebase(tempObj, props?.selectedChatName); // ---- Storing user prompt to firebase
+      run(text, formatMessages(tempData), props?.selectedChatName); // ---- Calling function to generate response
+      setMessage(""); // ---- Setting everything to normal
+      setReplyMessageInfo([]); // ---- Setting everything to normal
     }
   }
 
-  // ----------------------------- Function to get array of chats in specific from to give it to Gemini Model for History
+  // --------------------------- Function to format chats to give it to Gemini Model as Chat History
   function formatMessages(messages) {
     return messages.map((message) => ({
       role: message.Sender === "User" ? "user" : "model", // Use "assistant" as the standard role for models/bots.
@@ -406,7 +533,7 @@ export default function AiChatBot(props) {
     }));
   }
 
-  // ----------------------------- Getting all files src to send to Gemini API
+  // --------------------------- Function to convert all the media to base64 to send it to Gemini model
   async function fileToGenerativePart(file) {
     const base64EncodedDataPromise = new Promise((resolve) => {
       const reader = new FileReader();
@@ -422,12 +549,59 @@ export default function AiChatBot(props) {
     };
   }
 
-  // ----------------------------- Gemini Model and API implementation and settings -----------------------------
-  const genAI = new GoogleGenerativeAI(processStringDecrypt(activeApiKeyID));
+  // --------------------------- Dynamically changing the gemini model based on changes in active API Key and Agent Chats
+  const [model, setModel] = useState();
 
-  const model = genAI.getGenerativeModel({
-    model: currentModel,
-  });
+  useEffect(() => {
+    const genAI = new GoogleGenerativeAI(processStringDecrypt(activeApiKeyID));
+    if (props?.agentInfo.length > 0) {
+      setModel(
+        genAI.getGenerativeModel({
+          model: currentModel,
+          systemInstruction: {
+            parts: [{ text: props?.agentInfo[0]?.Description }],
+          },
+        })
+      );
+    } else {
+      setModel(
+        genAI.getGenerativeModel({
+          model: currentModel,
+        })
+      );
+    }
+  }, [props?.agentInfo, activeApiKeyID, currentModel]);
+
+  // const model = genAI.getGenerativeModel({
+  //   model: currentModel,
+  //       systemInstruction: {
+  //         parts: [
+  //           {text: `whatever asked to you should naswer in format like
+
+  //   Question: <question>
+  //   Answer: <answer>
+  //   Time : india time`},
+  //         ],
+  //       },
+  // });
+
+  // const modelConfig = {
+  //   model: currentModel,
+  // };
+
+  // // Conditionally add system instruction
+  // if (props?.isAgentMode) {
+  //   modelConfig.systemInstruction = {
+  //     parts: [
+  //       {
+  //         text: props?.agentInfo?.Description, // `data` should be defined before this
+  //       },
+  //     ],
+  //   };
+  // }
+
+  // // Initialize model
+  // const model = genAI.getGenerativeModel(modelConfig);
 
   const generationConfig = {
     temperature: 1,
@@ -437,9 +611,10 @@ export default function AiChatBot(props) {
     response_mime_type: "text/plain",
   };
 
-  // ----------------------------- Function to get AI Response from Gemini API -----------------------------
+  // ----------------------------- Function to generate AI response for the given Prompt
   async function run(text, data, path) {
-    console.log("Ai is Giving Answer. Please wait!");
+    console.log("⏳ Please wait ! Gemini is generating response.");
+
     const chatSession = model.startChat({
       generationConfig,
       history: data,
@@ -465,54 +640,146 @@ export default function AiChatBot(props) {
 
       // Prepare all image parts (with async conversion)
       const imageParts = await Promise.all(files.map(fileToGenerativePart));
-      allParts = [tempPrompt, ...imageParts];
+      if (replyMessageInfo.length > 0) {
+        allParts = [replyMessageInfo[0]?.replyText + tempPrompt, ...imageParts];
+      } else {
+        allParts = [tempPrompt, ...imageParts];
+      }
     } else {
-      allParts = tempPrompt;
+      if (replyMessageInfo.length > 0) {
+        allParts = replyMessageInfo[0]?.replyText + tempPrompt;
+      } else {
+        allParts = tempPrompt;
+      }
     }
     // const allParts = [prompt, ...imageParts];
 
-    const result = await chatSession.sendMessage(allParts);
+    try {
+      const result = await chatSession.sendMessage(allParts);
 
-    setFilesInfo([]);
+      setFilesInfo([]);
 
-    // -------------------
+      // -------------------
 
-    // const result = await chatSession.sendMessage(tempPrompt);
+      // const result = await chatSession.sendMessage(tempPrompt);
 
-    console.log("Recieved Answer --->");
-    //   console.log(result);
-    console.log(result.response.text());
-    setLoading(false);
-    //   setRes(result.response.text());
-    setChatHistory((prev) => [
-      ...prev,
-      {
-        Message: result.response.text(),
-        Date:
-          new Date().getDate() +
-          "/" +
-          (parseInt(new Date().getMonth()) + 1) +
-          "/" +
-          new Date().getFullYear(),
-        Time: getFormattedTime(),
-        Sender: "Assistant",
-      },
-    ]);
+      console.log("✨ Gemini generated response ------>");
+      //   console.log(result);
+      console.log(result.response.text());
+      setLoading(false);
+      //   setRes(result.response.text());
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          Message: result.response.text(),
+          Date:
+            new Date().getDate() +
+            "/" +
+            (parseInt(new Date().getMonth()) + 1) +
+            "/" +
+            new Date().getFullYear(),
+          Time: getFormattedTime(),
+          Sender: "Assistant",
+          Model: currentModel,
+        },
+      ]);
 
-    storeToFirebase(
-      {
-        Message: result.response.text(),
-        Date:
-          new Date().getDate() +
-          "/" +
-          (parseInt(new Date().getMonth()) + 1) +
-          "/" +
-          new Date().getFullYear(),
-        Time: getFormattedTime(),
-        Sender: "Assistant",
-      },
-      path
-    );
+      storeToFirebase(
+        {
+          Message: result.response.text(),
+          Date:
+            new Date().getDate() +
+            "/" +
+            (parseInt(new Date().getMonth()) + 1) +
+            "/" +
+            new Date().getFullYear(),
+          Time: getFormattedTime(),
+          Sender: "Assistant",
+          Model: currentModel,
+        },
+        path
+      );
+
+      // ----------------------- Recording model calls in API for Model Usage
+
+      const user = firebase.auth().currentUser;
+      db.collection("user")
+        .doc(user?.uid)
+        .collection("APIKeys")
+        .doc("APIKey_" + activeApiKeyID)
+        .update({
+          RequestInADay: arrayUnion({
+            model: currentModel,
+            time:
+              new Date().getHours() +
+              " " +
+              new Date().getMinutes() +
+              " " +
+              new Date().getSeconds(),
+          }),
+        });
+    } catch (error) {
+      console.error("🚨 Some error occured while generating response.", error);
+
+      // Optional: Handle specific error types or show user-friendly messages
+      if (error.message.includes("quota")) {
+        // alert("You've exceeded your daily quota for the Gemini API.");
+        setAPIErrorMessage("quota");
+      } else {
+        // alert("Something went wrong. Please try again later.");
+        setAPIErrorMessage("error");
+      }
+
+      setLoading(false);
+      setAPIError((prev) => true);
+      setTimeout(() => {
+        setAPIError((prev) => false);
+        setAPIErrorMessage("");
+      }, 10000);
+    }
+
+    // const result = await chatSession.sendMessage(allParts);
+
+    // setFilesInfo([]);
+
+    // // -------------------
+
+    // // const result = await chatSession.sendMessage(tempPrompt);
+
+    // console.log("Recieved Answer --->");
+    // //   console.log(result);
+    // console.log(result.response.text());
+    // setLoading(false);
+    // //   setRes(result.response.text());
+    // setChatHistory((prev) => [
+    //   ...prev,
+    //   {
+    //     Message: result.response.text(),
+    //     Date:
+    //       new Date().getDate() +
+    //       "/" +
+    //       (parseInt(new Date().getMonth()) + 1) +
+    //       "/" +
+    //       new Date().getFullYear(),
+    //     Time: getFormattedTime(),
+    //     Sender: "Assistant",
+    //   },
+    // ]);
+
+    // storeToFirebase(
+    //   {
+    //     Message: result.response.text(),
+    //     Date:
+    //       new Date().getDate() +
+    //       "/" +
+    //       (parseInt(new Date().getMonth()) + 1) +
+    //       "/" +
+    //       new Date().getFullYear(),
+    //     Time: getFormattedTime(),
+    //     Sender: "Assistant",
+    //   },
+    //   path
+    // );
   }
 
   useEffect(() => {
@@ -621,7 +888,10 @@ export default function AiChatBot(props) {
       const header = language
         ? `<div class=" w-full h-[45px] flex justify-between items-center px-[18px] pr-[8px] rounded-t-xl  "><div class=" flex flex-col justify-start items-center w-auto h-full overflow-visible">
       <pre class="min-h-full flex justify-center items-center " style="color : ${theme_LanguageBorder};">${language}</pre>
-      <div class=" w-[100%] min-h-[3px] rounded-full mt-[-1.5px] z-30 " style="background : ${theme_LanguageBorder}" ></div></div><button class="p-[5px] rounded-lg flex justify-end hover:bg-[${theme_CopyBGHover}] items-center hover:text-[${theme_TextColorPrimary}] " style="color: ${theme_TextColorSecondary}; border : 1.5px solid ${theme_CodeSnippetBorder}; "   ><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-files"><path d="M20 7h-3a2 2 0 0 1-2-2V2"/><path d="M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z"/><path d="M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8"/></svg></button></div>`
+      <div class=" w-[100%] min-h-[3px] rounded-full mt-[-1.5px] z-30 " style="background : ${theme_LanguageBorder}" ></div></div><button class="p-[5px] rounded-lg flex justify-end hover:bg-[${theme_CopyBGHover}] items-center hover:text-[${theme_TextColorPrimary}] " style="color: ${theme_TextColorSecondary}; border : 1.5px solid ${theme_CodeSnippetBorder}; "   ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" color="#000000" fill="none">
+    <path d="M9 15C9 12.1716 9 10.7574 9.87868 9.87868C10.7574 9 12.1716 9 15 9L16 9C18.8284 9 20.2426 9 21.1213 9.87868C22 10.7574 22 12.1716 22 15V16C22 18.8284 22 20.2426 21.1213 21.1213C20.2426 22 18.8284 22 16 22H15C12.1716 22 10.7574 22 9.87868 21.1213C9 20.2426 9 18.8284 9 16L9 15Z" stroke="#000000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+    <path d="M16.9999 9C16.9975 6.04291 16.9528 4.51121 16.092 3.46243C15.9258 3.25989 15.7401 3.07418 15.5376 2.90796C14.4312 2 12.7875 2 9.5 2C6.21252 2 4.56878 2 3.46243 2.90796C3.25989 3.07417 3.07418 3.25989 2.90796 3.46243C2 4.56878 2 6.21252 2 9.5C2 12.7875 2 14.4312 2.90796 15.5376C3.07417 15.7401 3.25989 15.9258 3.46243 16.092C4.51121 16.9528 6.04291 16.9975 9 16.9999" stroke="#000000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg></button></div>`
         : "";
 
       const body = language
@@ -936,13 +1206,13 @@ export default function AiChatBot(props) {
           return match;
         } else if (double) {
           // Rule 3: Format double backtick content (can include ` inside)
-          return `<code class="bg-[#4D505685] font-[rr] text-center px-[6px] py-[2px] rounded-[4px]" style="background : ${theme_CodeText};">${escapeHtml(
+          return `<code class=" font-[DMSr] text-center px-[6px] py-[2px] rounded-[4px]" style="background : ${theme_CodeText};">${escapeHtml(
             doubleContent
           )}</code>`;
         } else if (single) {
           // Rule 2: Format only if no leading/trailing space
           if (!/^\s|\s$/.test(singleContent)) {
-            return `<code class="bg-[#4D505685] font-[rr] text-center px-[6px] py-[2px] rounded-[4px]" style="background : ${theme_CodeText};">${escapeHtml(
+            return `<code class=" font-[DMSr] text-center px-[6px] py-[2px] rounded-[4px]" style="background : ${theme_CodeText};">${escapeHtml(
               singleContent
             )}</code>`;
           } else {
@@ -982,160 +1252,434 @@ export default function AiChatBot(props) {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        console.log("Text copied to clipboard");
+        console.log("🔗 Text copied to clipboard");
       })
       .catch((err) => {
-        console.error("Failed to copy text: ", err);
+        console.error("🚨 Failed to copy text to clipboard : ", err);
       });
+  }
+
+  const [selection, setSelection] = useState("");
+  const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
+  const [showToolbar, setShowToolbar] = useState(false);
+
+  const handleMouseUp = () => {
+    const sel = window.getSelection();
+    const text = sel.toString().trim();
+
+    if (text.length > 0) {
+      const range = sel.getRangeAt(0);
+      const clonedRange = range.cloneRange();
+      clonedRange.collapse(true);
+
+      const rect = clonedRange.getBoundingClientRect();
+
+      // Check if selection is inside an AI generated chat div
+      let node = sel.anchorNode;
+      if (node && node.nodeType === 3) {
+        // If it's a text node, get its parent
+        node = node.parentNode;
+      }
+
+      const isInsideAIGenerated = node?.closest(".AIGeneratedChat");
+
+      if (isInsideAIGenerated) {
+        setToolbarPos({
+          x: rect.left + window.scrollX,
+          y: rect.top + window.scrollY - 35,
+        });
+
+        setSelection(text);
+        setShowToolbar(true);
+      } else {
+        setShowToolbar(false);
+      }
+    } else {
+      setShowToolbar(false);
+    }
+  };
+
+  const handleButtonClick = () => {
+    //     console.log("Button clicked");
+    //     console.log(`I have selected this earlier message from the chat to reply to :
+    // ${selection}
+
+    // I am replying with :
+    // `);
+    setReplyMessageInfo([
+      {
+        replyText: `I have selected this earlier message from the chat to reply to : 
+${selection}
+
+I am replying with : 
+`,
+        repliedText: selection,
+      },
+    ]);
+    setShowToolbar(false);
+  };
+
+  useEffect(() => {
+    document.addEventListener("mouseup", handleMouseUp);
+
+    const handleSelectionChange = () => {
+      const text = window.getSelection()?.toString().trim();
+      if (!text) {
+        setShowToolbar(false);
+      }
+    };
+
+    document.addEventListener("selectionchange", handleSelectionChange);
+
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("selectionchange", handleSelectionChange);
+    };
+  }, []);
+
+  const handleDownload = async (data) => {
+    // const element = contentRef.current;
+    const html2pdf = await require("html2pdf.js");
+    console.log("Starting download...");
+    setDownloadStarting((prev) => true);
+    setDownloadStartingSub((prev) => true);
+
+    const options = {
+      margin: [0.5, 0.5, 0.5, 0.5], // Top, left, bottom, right in inches
+      filename: `Aurora_${props?.selectedChatName}_Chat.pdf`,
+      image: { type: "jpeg", quality: 1 },
+
+      html2canvas: { scale: 3, useCORS: true },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+    };
+
+    html2pdf()
+      .set(options)
+      .from(data)
+      .toPdf()
+      .get("pdf")
+      .then(() => {
+        console.log("⬇️ PDF Download started.");
+        setDownloadStarting((prev) => false);
+
+        setTimeout(() => {
+          setDownloadStartingSub((prev) => false);
+        }, 3000);
+      })
+      .save();
+  };
+
+  function getChatRef() {
+    setWholeChatReference(
+      document.querySelector(".chatMessageParentContainer")
+    );
+  }
+
+  useEffect(() => {
+    getChatRef();
+  }, [chatHistoryTemp]);
+
+  function isScrolledToEnd() {
+    return (
+      lastElementRef.scrollHeight - lastElementRef.scrollTop <=
+      lastElementRef.clientHeight + 1
+    );
   }
 
   return (
     <>
-      {" "}
+      {downloadStartingSub ? (
+        <DownloadingToast
+          downloadStarting={downloadStarting}
+          downloadStartingSub={downloadStartingSub}
+          setDownloadStarting={setDownloadStarting}
+          setDownloadStartingSub={setDownloadStartingSub}
+        />
+      ) : (
+        <></>
+      )}
+      <APIErrorToast
+        currentModel={currentModel}
+        APIError={APIError}
+        setAPIError={setAPIError}
+        APIErrorMessage={APIErrorMessage}
+        setAPIErrorMessage={setAPIErrorMessage}
+      />
+      {/* {!props?.chatLoading ? (<>
+      <div className="w-full h-full flex justify-center items-center bg-white"></div></>) : (<></>)} */}
+      {showToolbar && (
+        <div
+          className={
+            "absolute group rounded-full w-[45px] h-[33px] flex flex-col justify-end items-center border-[1px] " +
+            (props?.theme
+              ? " bg-[#373737] border-[#464646]"
+              : " bg-[#ffffff] hover:bg-[#fbfbfb] border-[#d7d7d7]")
+          }
+          style={{
+            // position: "absolute",
+            top: toolbarPos.y - 5,
+            left: toolbarPos.x,
+            // backgroundColor: "#333",
+            // color: "#fff",
+            // padding: "6px 12px",
+            // borderRadius: "6px",
+            zIndex: 1000,
+            boxShadow: "0px 4px 8px rgba(0,0,0,0.2)",
+          }}
+        >
+          <div
+            className={
+              "hidden group-hover:flex justify-center items-center rounded-[9px] mb-[3px] text-[12px] px-[8px] py-[3px] cursor-default" +
+              (props?.theme
+                ? " bg-[#363636] text-[#ededed]"
+                : " bg-[black] text-[#ffffff]")
+            }
+            style={{ boxShadow: "0px 3px 2px rgba(0,0,0,0.1)" }}
+          >
+            Reply
+          </div>
+          <button
+            className="w-full min-h-full flex justify-center items-center "
+            onClick={() => {
+              handleButtonClick();
+            }}
+          >
+            <HugeiconsIcon
+              className={
+                " cursor-pointer " +
+                (props?.theme ? " text-[#ffffff]" : " text-[#000000]")
+              }
+              // onClick={() => {}}
+              icon={QuoteDownIcon}
+              size={14}
+              strokeWidth={2.5}
+            />
+          </button>
+        </div>
+      )}
       <div
         className={
           " pb-[10px] md:pb-[30px] lg:pb-[30px] pt-[0px] md:pt-[0px] lg:pt-[0px] h-full flex flex-col justify-center items-center font-[DMSr]" +
           (props?.theme ? " text-[#ffffff]" : " text-[#000000]") +
           (props?.chatSidebarModal
             ? " w-full md:w-[calc(100%-250px)] lg:w-[calc(100%-250px)]"
-            : " w-full md:w-full lg:w-full")
+            : " w-full md:w-[100%] lg:w-[100%]")
         }
+        style={{ transition: ".3s" }}
         // onClick={() => {
         //   setShowModels(false);
         // }}
       >
         {chatHistoryTemp?.length > 0 ? (
           <>
+            <AIChatInfo
+              theme={props?.theme}
+              isAgentMode={props?.isAgentMode}
+              agentInfo={props?.agentInfo}
+              selectedChatName={props?.selectedChatName}
+              downloadStarting={downloadStarting}
+              downloadStartingSub={downloadStartingSub}
+              setDownloadStarting={setDownloadStarting}
+              setDownloadStartingSub={setDownloadStartingSub}
+              chatReference={wholeChatReference}
+              APIKeyInfo={APIKeyInfo}
+              setAPIKeyInfo={setAPIKeyInfo}
+              currentModel={currentModel}
+              activeApiKeyID={activeApiKeyID}
+              setChatSidebarModal={props?.setChatSidebarModal}
+              chatSidebarModal={props?.chatSidebarModal}
+            />
             <div
               ref={lastElementRef}
               className={
-                "w-full  h-full flex flex-col justify-end items-center overflow-y-scroll pt-[20px] md:pt-[30px] lg:pt-[30px] pl-[5px]" +
+                "w-full  h-[calc(100%-50px)] flex flex-col justify-end items-center overflow-y-scroll pt-[20px] md:pt-[30px] lg:pt-[30px] pl-[5px]" +
                 (props?.theme ? " chatScrollDark" : " chatScrollLight")
               }
+              onScroll={() => {
+                setShowToolbar(false);
+                // if(isScrolledToEnd()){
+                //   console.log("End of the chat")
+                // }else{
+                //   console.log("In between the chat")
+                // }
+              }}
             >
-              <div className="w-[calc(100%-35px)] md:w-[calc(100%-35px)] lg:w-[60%] h-full flex flex-col justify-start items-start z-0 ">
-                {chatHistoryTemp?.map((data, index) => {
-                  return (
-                    <>
-                      {index == 0 ? (
-                        <div className="w-full mb-[40px] flex justify-center items-center">
+              {props?.chatLoading ? (
+                <>
+                  <div className="w-[calc(100%-35px)] md:w-[calc(100%-35px)] lg:w-[60%] h-full pb-[190px] flex flex-col justify-center items-center z-0 ">
+                    <l-ring
+                      size="25"
+                      stroke="3"
+                      bg-opacity="0"
+                      speed="2"
+                      color="black"
+                    ></l-ring>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-[calc(100%-35px)] md:w-[calc(100%-35px)] lg:w-[60%] h-full flex flex-col justify-start items-start z-0 chatMessageParentContainer">
+                    {chatHistoryTemp?.map((data, index) => {
+                      return (
+                        <>
+                          {index == 0 ? (
+                            <div className="w-full mb-[40px] flex justify-center items-center">
+                              <div
+                                className={
+                                  "w-full border-b-[1.5px]" +
+                                  (props?.theme
+                                    ? " border-[#262626d1]"
+                                    : " border-[#f1f1f1d0]")
+                                }
+                              ></div>
+                              <div
+                                className={
+                                  "flex justify-center items-center whitespace-nowrap px-[15px] py-[10px] rounded-lg text-[12px] tracking-wider uppercase font-[DMSr]" +
+                                  (props?.theme
+                                    ? " bg-[#1A1A1A] text-[#5b5b5b]"
+                                    : " bg-[#ffffff] text-[#a8a8b1]")
+                                }
+                              >
+                                Start of Conversation
+                              </div>
+                              <div
+                                className={
+                                  "w-full border-b-[1.5px]" +
+                                  (props?.theme
+                                    ? " border-[#262626d1]"
+                                    : " border-[#f1f1f1d0]")
+                                }
+                              ></div>
+                            </div>
+                          ) : (
+                            <></>
+                          )}
+                          {index != 0 &&
+                          chatHistoryTemp[index - 1].Date !== data?.Date ? (
+                            <div className="w-full my-[40px] flex justify-center items-center">
+                              <div
+                                className={
+                                  "w-full border-b-[1.5px]" +
+                                  (props?.theme
+                                    ? " border-[#262626d1]"
+                                    : " border-[#f1f1f1d0]")
+                                }
+                              ></div>
+                              <div
+                                className={
+                                  "flex justify-center items-center px-[15px] py-[10px] rounded-lg text-[12px] tracking-wider" +
+                                  (props?.theme
+                                    ? " bg-[#1A1A1A] text-[#5b5b5b]"
+                                    : " bg-[#ffffff] text-[#a8a8b1]")
+                                }
+                              >
+                                {data?.Date ==
+                                new Date().getDate() +
+                                  "/" +
+                                  (parseInt(new Date().getMonth()) + 1) +
+                                  "/" +
+                                  new Date().getFullYear() ? (
+                                  <>TODAY</>
+                                ) : (
+                                  <>{data?.Date}</>
+                                )}
+                              </div>
+                              <div
+                                className={
+                                  "w-full border-b-[1.5px]" +
+                                  (props?.theme
+                                    ? " border-[#262626d1]"
+                                    : " border-[#f1f1f1d0]")
+                                }
+                              ></div>
+                            </div>
+                          ) : (
+                            <></>
+                          )}
                           <div
                             className={
-                              "w-full border-b-[1.5px]" +
-                              (props?.theme
-                                ? " border-[#262626d1]"
-                                : " border-[#f1f1f1d0]")
-                            }
-                          ></div>
-                          <div
-                            className={
-                              "flex justify-center items-center whitespace-nowrap px-[15px] py-[10px] rounded-lg text-[12px] tracking-wider uppercase" +
-                              (props?.theme
-                                ? " bg-[#1A1A1A] text-[#5b5b5b]"
-                                : " bg-[#ffffff] text-[#a8a8b1]")
+                              "w-full justify-end items-start " +
+                              (data?.isReplied && data?.Sender == "User"
+                                ? " flex"
+                                : " hidden")
                             }
                           >
-                            Start of Conversation
+                            <div
+                              className={
+                                "w-auto flex justify-start items-start p-[15px] text-[13px] font-[DMSr] text-[#818181]"
+                              }
+                            >
+                              <div className="w-[30px] mr-[0px] flex justify-start items-center">
+                                <HugeiconsIcon
+                                  className="mt-[3px] rotate-180"
+                                  icon={LinkBackwardIcon}
+                                  size={14}
+                                  strokeWidth={1}
+                                  fill="#818181"
+                                />
+                              </div>
+                              <pre className="w-[calc(100%-30px)] whitespace-pre-wrap text-ellipsis overflow-hidden line-clamp-3  bg-[white] font-[DMSr]">
+                                {data?.RepliedMessage}
+                              </pre>
+                            </div>
                           </div>
                           <div
+                            key={index}
                             className={
-                              "w-full border-b-[1.5px]" +
-                              (props?.theme
-                                ? " border-[#262626d1]"
-                                : " border-[#f1f1f1d0]")
-                            }
-                          ></div>
-                        </div>
-                      ) : (
-                        <></>
-                      )}
-                      {index != 0 &&
-                      chatHistoryTemp[index - 1].Date !== data?.Date ? (
-                        <div className="w-full my-[40px] flex justify-center items-center">
-                          <div
-                            className={
-                              "w-full border-b-[1.5px]" +
-                              (props?.theme
-                                ? " border-[#262626d1]"
-                                : " border-[#f1f1f1d0]")
-                            }
-                          ></div>
-                          <div
-                            className={
-                              "flex justify-center items-center px-[15px] py-[10px] rounded-lg text-[12px] tracking-wider" +
-                              (props?.theme
-                                ? " bg-[#1A1A1A] text-[#5b5b5b]"
-                                : " bg-[#ffffff] text-[#a8a8b1]")
+                              "w-full flex justify-start items-start" +
+                              (data?.Sender == "User"
+                                ? " flex-row-reverse"
+                                : " flex-row")
                             }
                           >
-                            {data?.Date ==
-                            new Date().getDate() +
-                              "/" +
-                              (parseInt(new Date().getMonth()) + 1) +
-                              "/" +
-                              new Date().getFullYear() ? (
-                              <>TODAY</>
-                            ) : (
-                              <>{data?.Date}</>
-                            )}
-                          </div>
-                          <div
-                            className={
-                              "w-full border-b-[1.5px]" +
-                              (props?.theme
-                                ? " border-[#262626d1]"
-                                : " border-[#f1f1f1d0]")
-                            }
-                          ></div>
-                        </div>
-                      ) : (
-                        <></>
-                      )}
-                      <div
-                        key={index}
-                        className={
-                          "w-full flex justify-start items-start" +
-                          (data?.Sender == "User"
-                            ? " flex-row-reverse"
-                            : " flex-row")
-                        }
-                      >
-                        <div
-                          className={
-                            " chatMessageContainer rounded-2xl flex flex-col justify-start items-start mb-[20px] " +
-                            (data?.Sender == "User"
-                              ? props?.theme
-                                ? " bg-[#222222] p-[15px] px-[20px] max-w-[80%] md:max-w-[70%] lg:max-w-[70%]  w-auto"
-                                : " bg-[#f7f7f7] p-[15px] px-[20px] max-w-[80%] md:max-w-[70%] lg:max-w-[70%]  w-auto"
-                              : " bg-transparent px-[0px] w-full")
-                          }
-                        >
-                          <div className="flex justify-start items-center">
-                            <span
+                            <div
                               className={
-                                "font-[geistSemibold]" +
-                                (props?.theme
-                                  ? " text-[white]"
-                                  : " text-[black]")
+                                " chatMessageContainer rounded-2xl flex flex-col justify-start items-start mb-[20px] " +
+                                (data?.Sender == "User"
+                                  ? props?.theme
+                                    ? " bg-[#222222] p-[15px] px-[20px] max-w-[80%] md:max-w-[70%] lg:max-w-[70%]  w-auto"
+                                    : " bg-[#f7f7f7] p-[15px] px-[20px] max-w-[80%] md:max-w-[70%] lg:max-w-[70%]  w-auto"
+                                  : " bg-transparent px-[0px] w-full")
                               }
                             >
-                              {data?.Sender == "User" ? <>Me</> : <>AI</>}{" "}
-                            </span>{" "}
-                            <span
-                              className={
-                                "text-[12px] flex justify-center items-center font-[geistMedium]" +
-                                (props?.theme
-                                  ? " text-[#5b5b5b]"
-                                  : " text-[#a8a8b1]")
-                              }
-                            >
-                              <span className="mx-[8px] text-[15px] flex justify-center items-center">
-                                •
-                              </span>
-                              <span className="">{data?.Time}</span>
-                            </span>
-                          </div>
-                          {/* <div className="h-[100px] mt-[8px] flex justify-start items-start">
+                              {data?.Sender == "User" &&
+                              chatHistoryTemp[index + 1]?.Sender == "User" ? (
+                                <HugeiconsIcon
+                                  className="text-[#EF4153] ml-[-23px] mt-[-18px] mb-[4px]"
+                                  icon={Alert02Icon}
+                                  size={16}
+                                  strokeWidth={1.8}
+                                />
+                              ) : (
+                                <></>
+                              )}
+                              <div className="flex justify-start items-center">
+                                <span
+                                  className={
+                                    "font-[DMSb]" +
+                                    (props?.theme
+                                      ? " text-[white]"
+                                      : " text-[black]")
+                                  }
+                                >
+                                  {data?.Sender == "User" ? <>Me</> : <>AI</>}{" "}
+                                </span>{" "}
+                                <span
+                                  className={
+                                    "text-[12px] flex justify-center items-center font-[DMSm]" +
+                                    (props?.theme
+                                      ? " text-[#5b5b5b]"
+                                      : " text-[#a8a8b1]")
+                                  }
+                                >
+                                  <span className="mx-[8px] text-[15px] flex justify-center items-center">
+                                    •
+                                  </span>
+                                  <span className="">{data?.Time}</span>
+                                </span>
+                              </div>
+                              {/* <div className="h-[100px] mt-[8px] flex justify-start items-start">
                             <img
                               className="h-full aspect-square rounded-[4px] object-cover"
                               src={uplimg}
@@ -1151,149 +1695,348 @@ export default function AiChatBot(props) {
                               ></img>
                             </div>
                           </div> */}
-                          {data?.Sender == "User" ? (
-                            <>
-                              <pre
-                                className=" chatMessage mt-[8px] font-[DMSr] leading-[25px] whitespace-pre-wrap w-full "
-                                // dangerouslySetInnerHTML={{
-                                //   __html: formatText(data?.Message),
-                                // }}
-                              >
-                                {data?.Message?.trim()}
-                              </pre>
-                            </>
-                          ) : (
-                            <>
-                              <pre
-                                data-index={index}
-                                className=" chatMessage mt-[8px] font-[DMSr] leading-[28px] whitespace-pre-wrap w-full "
-                                dangerouslySetInnerHTML={{
-                                  __html: formatText(data?.Message),
-                                }}
-                              ></pre>
-                            </>
-                          )}
 
-                          <div
-                            className={
-                              "mt-[8px] w-full  justify-start items-center" +
-                              (data?.Sender == "User" ? " hidden" : " flex")
-                            }
-                          >
-                            <div className="h-[28px] w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer flex justify-center items-center mr-[2px]">
-                              <Volume2
-                                width={16}
-                                height={16}
-                                strokeWidth={2.2}
-                                className=""
-                              />
-                            </div>
-                            <div
-                              className={
-                                "h-[28px] w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer justify-center items-center mr-[2px]" +
-                                (chatHistory.length - 1 == index
-                                  ? " flex"
-                                  : " hidden")
-                              }
-                              onClick={() => {
-                                //   run(
-                                //     props?.AiOutput[0]?.Message[
-                                //       props?.AiOutput[0]?.Message.length - 1
-                                //     ]
-                                //   );
-                                //   props?.setLoading(true);
-                              }}
-                            >
-                              <RefreshCw
-                                width={16}
-                                height={16}
-                                strokeWidth={2.2}
-                                className=""
-                              />
-                            </div>
-                            <div
-                              className={
-                                "h-[28px] w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer justify-center items-center mr-[2px] " +
-                                (chatHistory.length - 1 == index
-                                  ? " flex"
-                                  : " hidden")
-                                //   +
-                                //   (isLiked == "like" || isLiked.length == 0
-                                //     ? " flex"
-                                //     : " hidden")
-                              }
-                              onClick={() => {
-                                //   setIsLiked("like");
-                              }}
-                            >
-                              <ThumbsUp
-                                width={16}
-                                height={16}
-                                strokeWidth={2.2}
-                                //   fill={isLiked == "like" ? "currentColor" : "none"}
-                                className=""
-                              />
-                            </div>
-                            <div
-                              className={
-                                "h-[28px] w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer justify-center items-center mr-[2px] " +
-                                (chatHistory.length - 1 == index
-                                  ? " flex"
-                                  : " hidden")
-                                //   +
-                                //   (isLiked == "dislike" || isLiked.length == 0
-                                //     ? " flex"
-                                //     : " hidden")
-                              }
-                              onClick={() => {
-                                //   setIsLiked("dislike");
-                              }}
-                            >
-                              <ThumbsDown
-                                width={16}
-                                height={16}
-                                strokeWidth={2.2}
-                                //   fill={isLiked == "dislike" ? "currentColor" : "none"}
-                                className=""
-                              />
-                            </div>
-                            <div
-                              className="h-[28px] w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer flex justify-center items-center"
-                              onClick={(e) => {
-                                // handleCopyClick(index)
-                                const preInsideDiv = document.querySelectorAll(
-                                  ".chatMessageContainer .chatMessage"
-                                );
-                                setIsCopied(true);
-                                setTimeout(() => {
-                                  setIsCopied(false);
-                                }, 1000);
-                                copyToClipboard(preInsideDiv[index].innerText);
-                              }}
-                            >
-                              <Copy
-                                width={16}
-                                height={16}
-                                strokeWidth={2.2}
-                                className=""
-                              />
-                            </div>
-                            <div
-                              className={
-                                "h-[28px] ml-[4px] bg-[#f0f0f0] text-[#000000] px-[10px] flex justify-center items-center rounded-md" +
-                                (isCopied ? " opacity-100" : " opacity-0")
-                              }
-                              style={{ transition: ".2s" }}
-                            >
-                              Copied
+                              {data?.Sender == "User" ? (
+                                <>
+                                  <pre
+                                    className=" chatMessage mt-[8px] font-[DMSr] leading-[25px] whitespace-pre-wrap w-full "
+                                    // dangerouslySetInnerHTML={{
+                                    //   __html: formatText(data?.Message),
+                                    // }}
+                                  >
+                                    {data?.Message?.trim()}
+                                  </pre>
+                                  {/* <div className="rounded-[14px] my-[5px] px-[6px] h-[30px] bg-[#ef41521d] flex justify-start items-center">
+                                    <HugeiconsIcon
+                                      className="text-[#EF4153] mr-[5px]"
+                                      icon={Alert02Icon}
+                                      size={16}
+                                      strokeWidth={1.8}
+                                    />
+                                    <span className="text-[12px]">Error</span>
+                                  </div> */}
+                                </>
+                              ) : (
+                                <>
+                                  <pre
+                                    data-index={index}
+                                    className={
+                                      " chatMessage mt-[8px] mb-[10px] font-[DMSr] leading-[28px] whitespace-pre-wrap w-full AIGeneratedChat" +
+                                      (props?.theme
+                                        ? " text-[#e0e0e0]"
+                                        : " text-[black]")
+                                    }
+                                    dangerouslySetInnerHTML={{
+                                      __html: formatText(data?.Message),
+                                    }}
+                                  ></pre>
+                                </>
+                              )}
+                              <div
+                                className={
+                                  "w-full  justify-between items-center mt-[8px]" +
+                                  (data?.Sender == "User" ? " hidden" : " flex")
+                                }
+                              >
+                                <div
+                                  className=" w-full flex justify-start items-center"
+                                  data-html2canvas-ignore
+                                >
+                                  <div className="group max-h-[28px] max-w-[100px] flex flex-col justify-start items-start  overflow-visible mr-[10px] ">
+                                    <div
+                                      className={
+                                        " flex justify-center items-center min-h-[28px] rounded-full  px-[10px] cursor-context-menu min-w-[100px] whitespace-nowrap text-[12px]" +
+                                        (props?.theme
+                                          ? " bg-[#222222]"
+                                          : " bg-[#ffffff]")
+                                      }
+                                      onClick={() => {
+                                        // fetchAvailableModels();
+                                      }}
+                                    >
+                                      {Math.round(
+                                        parseInt(
+                                          data?.Message.length +
+                                            chatHistoryTemp[index - 1]?.Message
+                                              .length
+                                        ) / 4
+                                      )}{" "}
+                                      tokens
+                                    </div>{" "}
+                                    <div
+                                      className={
+                                        "hidden mt-[5px] whitespace-nowrap group-hover:flex flex-col  justify-center items-start rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                                        (props?.theme
+                                          ? " bg-[#363636] text-[#ededed]"
+                                          : " bg-[black] text-[#ffffff]")
+                                      }
+                                      style={{
+                                        boxShadow:
+                                          "0px 1px 4px rgba(0,0,0,0.2)",
+                                        zIndex: 1000,
+                                      }}
+                                    >
+                                      <span className="flex justify-start items-center whitespace-nowrap">
+                                        Tokens used :{" "}
+                                        {Math.round(
+                                          parseInt(
+                                            data?.Message.length +
+                                              chatHistoryTemp[index - 1]
+                                                ?.Message.length
+                                          ) / 4
+                                        )}{" "}
+                                        tokens
+                                      </span>
+                                      <span className="flex justify-start items-center whitespace-nowrap">
+                                        Model used :{" "}
+                                        {data?.Model ? (
+                                          <>{data?.Model}</>
+                                        ) : (
+                                          <>
+                                            <HugeiconsIcon
+                                              className="ml-[3px]"
+                                              icon={SatelliteIcon}
+                                              size={13}
+                                              strokeWidth={1.8}
+                                            />
+                                          </>
+                                        )}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="group max-h-[28px] max-w-[28px] flex flex-col justify-start items-center  overflow-visible mr-[2px] ">
+                                    <div className="min-h-[28px] min-w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer flex justify-center items-center ">
+                                      <HugeiconsIcon
+                                        icon={VolumeHighIcon}
+                                        size={18}
+                                        strokeWidth={1.6}
+                                      />
+                                    </div>
+                                    <div
+                                      className={
+                                        "hidden mt-[5px] whitespace-nowrap group-hover:flex  justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                                        (props?.theme
+                                          ? " bg-[#363636] text-[#ededed]"
+                                          : " bg-[black] text-[#ffffff]")
+                                      }
+                                      style={{
+                                        boxShadow:
+                                          "0px 1px 4px rgba(0,0,0,0.2)",
+                                        zIndex: 1000,
+                                      }}
+                                    >
+                                      Read aloud
+                                    </div>
+                                  </div>
+                                  <div
+                                    className={
+                                      "group max-h-[28px] max-w-[28px] flex flex-col justify-start items-center  overflow-visible mr-[2px] " +
+                                      (chatHistoryTemp.length - 1 == index
+                                        ? " flex"
+                                        : " hidden")
+                                      //   +
+                                      //   (isLiked == "like" || isLiked.length == 0
+                                      //     ? " flex"
+                                      //     : " hidden")
+                                    }
+                                  >
+                                    <div
+                                      className={
+                                        "min-h-[28px] min-w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer justify-center items-center  flex"
+                                        //   +
+                                        //   (isLiked == "like" || isLiked.length == 0
+                                        //     ? " flex"
+                                        //     : " hidden")
+                                      }
+                                      onClick={() => {
+                                        //   setIsLiked("like");
+                                      }}
+                                    >
+                                      <HugeiconsIcon
+                                        icon={ThumbsUpIcon}
+                                        size={18}
+                                        strokeWidth={1.6}
+                                      />
+                                    </div>
+                                    <div
+                                      className={
+                                        "hidden mt-[5px] whitespace-nowrap group-hover:flex  justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                                        (props?.theme
+                                          ? " bg-[#363636] text-[#ededed]"
+                                          : " bg-[black] text-[#ffffff]")
+                                      }
+                                      style={{
+                                        boxShadow:
+                                          "0px 1px 4px rgba(0,0,0,0.2)",
+                                        zIndex: 1000,
+                                      }}
+                                    >
+                                      Good response
+                                    </div>
+                                  </div>
+                                  <div
+                                    className={
+                                      "group max-h-[28px] max-w-[28px] flex flex-col justify-start items-center  overflow-visible mr-[2px] " +
+                                      (chatHistoryTemp.length - 1 == index
+                                        ? " flex"
+                                        : " hidden")
+                                      //   +
+                                      //   (isLiked == "dislike" || isLiked.length == 0
+                                      //     ? " flex"
+                                      //     : " hidden")
+                                    }
+                                  >
+                                    <div
+                                      className={
+                                        "min-h-[28px] min-w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer justify-center items-center flex "
+                                        //   +
+                                        //   (isLiked == "dislike" || isLiked.length == 0
+                                        //     ? " flex"
+                                        //     : " hidden")
+                                      }
+                                      onClick={() => {
+                                        //   setIsLiked("dislike");
+                                      }}
+                                    >
+                                      <HugeiconsIcon
+                                        icon={ThumbsDownIcon}
+                                        size={18}
+                                        strokeWidth={1.6}
+                                      />
+                                    </div>
+                                    <div
+                                      className={
+                                        "hidden mt-[5px] whitespace-nowrap group-hover:flex  justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                                        (props?.theme
+                                          ? " bg-[#363636] text-[#ededed]"
+                                          : " bg-[black] text-[#ffffff]")
+                                      }
+                                      style={{
+                                        boxShadow:
+                                          "0px 1px 4px rgba(0,0,0,0.2)",
+                                        zIndex: 1000,
+                                      }}
+                                    >
+                                      Bad response
+                                    </div>
+                                  </div>
+                                  <div className="group max-h-[28px] max-w-[28px] flex flex-col justify-start items-center  overflow-visible ">
+                                    <div
+                                      className="min-h-[28px] min-w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer flex justify-center items-center"
+                                      onClick={(e) => {
+                                        // handleCopyClick(index)
+                                        const preInsideDiv =
+                                          document.querySelectorAll(
+                                            ".chatMessageContainer"
+                                          );
+                                        console.log(preInsideDiv);
+                                        // handleDownload(preInsideDiv[index]);
+                                        if (index > 0) {
+                                          const container =
+                                            document.createElement("div");
+                                          const wrapper1 =
+                                            document.createElement("div");
+                                          wrapper1.className =
+                                            "w-full flex justify-end items-start";
+                                          wrapper1.appendChild(
+                                            preInsideDiv[index - 1].cloneNode(
+                                              true
+                                            )
+                                          );
+
+                                          container.appendChild(wrapper1);
+                                          container.appendChild(
+                                            preInsideDiv[index].cloneNode(true)
+                                          );
+
+                                          handleDownload(container);
+                                        } else {
+                                          // Just pass the current if there's no previous one
+                                          handleDownload(preInsideDiv[index]);
+                                        }
+                                      }}
+                                    >
+                                      <HugeiconsIcon
+                                        icon={Pdf01Icon}
+                                        size={18}
+                                        strokeWidth={1.6}
+                                      />
+                                    </div>
+                                    <div
+                                      className={
+                                        "hidden mt-[5px] whitespace-nowrap group-hover:flex  justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                                        (props?.theme
+                                          ? " bg-[#363636] text-[#ededed]"
+                                          : " bg-[black] text-[#ffffff]")
+                                      }
+                                      style={{
+                                        boxShadow:
+                                          "0px 1px 4px rgba(0,0,0,0.2)",
+                                        zIndex: 1000,
+                                      }}
+                                    >
+                                      Download PDF
+                                    </div>
+                                  </div>
+                                  <div className="group max-h-[28px] max-w-[28px] flex flex-col justify-start items-center  overflow-visible ">
+                                    <div
+                                      className="min-h-[28px] min-w-[28px] rounded-md hover:bg-[#f0f0f0] text-[#5D5D5D] cursor-pointer flex justify-center items-center"
+                                      onClick={(e) => {
+                                        // handleCopyClick(index)
+                                        const preInsideDiv =
+                                          document.querySelectorAll(
+                                            ".chatMessageContainer .chatMessage"
+                                          );
+                                        setIsCopied(true);
+                                        setTimeout(() => {
+                                          setIsCopied(false);
+                                        }, 1000);
+                                        copyToClipboard(
+                                          preInsideDiv[index].innerText
+                                          // preInsideDiv[index]
+                                        );
+                                        console.log(preInsideDiv[index]);
+                                      }}
+                                    >
+                                      <HugeiconsIcon
+                                        icon={Copy01Icon}
+                                        size={18}
+                                        strokeWidth={1.6}
+                                      />
+                                    </div>
+                                    <div
+                                      className={
+                                        "hidden mt-[5px] whitespace-nowrap group-hover:flex  justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                                        (props?.theme
+                                          ? " bg-[#363636] text-[#ededed]"
+                                          : " bg-[black] text-[#ffffff]")
+                                      }
+                                      style={{
+                                        boxShadow:
+                                          "0px 1px 4px rgba(0,0,0,0.2)",
+                                        zIndex: 1000,
+                                      }}
+                                    >
+                                      Copy
+                                    </div>
+                                  </div>
+                                  <div
+                                    className={
+                                      "h-[28px] ml-[4px] bg-[#f0f0f0] text-[#000000] px-[10px] flex justify-center items-center rounded-md" +
+                                      (isCopied ? " opacity-100" : " opacity-0")
+                                    }
+                                    style={{ transition: ".2s" }}
+                                  >
+                                    Copied
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </>
-                  );
-                })}
-                {/* <div
+                        </>
+                      );
+                    })}
+                    {/* <div
                 // key={index}
                 className={
                   "w-full justify-start items-start" +
@@ -1338,11 +2081,13 @@ export default function AiChatBot(props) {
                 </div>
               </div> */}
 
-                <div
-                  // ref={lastElementRef}
-                  className="w-full min-h-[calc(100%-300px)]"
-                ></div>
-              </div>
+                    <div
+                      // ref={lastElementRef}
+                      className="w-full min-h-[calc(100%-300px)]"
+                    ></div>
+                  </div>
+                </>
+              )}
             </div>
             <div
               className={
@@ -1379,7 +2124,7 @@ export default function AiChatBot(props) {
             </div>
             <div
               className={
-                "w-[calc(100%-40px)] min-h-[120px] max-h-[300px] h-auto flex justify-center items-end z-40 " +
+                "min-w-[calc(100%-18px)] min-h-[120px] max-h-[300px] h-auto flex justify-center items-end z-40 " +
                 (props?.theme ? " bg-[#1a1a1a]" : " bg-[#ffffff]")
               }
               style={{ marginTop: `-${subHeight}px` }}
@@ -1396,32 +2141,45 @@ export default function AiChatBot(props) {
               >
                 <div className="w-full flex justify-between items-center h-[40px] px-[9px] py-[4px]">
                   <div className="flex justify-start items-center h-full overflow-x-scroll overflow-y-visible uploadScroll">
-                    <label
-                      className={
-                        "cursor-pointer  " +
-                        (props?.theme
-                          ? " text-[#8f8f8f] hover:text-[#ffffff]"
-                          : " text-[#878787] hover:text-[#000000]")
-                      }
-                      for="image-file-input"
-                    >
-                      <CirclePlus
-                        width={16}
-                        height={16}
-                        strokeWidth={2}
-                        className=" mr-[9px]"
-                      />
-                      <input
-                        id="image-file-input"
-                        className="hidden"
-                        type="file"
-                        multiple
-                        accept="*"
-                        onChange={(e) => {
-                          handleFileChange(e);
-                        }}
-                      />
-                    </label>{" "}
+                    <div className="max-h-full flex flex-col justify-end items-center overflow-y-visible group">
+                      <div
+                        className={
+                          "hidden group-hover:flex fixed mb-[20px] ml-[-7px] justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                          (props?.theme
+                            ? " bg-[#363636] text-[#ededed]"
+                            : " bg-[black] text-[#ffffff]")
+                        }
+                        style={{ boxShadow: "0px 1px 4px rgba(0,0,0,0.2)" }}
+                      >
+                        Add photos & files
+                      </div>
+                      <label
+                        className={
+                          "cursor-pointer min-h-full " +
+                          (props?.theme
+                            ? " text-[#8f8f8f] hover:text-[#ffffff]"
+                            : " text-[#878787] hover:text-[#000000]")
+                        }
+                        for="image-file-input"
+                      >
+                        <CirclePlus
+                          width={16}
+                          height={16}
+                          strokeWidth={2}
+                          className=" mr-[9px]"
+                        />
+                        <input
+                          id="image-file-input"
+                          className="hidden"
+                          type="file"
+                          multiple
+                          accept="*"
+                          onChange={(e) => {
+                            handleFileChange(e);
+                          }}
+                        />
+                      </label>
+                    </div>{" "}
                     {filesInfo.length > 0 ? (
                       <>
                         {filesInfo?.map((data, index) => {
@@ -1520,10 +2278,67 @@ export default function AiChatBot(props) {
                     (props?.theme ? " bg-[#1A1A1A]" : " bg-[#ffffff]")
                   }
                 >
+                  <div
+                    className={
+                      "w-[calc(100%+6px)] ml-[-3px] text-[12px] rounded-t-[6px] rounded-b-[3px] mb-[10px] h-auto  justify-start items-start p-[10px]" +
+                      (props?.theme
+                        ? " bg-[#222222] text-[#949494]"
+                        : " bg-[#F7F7F7] text-[#747474]") +
+                      (replyMessageInfo.length > 0 ? " flex" : " hidden")
+                    }
+                  >
+                    <div
+                      className={
+                        "w-[25px] flex justify-start items-start" +
+                        (props?.theme ? " text-[#afafaf]" : " text-[#454545]")
+                      }
+                    >
+                      {/* <HugeiconsIcon
+                        className={" cursor-pointer "}
+                        // onClick={() => {}}
+                        icon={ArrowMoveDownRightIcon}
+                        size={14}
+                        strokeWidth={2.5}
+                      /> */}
+                      <HugeiconsIcon
+                        className="mt-[3px] rotate-180"
+                        icon={LinkBackwardIcon}
+                        size={14}
+                        strokeWidth={1}
+                        fill="#454545"
+                      />
+                    </div>
+                    <pre className="w-[calc(100%-50px)] whitespace-pre-wrap font-[DMSr] text-ellipsis overflow-hidden line-clamp-2 ">
+                      {replyMessageInfo[0]?.repliedText}
+                    </pre>
+                    <div
+                      className={
+                        "w-[25px] flex justify-end items-start" +
+                        (props?.theme
+                          ? " text-[#cacaca] hover:text-[#ffffff]"
+                          : " text-[#454545] hover:text-[#000000]")
+                      }
+                      onClick={() => {
+                        setReplyMessageInfo([]);
+                      }}
+                    >
+                      <HugeiconsIcon
+                        className={" cursor-pointer "}
+                        // onClick={() => {}}
+                        icon={Cancel01Icon}
+                        size={14}
+                        strokeWidth={2.5}
+                      />
+                    </div>
+                  </div>
                   <textarea
                     className="w-full h-auto min-h-[100%] max-h-[100px] pt-[0px] outline-none bg-transparent  resize-none"
-                    style={{ transition: ".2s" }}
-                    placeholder="Type your message ..."
+                    // style={{ transition: ".2s" }}
+                    placeholder={
+                      props?.agentInfo.length > 0
+                        ? props?.agentInfo[0]?.Placeholder + " ..."
+                        : "Type your message ..."
+                    }
                     value={message}
                     onInput={(e) => {
                       setMessage(e.target.value);
@@ -1546,8 +2361,8 @@ export default function AiChatBot(props) {
                       setShowModels(false);
                     }}
                   ></textarea>
-                  <div className="w-full h-[42px] mt-[8px] rounded-[10px] flex justify-between items-end ">
-                    <div className="h-full flex flex-col justify-end items-start overflow-visible max-w-[200px]">
+                  <div className=" w-full h-[42px] mt-[8px] rounded-[10px] flex justify-between items-end ">
+                    <div className="group h-full flex flex-col justify-end items-start overflow-visible max-w-[200px] font-[DMSr]">
                       <div
                         className={
                           "w-auto max-w-[400px] md:max-w-[400px] lg:max-w-[400px]  rounded-[10px] p-[7px]  border-[1.5px] pr-[4px] flex flex-col justify-start items-start backdrop-blur-[20px] boxShadowLight0 " +
@@ -1696,6 +2511,7 @@ export default function AiChatBot(props) {
                           })}
                         </div>
                       </div>
+
                       <div
                         className={
                           "min-h-[32px] max-h-[32px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer border-[1.5px] max-w-[200px] z-10" +
@@ -1737,19 +2553,45 @@ export default function AiChatBot(props) {
                           className="ml-[8px]"
                         />
                       </div>
+                      <div
+                        className={
+                          "hidden group-hover:flex fixed mb-[-29px] justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                          (props?.theme
+                            ? " bg-[#363636] text-[#ededed]"
+                            : " bg-[black] text-[#ffffff]")
+                        }
+                        style={{ boxShadow: "0px 1px 4px rgba(0,0,0,0.2)" }}
+                      >
+                        Choose AI models
+                      </div>
                     </div>
                     <div className="flex justify-end items-center ">
-                      <Mic
-                        width={18}
-                        height={18}
-                        strokeWidth={2.1}
-                        className={
-                          "mr-[15px] cursor-pointer " +
-                          (props?.theme
-                            ? " text-[#97a2b0] hover:text-[#ffffff]"
-                            : " text-[#797979] hover:text-[#000000]")
-                        }
-                      />
+                      <div className="flex flex-col justify-start items-center max-w-[32px] group  max-h-[32px] mr-[15px] ">
+                        <div className="w-full min-h-full flex justify-center items-center">
+                          <HugeiconsIcon
+                            className={
+                              " cursor-pointer " +
+                              (props?.theme
+                                ? " text-[#97a2b0] hover:text-[#ffffff]"
+                                : " text-[#797979] hover:text-[#000000]")
+                            }
+                            icon={Mic02Icon}
+                            size={18}
+                            strokeWidth={1.8}
+                          />
+                        </div>
+                        <div
+                          className={
+                            "hidden group-hover:flex fixed mt-[32px] justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                            (props?.theme
+                              ? " bg-[#363636] text-[#ededed]"
+                              : " bg-[black] text-[#ffffff]")
+                          }
+                          style={{ boxShadow: "0px 1px 4px rgba(0,0,0,0.2)" }}
+                        >
+                          Dictate
+                        </div>
+                      </div>
                       <button
                         className={
                           "h-[32px] px-[10px] pr-[13px] rounded-[10px] flex justify-center items-center " +
@@ -1769,11 +2611,12 @@ export default function AiChatBot(props) {
                         }}
                         style={{ transition: ".15s" }}
                       >
-                        <Send
-                          width={14}
-                          height={14}
-                          strokeWidth={2.4}
+                        {" "}
+                        <HugeiconsIcon
                           className="mr-[8px] "
+                          icon={SentIcon}
+                          size={18}
+                          strokeWidth={1.8}
                         />
                         Send
                       </button>
@@ -1793,13 +2636,11 @@ export default function AiChatBot(props) {
                 strokeWidth={2}
                 className="mr-[15px]"
               /> */}
-                <span className="text-[30px] font-[geistSemibold]">
-                  I'm ProbeSeek
-                </span>
+                <span className="text-[40px] font-[DMSb] ">I'm ProbeSeek</span>
               </div>
               <div
                 className={
-                  "mt-[5px] " +
+                  "mt-[5px] font-[DMSr] " +
                   (props?.theme ? " text-[#828282]" : " text-[#797979]")
                 }
               >
@@ -1809,48 +2650,78 @@ export default function AiChatBot(props) {
                   </span>
                   <span className="flex justify-center items-center whitespace-nowrap">
                     Generate a logo{" "}
-                    <Feather
+                    <HugeiconsIcon
+                      className="ml-[4px] "
+                      icon={SwarmIcon}
+                      size={14}
+                      strokeWidth={2}
+                    />
+                    {/* <Feather
                       width="14"
                       height="14"
                       strokeWidth="2"
                       className="ml-[4px]"
-                    />
+                    /> */}
                   </span>
                   <span className="flex justify-center items-center whitespace-nowrap">
                     Create a component{" "}
-                    <FileCode2
+                    <HugeiconsIcon
+                      className="ml-[4px] "
+                      icon={FileAttachmentIcon}
+                      size={14}
+                      strokeWidth={2}
+                    />
+                    {/* <FileCode2
                       width="14"
                       height="14"
                       strokeWidth="2"
                       className="ml-[6px]"
-                    />
+                    /> */}
                   </span>
                   <span className="flex justify-center items-center whitespace-nowrap">
                     Generate code{" "}
-                    <Code
+                    <HugeiconsIcon
+                      className="ml-[4px] "
+                      icon={DocumentCodeIcon}
+                      size={14}
+                      strokeWidth={2}
+                    />
+                    {/* <Code
                       width="14"
                       height="14"
                       strokeWidth="2"
                       className="ml-[6px]"
-                    />
+                    /> */}
                   </span>
                   <span className="flex justify-center items-center whitespace-nowrap">
                     Create a project{" "}
-                    <FolderGit2
+                    <HugeiconsIcon
+                      className="ml-[4px] "
+                      icon={AiIdeaIcon}
+                      size={14}
+                      strokeWidth={2}
+                    />
+                    {/* <FolderGit2
                       width="14"
                       height="14"
                       strokeWidth="2"
                       className="ml-[6px]"
-                    />
+                    /> */}
                   </span>
                   <span className="flex justify-center items-center whitespace-nowrap">
                     Generate good recipes{" "}
-                    <ConciergeBell
+                    <HugeiconsIcon
+                      className="ml-[4px] "
+                      icon={NoodlesIcon}
+                      size={14}
+                      strokeWidth={2}
+                    />
+                    {/* <ConciergeBell
                       width="14"
                       height="14"
                       strokeWidth="2"
                       className="ml-[6px]"
-                    />
+                    /> */}
                   </span>
                 </TextLoop>
               </div>
@@ -1873,7 +2744,7 @@ export default function AiChatBot(props) {
                 >
                   <div className="w-full flex justify-between items-center h-[40px] px-[9px] py-[4px]">
                     <div className="flex justify-start items-center h-full overflow-x-scroll uploadScroll">
-                      <label
+                      {/* <label
                         className={
                           "cursor-pointer  " +
                           (props?.theme
@@ -1898,7 +2769,46 @@ export default function AiChatBot(props) {
                             handleFileChange(e);
                           }}
                         />
-                      </label>{" "}
+                      </label>{" "} */}
+                      <div className="max-h-full flex flex-col justify-end items-center overflow-y-visible group">
+                        <div
+                          className={
+                            "hidden group-hover:flex fixed mb-[20px] ml-[-7px] justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                            (props?.theme
+                              ? " bg-[#363636] text-[#ededed]"
+                              : " bg-[black] text-[#ffffff]")
+                          }
+                          style={{ boxShadow: "0px 1px 4px rgba(0,0,0,0.2)" }}
+                        >
+                          Add photos & files
+                        </div>
+                        <label
+                          className={
+                            "cursor-pointer min-h-full " +
+                            (props?.theme
+                              ? " text-[#8f8f8f] hover:text-[#ffffff]"
+                              : " text-[#878787] hover:text-[#000000]")
+                          }
+                          for="image-file-input"
+                        >
+                          <CirclePlus
+                            width={16}
+                            height={16}
+                            strokeWidth={2}
+                            className=" mr-[9px]"
+                          />
+                          <input
+                            id="image-file-input"
+                            className="hidden"
+                            type="file"
+                            multiple
+                            accept="*"
+                            onChange={(e) => {
+                              handleFileChange(e);
+                            }}
+                          />
+                        </label>
+                      </div>{" "}
                       {filesInfo.length > 0 ? (
                         <>
                           {filesInfo?.map((data, index) => {
@@ -1976,11 +2886,20 @@ export default function AiChatBot(props) {
                       )}
                     </div>
                   </div>
-                  <div className="w-full h-auto bg-[white] rounded-[12px]  p-[13px] pt-[10px] flex flex-col justify-start items-start ">
+                  <div
+                    className={
+                      "w-full h-auto  rounded-[12px]  p-[13px] pt-[10px] flex flex-col justify-start items-start " +
+                      (props?.theme ? " bg-[#1A1A1A]" : " bg-[#ffffff]")
+                    }
+                  >
                     <textarea
                       className="w-full h-auto min-h-[100%] max-h-[100px] pt-[0px] outline-none bg-transparent  resize-none"
-                      style={{ transition: ".2s" }}
-                      placeholder="Type your message ..."
+                      // style={{ transition: ".2s" }}
+                      placeholder={
+                        props?.agentInfo.length > 0
+                          ? props?.agentInfo[0]?.Placeholder + " ..."
+                          : "Type your message ..."
+                      }
                       value={message}
                       onInput={(e) => {
                         setMessage(e.target.value);
@@ -2004,18 +2923,25 @@ export default function AiChatBot(props) {
                       }}
                     ></textarea>
                     <div className="w-full h-[42px] mt-[8px] rounded-[10px] flex justify-between items-end ">
-                      <div className="h-full flex flex-col justify-end items-start overflow-visible max-w-[200px]">
+                      <div className="group h-full flex flex-col justify-end items-start overflow-visible max-w-[200px] font-[DMSr]">
                         <div
                           className={
-                            "w-auto max-w-[400px] md:max-w-[400px] lg:max-w-[400px] min-h-[230px] rounded-lg mb-[6px] p-[7px]   pr-[4px] flex-col justify-start items-start backdrop-blur-[40px] boxShadowLight0 " +
-                            (showModels ? " flex" : " hidden") +
-                            (props?.theme ? " bg-[#181b20]" : " bg-[#1F2125]")
+                            "w-auto max-w-[400px] md:max-w-[400px] lg:max-w-[400px]  rounded-[10px] p-[7px]  border-[1.5px] pr-[4px] flex flex-col justify-start items-start backdrop-blur-[20px] boxShadowLight0 " +
+                            (showModels
+                              ? " opacity-100 mb-[6px] z-10 h-[230px]"
+                              : " opacity-0 mb-[-26px] -z-20 h-[130px]") +
+                            (props?.theme
+                              ? " bg-[#181b20]"
+                              : " bg-[#ffffffc4] border-[#f0f0f0]")
                           }
+                          style={{ transition: ".2s" }}
                         >
                           <div
                             className={
-                              "w-full h-full flex flex-col justify-start items-start overflow-y-scroll pr-[3px]" +
-                              (props?.theme ? " scroll2" : " ")
+                              "w-full h-full flex flex-col justify-start items-start overflow-y-scroll modelScrollDark pr-[3px]" +
+                              (props?.theme
+                                ? " modelScrollDark"
+                                : " modelScrollLight")
                             }
                           >
                             {aiModels?.map((data, index) => {
@@ -2028,35 +2954,61 @@ export default function AiChatBot(props) {
                                       ? currentModel == data.Model
                                         ? " text-[white] bg-[#353941]"
                                         : " text-[#97a2b0] hover:bg-[#35394150]"
-                                      : " text-[#a4a4a4]")
+                                      : currentModel == data.Model
+                                      ? " text-[#000000] bg-[#F7F7F7]"
+                                      : " text-[#262626] hover:bg-[#f7f7f7ce]")
                                   }
                                   onClick={() => {
                                     setCurrentModel(data?.Model);
                                     setShowModels(false);
                                   }}
                                 >
-                                  <div
-                                    className={
-                                      "min-w-[3px] h-[20px] rounded-full mr-[15px]" +
-                                      (currentModel == data.Model
+                                  {/* <div
+                                  className={
+                                    "min-w-[3px] h-[20px] rounded-full mr-[15px]" +
+                                    (props?.theme
+                                      ? currentModel == data.Model
                                         ? " bg-[#bcc4d2] flex"
-                                        : " bg-transparent hidden")
-                                    }
-                                  ></div>
-                                  <div
+                                        : " bg-transparent hidden"
+                                      : currentModel == data.Model
+                                      ? " bg-[#000000] flex"
+                                      : " bg-transparent hidden")
+                                  }
+                                  // style={{ borderRadius: "10%" }}
+                                ></div>
+                                <div
+                                  className={
+                                    " " +
+                                    (currentModel == data.Model
+                                      ? " hidden ml-[0px] w-[0px]"
+                                      : " block ml-[-5px] w-[23px]")
+                                  }
+                                >
+                                  <ChevronRight
+                                    width={18}
+                                    height={18}
+                                    strokeWidth={3.5}
                                     className={
-                                      " " +
-                                      (currentModel == data.Model
-                                        ? " hidden ml-[0px] w-[0px]"
-                                        : " block ml-[-5px] w-[23px]")
+                                      "text-transparent  " +
+                                      (props?.theme
+                                        ? " group-hover:text-[#bcc4d2]"
+                                        : " group-hover:text-[#262626]")
                                     }
-                                  >
-                                    <ChevronRight
-                                      width={18}
-                                      height={18}
-                                      strokeWidth={3.5}
-                                      className="text-transparent group-hover:text-[#bcc4d2] "
-                                    />
+                                  />
+                                </div> */}
+                                  <div className="flex justify-start items-center w-[30px]">
+                                    <svg
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M21.9956 12.0175C16.6323 12.3419 12.3399 16.6343 12.0156 21.9975H11.9756C11.6556 16.6343 7.36325 12.3419 2 12.0175V11.9775C7.36325 11.6576 11.6556 7.36521 11.98 2.00195H12.02C12.3444 7.36521 16.6367 11.6576 22 11.982V12.0175H21.9956Z"
+                                        fill="#323544"
+                                      />
+                                    </svg>
                                   </div>
 
                                   <div className="flex flex-col justify-start items-start w-[calc(100%-30px)]">
@@ -2065,14 +3017,14 @@ export default function AiChatBot(props) {
                                         "flex justify-start items-center" +
                                         (props?.theme
                                           ? " group-hover:text-[#ffffff]"
-                                          : " group-hover:text-[#ffffff]")
+                                          : " group-hover:text-[#000000]")
                                       }
                                     >
                                       {data?.Model}{" "}
                                       {index < 4 ? (
                                         <span
                                           className={
-                                            "ml-[10px] rounded-[6px] h-[17px] bg-gradient-to-br from-[#ba96fc] to-[#a477f7] text-[black] flex justify-center items-center px-[5px] py-[0px] text-[10px] tracking-wider font-[geistBold] " +
+                                            "ml-[10px] rounded-[5px] h-[17px] bg-[#d39561] text-[#ffffff] flex justify-center items-center px-[5px] py-[0px] text-[10px] tracking-wider font-[DMSb] uppercase " +
                                             (currentModel == data?.Model
                                               ? " border-[#525863]"
                                               : " border-[#465463]")
@@ -2088,9 +3040,7 @@ export default function AiChatBot(props) {
                                       className={
                                         "mt-[-1px] text-[11px] tracking-wide group-hover:text-[#a9b0ba]" +
                                         (props?.theme
-                                          ? currentModel == data.Model
-                                            ? " text-[#a9b0ba]"
-                                            : " text-[#737d8a]"
+                                          ? " text-[#a9b0ba]"
                                           : " text-[#a4a4a4]")
                                       }
                                     >
@@ -2105,11 +3055,16 @@ export default function AiChatBot(props) {
                                         : " hidden")
                                     }
                                   >
-                                    <WifiHigh
-                                      width={20}
-                                      height={20}
-                                      strokeWidth={2}
-                                      className="mt-[-7px]"
+                                    <Check
+                                      width={16}
+                                      height={16}
+                                      strokeWidth={3.5}
+                                      className={
+                                        "mt-[0px]" +
+                                        (props?.theme
+                                          ? " text-[#737d8a]"
+                                          : " text-[#878787]")
+                                      }
                                     />
                                   </div>
                                 </span>
@@ -2117,9 +3072,10 @@ export default function AiChatBot(props) {
                             })}
                           </div>
                         </div>
+
                         <div
                           className={
-                            "min-h-[32px] max-h-[32px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer border-[1.5px] max-w-[200px]" +
+                            "min-h-[32px] max-h-[32px] px-[10px] rounded-lg flex justify-center items-center cursor-pointer border-[1.5px] max-w-[200px] z-10" +
                             (props?.theme
                               ? " bg-[#181b20] text-[#97a2b0] hover:text-[white] border-[#181b20]"
                               : " bg-[#F7F7F7] border-[#f0f0f0] text-[#000000]")
@@ -2128,12 +3084,26 @@ export default function AiChatBot(props) {
                             setShowModels(!showModels);
                           }}
                         >
-                          <Sparkles
-                            width={14}
-                            height={14}
-                            strokeWidth={2.4}
-                            className="mr-[8px]"
-                          />
+                          {/* <Sparkles
+                          width={14}
+                          height={14}
+                          strokeWidth={2.4}
+                          className="mr-[8px]"
+                        /> */}
+                          <div className="flex justify-start items-center w-[24px]">
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M21.9956 12.0175C16.6323 12.3419 12.3399 16.6343 12.0156 21.9975H11.9756C11.6556 16.6343 7.36325 12.3419 2 12.0175V11.9775C7.36325 11.6576 11.6556 7.36521 11.98 2.00195H12.02C12.3444 7.36521 16.6367 11.6576 22 11.982V12.0175H21.9956Z"
+                                fill="#323544"
+                              />
+                            </svg>
+                          </div>
                           <div className="overflow-hidden whitespace-nowrap text-ellipsis w-[calc(100%-40px)]">
                             {currentModel}
                           </div>
@@ -2144,19 +3114,45 @@ export default function AiChatBot(props) {
                             className="ml-[8px]"
                           />
                         </div>
+                        <div
+                          className={
+                            "hidden group-hover:flex fixed mb-[-29px] justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                            (props?.theme
+                              ? " bg-[#363636] text-[#ededed]"
+                              : " bg-[black] text-[#ffffff]")
+                          }
+                          style={{ boxShadow: "0px 1px 4px rgba(0,0,0,0.2)" }}
+                        >
+                          Choose AI models
+                        </div>
                       </div>
                       <div className="flex justify-end items-center ">
-                        <Mic
-                          width={18}
-                          height={18}
-                          strokeWidth={2.1}
-                          className={
-                            "mr-[15px] cursor-pointer " +
-                            (props?.theme
-                              ? " text-[#97a2b0] hover:text-[#ffffff]"
-                              : " text-[#797979] hover:text-[#000000]")
-                          }
-                        />
+                        <div className="flex flex-col justify-start items-center max-w-[32px] group  max-h-[32px] mr-[15px] ">
+                          <div className="w-full min-h-full flex justify-center items-center">
+                            <HugeiconsIcon
+                              className={
+                                " cursor-pointer " +
+                                (props?.theme
+                                  ? " text-[#97a2b0] hover:text-[#ffffff]"
+                                  : " text-[#797979] hover:text-[#000000]")
+                              }
+                              icon={Mic02Icon}
+                              size={18}
+                              strokeWidth={1.8}
+                            />
+                          </div>
+                          <div
+                            className={
+                              "hidden group-hover:flex fixed mt-[32px] justify-center items-center rounded-[9px]  text-[12px] px-[8px] py-[3px] cursor-default" +
+                              (props?.theme
+                                ? " bg-[#363636] text-[#ededed]"
+                                : " bg-[black] text-[#ffffff]")
+                            }
+                            style={{ boxShadow: "0px 1px 4px rgba(0,0,0,0.2)" }}
+                          >
+                            Dictate
+                          </div>
+                        </div>
                         <button
                           className={
                             "h-[32px] px-[10px] pr-[13px] rounded-[10px] flex justify-center items-center " +
@@ -2176,11 +3172,12 @@ export default function AiChatBot(props) {
                           }}
                           style={{ transition: ".15s" }}
                         >
-                          <Send
-                            width={14}
-                            height={14}
-                            strokeWidth={2.4}
+                          {" "}
+                          <HugeiconsIcon
                             className="mr-[8px] "
+                            icon={SentIcon}
+                            size={18}
+                            strokeWidth={1.8}
                           />
                           Send
                         </button>

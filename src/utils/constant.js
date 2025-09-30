@@ -114,6 +114,36 @@ export const fontNames = [
     short: "h42",
     tag: "sr",
   },
+  {
+    fontName: "Comic Shanns 1",
+    short: "h43",
+    tag: "cms1",
+  },
+  {
+    fontName: "Comic Shanns 2",
+    short: "h44",
+    tag: "cms2",
+  },
+  {
+    fontName: "Comic Shanns 3",
+    short: "h45",
+    tag: "cms3",
+  },
+  {
+    fontName: "Minecraft",
+    short: "h46",
+    tag: "mnc",
+  },
+  {
+    fontName: "Minecraft 2",
+    short: "h47",
+    tag: "mno",
+  },
+  {
+    fontName: "Inter Regular",
+    short: "h48",
+    tag: "ir",
+  },
   // {
   //   fontName: "Typewriter Three",
   //   short: "h41",
@@ -396,10 +426,277 @@ const TempData = [
   },
 ];
 
+const colorCode = [
+  {
+    primary: "#878787",
+    secondary: "#8787872e",
+  },
+  {
+    primary: "#5eff4e",
+    secondary: "#5eff4e2e",
+  },
+  {
+    primary: "#c0ff4e",
+    secondary: "#c0ff4e2e",
+  },
+  {
+    primary: "#fff94e",
+    secondary: "#fff94e2e",
+  },
+  {
+    primary: "#ffc04e",
+    secondary: "#ffc04e2e",
+  },
+  {
+    primary: "#ff754e",
+    secondary: "#ff754e2e",
+  },
+  {
+    primary: "#4effdc",
+    secondary: "#4effdc2e",
+  },
+  {
+    primary: "#4ec4ff",
+    secondary: "#4ec4ff2e",
+  },
+  {
+    primary: "#a54eff",
+    secondary: "#a54eff2e",
+  },
+  {
+    primary: "#f94eff",
+    secondary: "#f94eff2e",
+  },
+];
+
+const AIPrompts = {
+  bulleted_summary: `Summarize the following text into 3–5 clear bullet points. 
+- Use "•" at the start of each bullet. 
+- For short texts, keep 3–5 bullets. 
+- For longer texts, expand to 6–10 bullets as needed to cover all key ideas. 
+- Each bullet must be one concise sentence. 
+- Avoid redundancy and unnecessary detail.
+
+Text:
+`,
+  paragraph_summary: `Summarize the following text into 2–3 paragraphs with a clear structure:  
+- First paragraph: Provide a brief introduction or context (what the text is about).  
+- Second paragraph: Present the main ideas and key points in logical order.  
+- Final paragraph: Conclude with the outcome, implication, or closing thought.  
+- Maintain logical flow and coherence.  
+- Cover only the main ideas, not minor details.  
+- Write in clear, professional language.  
+
+Text:
+`,
+  one_sentence_summary: `Summarize the following text into exactly one sentence.  
+- The sentence must be grammatically correct.  
+- Capture only the core essence with the main details.  
+- Do not add extra explanation or minor points.  
+
+Text:
+`,
+  fix_typos: `Correct all spelling mistakes, typos, and grammatical errors in the following text.  
+- Do not change the meaning or style.  
+- Only fix errors, keep the wording as close to the original as possible.  
+
+Text:
+`,
+  improve_writing: `Improve the following text for clarity, readability, and flow.  
+- Use clear, professional, and natural language.  
+- Simplify complex or awkward phrasing.  
+- Maintain the original meaning and tone.  
+- Correct grammar, spelling, and punctuation.  
+
+Text:
+`,
+  title: `Create a clear, engaging, and concise title for the following text.  
+- The title should capture the main theme or idea.  
+- Keep it under 12 words.  
+
+Text:
+`,
+  introduction: `Write an introduction for the following text.  
+- 3–4 sentences that introduce the topic clearly.  
+- Provide context and explain why it is important.  
+- Make it engaging and easy to read.  
+
+Text:
+`,
+  conclusion: `Write a conclusion for the following text.  
+- 3–4 sentences that summarize the key points.  
+- End with a reflection, implication, or closing thought.  
+- Avoid repeating the introduction verbatim.  
+
+Text:
+`,
+  tone_professional: `Rewrite the following text in a professional style.  
+- Keep the meaning intact.  
+- Improve clarity, structure, and readability.  
+- Use formal, precise, and polished language.  
+- Ensure proper grammar, punctuation, and flow.  
+- Do not limit word count; write as much as needed.
+
+Text:
+`,
+  tone_casual: `Rewrite the following text in a casual, easy-to-read style.  
+- Keep the meaning intact.  
+- Make it friendly, approachable, and conversational.  
+- Improve clarity and flow without being formal.  
+- Correct grammar and punctuation naturally.  
+- Do not limit word count.
+
+Text:
+`,
+  tone_straightforward: `Rewrite the following text in a straightforward style.  
+- Keep the meaning intact.  
+- Be clear, direct, and to the point.  
+- Remove unnecessary words or complicated phrasing.  
+- Maintain proper grammar and punctuation.  
+- Do not limit word count.
+
+Text:
+`,
+  tone_confdent: `Rewrite the following text in a confident, authoritative style.  
+- Keep the meaning intact.  
+- Make it assertive, clear, and persuasive.  
+- Use strong, decisive language.  
+- Maintain proper grammar, punctuation, and logical flow.  
+- Do not limit word count.
+
+Text:
+`,
+  tone_friendly: `Rewrite the following text in a friendly, warm style.  
+- Keep the meaning intact.  
+- Make it approachable, engaging, and easy to read.  
+- Improve clarity and flow while keeping a positive tone.  
+- Ensure proper grammar and punctuation.  
+- Do not limit word count.
+
+Text:
+`,
+  translate_to_language: `  
+- Keep the meaning and context exactly the same.  
+- Maintain proper grammar, spelling, and punctuation in the target language.  
+- Do not add extra explanations or change the style unless necessary for natural translation.  
+- Preserve the tone of the original text if possible.
+
+Text:
+`,
+  change_to_email: `Rewrite the following text as a professional email.  
+- Maintain the original meaning and context.  
+- Include a proper greeting and closing if appropriate.  
+- Make it clear, polite, and easy to read.  
+- Adjust the tone to be professional or friendly as needed.  
+- Organize content logically in paragraphs.  
+- Correct grammar, punctuation, and spelling.  
+- Do not add unnecessary information; keep it relevant.
+
+Text:
+`,
+  change_to_paragraph: `Rewrite the following text into a multi-paragraph format.  
+- Break it into 2–4 paragraphs with logical flow.  
+- Each paragraph should cover a distinct idea or point.  
+- Improve readability, coherence, and structure.  
+- Maintain the original meaning and tone.  
+- Correct grammar, punctuation, and sentence flow.  
+- No strict word limit; expand or condense as needed for clarity.
+
+Text:
+`,
+  change_to_shorter: `Rewrite the following text to make it shorter and more concise.  
+- Keep all essential ideas intact.  
+- Remove redundant words, phrases, and minor details.  
+- Use clear, direct language.  
+- Maintain logical flow and readability.  
+- Correct grammar, punctuation, and spelling.  
+- Write as compactly as possible while preserving meaning.
+
+Text:
+`,
+  change_to_longer: `Rewrite the following text to make it longer and more detailed.  
+- Expand on key ideas with explanations, examples, or context.  
+- Maintain the original meaning and tone.  
+- Improve readability and logical flow.  
+- Correct grammar, punctuation, and sentence structure.  
+- No word limit; make it as detailed and clear as needed.
+
+Text:
+`,
+};
+
+const languages = [
+  "Spanish",
+  "French",
+  "German",
+  "Chinese",
+  "Japanese",
+  "Korean",
+  "Italian",
+  "Portuguese",
+  "Russian",
+  "Arabic",
+  "Hindi",
+  "Bengali",
+  "Urdu",
+  "Turkish",
+  "Vietnamese",
+  "Thai",
+  "Dutch",
+  "Greek",
+  "Polish",
+];
+
+const systemPrompt = `You are an AI assistant. Your task is to respond **strictly in JSON format** with the following structure:
+
+{
+  "promptResponse": "string - the AI response or generated text here",
+  "promptError": "string - a short error title if there is a problem, otherwise leave empty",
+  "promptErrorDetail": "string - detailed explanation of the error, leave empty if none",
+  "code": "number - 100 for successful generation, 200 for prompt-related issues or insufficient data, 300 for AI generation errors"
+}
+
+**Instructions:**
+1. Always respond in valid JSON only. Do **not** include any text, notes, or explanations outside the JSON object.  
+2. If you cannot generate a meaningful response, provide:  
+   - "promptResponse": ""  
+   - "promptError": a short error title like "No Data Available"  
+   - "promptErrorDetail": a detailed explanation about why you cannot generate the response  
+   - "code": 200  
+3. If an unexpected generation or API error occurs, provide:  
+   - "promptResponse": ""  
+   - "promptError": "Generation Error"  
+   - "promptErrorDetail": a clear description of the error  
+   - "code": 300  
+4. If the response is successfully generated with proper data:  
+   - "promptResponse": include the generated text  
+   - "promptError": ""  
+   - "promptErrorDetail": ""  
+   - "code": 100  
+5. Always ensure that the JSON is **valid, properly formatted, and parseable**.  
+6. Do not add extra commentary, quotes, or explanations outside the JSON object. 
+
+Promt : 
+`;
+
+const strengthColors = {
+  0: { bg: "#c04848", tag: "" }, // soft red
+  20: { bg: "#c04848", tag: "Poor" }, // soft red
+  40: { bg: "#da8200", tag: "Bad" }, // creamy orange
+  60: { bg: "#daa300", tag: "Average" }, // pastel yellow
+  80: { bg: "#7cc101", tag: "Good" }, // light green
+  100: { bg: "#1eae02", tag: "Strong" }, // creamy green
+};
+
 export {
   dayNamesLong,
   dayNamesShort,
   monthNamesShort,
   monthNamesLong,
   TempData,
+  colorCode,
+  AIPrompts,
+  languages,
+  systemPrompt,
+  strengthColors,
 };

@@ -32,6 +32,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import AiChatBot from "./AiChatBot";
 import AiChatBotSidebar from "./AiChatBotSidebar";
 import RoadMapContainer from "./RoadMapContainer";
+import LockDown from "./LockDown";
+
+import { ring2 } from "ldrs";
+ring2.register();
+
+// Default values shown
 
 export default function AppContainer() {
   const [searchParams] = useSearchParams();
@@ -62,6 +68,9 @@ export default function AppContainer() {
   const [searchChat, setSearchChat] = useState(false);
   const [chatSidebarModal, setChatSidebarModal] = useState(true);
   const [selectedChatName, setSelectedChatName] = useState("");
+  const [isAgentMode, setIsAgentMode] = useState(false);
+  const [agentInfo, setAgentInfo] = useState([]);
+  const [chatLoading, setChatLoading] = useState(false);
 
   const [chat, setChat] = useState([
     { sender: "user", message: "Tell me about COmputer network" },
@@ -203,23 +212,129 @@ Here's a breakdown of key aspects of computer networks:
   //   console.log(selectedDoc);
   // }, [selectedDoc]);
 
+  const activeTimeRef = useRef(0); // in seconds
+  const intervalRef = useRef(null);
+  const [showReminder, setShowReminder] = useState(false);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        startCounting();
+      } else {
+        stopCounting();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Start counting when component mounts and tab is visible
+    if (document.visibilityState === "visible") {
+      startCounting();
+    }
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      stopCounting(); // cleanup
+    };
+  }, []);
+
+  const startCounting = () => {
+    if (intervalRef.current) return; // already running
+    intervalRef.current = setInterval(() => {
+      activeTimeRef.current += 1;
+
+      if (activeTimeRef.current >= 20 * 60) {
+        setShowReminder(true);
+        stopCounting(); // optional: pause timer after first reminder
+      }
+    }, 1000);
+  };
+
+  const stopCounting = () => {
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+  };
+
+  const resetReminder = () => {
+    setShowReminder(false);
+    activeTimeRef.current = 0;
+    startCounting();
+  };
+
   return (
     <>
+      {showReminder && (
+        <LockDown theme={theme} onBreakComplete={resetReminder} />
+      )}
+      {/* <LockDown theme={theme} onBreakComplete={resetReminder} /> */}
+      {/*  */}
       <div
         className={
           "w-full h-[100svh] flex font-[DMSr] pr-[0px] md:pr-[7px] lg:pr-[7px] pb-[7px] z-10 backdrop-blur-xl overflow-hidden" +
-          (theme ? " bg-[#141414]" : " bg-[#f3f3f3]")
+          (theme ? " bg-[#141414]" : " bg-[#f4f6f8]")
         }
       >
-        {loading || AiOutput.length > 0 ? (
-          <AiWindowPopUp
-            AiOutput={AiOutput}
-            setAiOutput={setAiOutput}
-            loading={loading}
-            setLoading={setLoading}
-            AiSection={AiSection}
-            setAiSection={setAiSection}
-          />
+        <div
+          className={
+            "fixed right-[20px] bottom-[20px] w-auto h-[40px] rounded-[10px] border flex justify-start items-center px-[12px]" +
+            (theme
+              ? " border-[#252525] bg-[#353e42]"
+              : " border-[#d2d2d2] bg-[#ffffff]") +
+            (loading ? " mb-[0px]" : " mb-[-70px]")
+          }
+          style={{
+            transition: ".3s",
+            zIndex: "1000",
+            boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <l-ring-2
+            size="16"
+            stroke="2.5"
+            stroke-length="0.25"
+            bg-opacity="0.1"
+            speed="0.8"
+            color="black"
+          ></l-ring-2>
+          <div className="ml-[10px] font-[r] text-[14px]">
+            Please wait ! Gemini is thinking ...
+          </div>
+        </div>
+        {!loading || AiOutput.length > 0 ? (
+          <>
+            {/* <div
+              className={
+                "fixed right-[20px] bottom-[20px] w-auto h-[40px] rounded-[10px] border flex justify-start items-center px-[12px]" +
+                (theme
+                  ? " border-[#252525] bg-[#353e42]"
+                  : " border-[#d2d2d2] bg-[#ffffff]")
+              }
+              style={{
+                zIndex: "1000",
+                boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <l-ring-2
+                size="16"
+                stroke="2.5"
+                stroke-length="0.25"
+                bg-opacity="0.1"
+                speed="0.8"
+                color="black"
+              ></l-ring-2>
+              <div className="ml-[10px] font-[r] text-[14px]">
+                Please wait ! Gemini is thinking ...
+              </div>
+            </div> */}
+            {/* <AiWindowPopUp
+              AiOutput={AiOutput}
+              setAiOutput={setAiOutput}
+              loading={loading}
+              setLoading={setLoading}
+              AiSection={AiSection}
+              setAiSection={setAiSection}
+            /> */}
+          </>
         ) : (
           <></>
         )}
@@ -274,7 +389,7 @@ Here's a breakdown of key aspects of computer networks:
                 setSaveLoading={setSaveLoading}
               />
 
-              <div className="w-full h-[calc(100%-102px)] md:h-[calc(100%-40px)] lg:h-[calc(100%-40px)] flex justify-start items-start font-[DMSr]">
+              <div className="w-full h-[calc(100%-102px)] md:h-[calc(100%-40px)] lg:h-[calc(100%-40px)] flex justify-start items-start font-[ir]">
                 <div className="w-[calc(100%-00px)] h-full flex justify-start items-start rounded-r-md ">
                   <MainPage
                     theme={theme}
@@ -326,7 +441,7 @@ Here's a breakdown of key aspects of computer networks:
             <div className="w-full h-[40px] hidden md:hidden lg:hidden"></div>
             <div
               className={
-                "w-full h-full  rounded-lg flex justify-start items-start " +
+                "w-full h-full  rounded-xl flex justify-start items-start " +
                 (theme ? " bg-[#1a1a1a]" : " bg-[#ffffff]")
               }
             >
@@ -338,6 +453,12 @@ Here's a breakdown of key aspects of computer networks:
                 chatSidebarModal={chatSidebarModal}
                 selectedChatName={selectedChatName}
                 setSelectedChatName={setSelectedChatName}
+                isAgentMode={isAgentMode}
+                setIsAgentMode={setIsAgentMode}
+                agentInfo={agentInfo}
+                setAgentInfo={setAgentInfo}
+                chatLoading={chatLoading}
+                setChatLoading={setChatLoading}
               />
               <AiChatBot
                 theme={theme}
@@ -345,6 +466,12 @@ Here's a breakdown of key aspects of computer networks:
                 chatSidebarModal={chatSidebarModal}
                 selectedChatName={selectedChatName}
                 setSelectedChatName={setSelectedChatName}
+                isAgentMode={isAgentMode}
+                setIsAgentMode={setIsAgentMode}
+                agentInfo={agentInfo}
+                setAgentInfo={setAgentInfo}
+                chatLoading={chatLoading}
+                setChatLoading={setChatLoading}
               />
             </div>
           </div>

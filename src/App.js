@@ -32,6 +32,7 @@ import Documentation from "./components/Documentation";
 import SharedChat from "./components/SharedChat";
 import SharedLogin from "./components/Landing/SharedLogin";
 import LinkError from "./components/LinkError";
+import GlowingText from "./Effects/GlowingText";
 
 function App() {
   const [theme, setTheme] = useState(false);
@@ -228,6 +229,7 @@ Here's a breakdown of key aspects of computer networks:
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          {/* <Route path="/" element={<GlowingText />} /> */}
           <Route path="/documentation" element={<Documentation />} />
 
           <Route path="/user/login" element={<Login />} />

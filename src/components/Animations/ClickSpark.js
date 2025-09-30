@@ -154,7 +154,7 @@ const ClickSpark = ({
         position: "absolute", // Ensure the canvas doesn't affect parent size
         top: 0,
         left: 0,
-        zIndex: "1000",
+        zIndex: "1",
       }}
       onClick={handleClick}
     />

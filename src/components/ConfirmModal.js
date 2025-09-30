@@ -11,6 +11,13 @@ import {
 import firebase from "../firebase";
 import { QR } from "react-qr-rounded";
 import { useSearchParams } from "react-router-dom";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Copy01Icon,
+  PencilEdit01Icon,
+  TimeQuarterPassIcon,
+  ViewIcon,
+} from "@hugeicons/core-free-icons";
 
 export default function ConfirmModal(props) {
   return (
@@ -71,7 +78,7 @@ export function RenameChatModal(props) {
   function checkNameAvailibility() {
     let flag = 0;
     props?.AIChatInfo?.ChatName?.map((chat) => {
-      if (chat.toLowerCase() == newName.toLowerCase()) {
+      if (chat?.toLowerCase() == newName?.toLowerCase()) {
         flag = 1;
       }
     });
@@ -181,8 +188,9 @@ export function RenameChatModal(props) {
     <>
       <div
         className={
-          "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
-          (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
+          "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center backdrop-blur-[5px]" +
+          (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]") +
+          (props?.renameModal ? " z-50" : " -z-50")
         }
         onClick={() => {
           props?.setRenameModalData([]);
@@ -194,8 +202,12 @@ export function RenameChatModal(props) {
             "w-[350px] h-auto rounded-2xl border-[1.5px] boxShadowLight2 flex flex-col justify-start items-start p-[25px] pt-[18px] " +
             (props?.theme
               ? " bg-[#1A1A1A] border-[#252525]"
-              : " bg-[#ffffff] border-[#eaeaea]")
+              : " bg-[#ffffff] border-[#eaeaea]") +
+            (props?.renameModal
+              ? " mt-[0px] opacity-100"
+              : " mt-[-80px] opacity-0 ")
           }
+          style={{ transition: ".3s" }}
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -233,11 +245,11 @@ export function RenameChatModal(props) {
           </div>
           <div className="w-full flex justify-start items-center  mt-[10px] ">
             <div className="h-[35px] w-[30px] flex justify-start items-center pl-[10px] ">
-              <PenLine
-                width={16}
-                height={16}
-                strokeWidth="2"
+              <HugeiconsIcon
                 className="text-[#7b798b]"
+                icon={PencilEdit01Icon}
+                size={18}
+                strokeWidth={1.8}
               />
             </div>
             <input
@@ -263,7 +275,7 @@ export function RenameChatModal(props) {
             <div
               className={
                 "w-[8px] h-[8px] rounded-full ml-[-20px] mr-[12px]" +
-                (newName.length == 0 ? " hidden" : " flex") +
+                (newName?.length == 0 ? " hidden" : " flex") +
                 (props?.theme
                   ? checkNameAvailibility()
                     ? " bg-[#e16d2ffd]"
@@ -279,10 +291,10 @@ export function RenameChatModal(props) {
               className={
                 "px-[15px] h-[30px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[14px] " +
                 (props?.theme
-                  ? newName.length > 0 && !checkNameAvailibility()
+                  ? newName?.length > 0 && !checkNameAvailibility()
                     ? " bg-[#404040] hover:bg-[#656565] border-[#515151] hover:border-[#717171]  text-[#ffffff] opacity-100 cursor-pointer"
                     : " bg-[#404040] border-[#515151] text-[#ffffff] opacity-20 cursor-not-allowed"
-                  : newName.length > 0 && !checkNameAvailibility()
+                  : newName?.length > 0 && !checkNameAvailibility()
                   ? " bg-[#222222] text-[#828282]"
                   : " bg-[#222222] text-[#828282]")
               }
@@ -448,7 +460,7 @@ export function ShareChat(props) {
     <>
       <div
         className={
-          "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
+          "w-full h-[100svh] font-[DMSr] fixed left-0 top-0 flex justify-center items-center z-50 backdrop-blur-[5px]" +
           (props?.theme ? " bg-[#00000078]" : " bg-[#b0b0b081]")
         }
         onClick={() => {
@@ -469,7 +481,7 @@ export function ShareChat(props) {
         >
           <span
             className={
-              "text-[22px] font-[geistMedium] w-full flex justify-between items-center" +
+              "text-[22px] font-[DMSm] w-full flex justify-between items-center" +
               (props?.theme ? " text-[white]" : " text-[black]")
             }
           >
@@ -517,20 +529,20 @@ export function ShareChat(props) {
               </div>
               <div
                 className={
-                  "w-full overflow-hidden text-ellipsis line-clamp-1 mt-[5px] text-[16px]" +
+                  "w-full overflow-hidden text-ellipsis line-clamp-1 mt-[1px] text-[16px]" +
                   (props?.theme ? " text-[#828282]" : " text-[#828282]")
                 }
               >
                 <span
                   className={
-                    "font-[geistMedium] " +
+                    "font-[DMSm] " +
                     (props?.theme ? " text-[white]" : " text-[black]")
                   }
                 >
                   {props?.shareModalData[0]}
                 </span>
               </div>
-              <span
+              {/* <span
                 className={
                   "mt-[20px] " +
                   (props?.theme ? " text-[#828282]" : " text-[#828282]")
@@ -558,14 +570,20 @@ export function ShareChat(props) {
                   }}
                   placeholder="This name will be visible to shared people"
                 ></input>
-              </div>
-              <div className="mt-[20px] w-full flex justify-between items-center">
+              </div> */}
+              <div className="mt-[30px] w-full flex justify-between items-center">
                 <div
                   className={
                     "flex justify-start items-center" +
                     (props?.theme ? " text-[#828282]" : " text-[#6e6e7c]")
                   }
                 >
+                  <HugeiconsIcon
+                    className="mr-[8px]"
+                    icon={ViewIcon}
+                    size={16}
+                    strokeWidth={2}
+                  />{" "}
                   Chat visibility
                 </div>
                 <div className="flex flex-col justify-center items-end bg-[#141414] border-[1.5px] border-[#1e1e1e] rounded-[10px]">
@@ -626,6 +644,12 @@ export function ShareChat(props) {
                     (props?.theme ? " text-[#828282]" : " text-[#6e6e7c]")
                   }
                 >
+                  <HugeiconsIcon
+                    className="mr-[8px]"
+                    icon={TimeQuarterPassIcon}
+                    size={16}
+                    strokeWidth={2}
+                  />{" "}
                   Share duration
                 </div>
                 <div className="flex flex-col justify-center items-end bg-[#141414] border-[1.5px] border-[#1e1e1e] rounded-[10px]">
@@ -730,7 +754,7 @@ export function ShareChat(props) {
                       className={
                         " h-[25px] w-[60px] mr-[5px] ml-[-65px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[13px] " +
                         (props?.theme
-                          ? addUser.length > 0
+                          ? addUser?.length > 0
                             ? " bg-[#404040] hover:bg-[#656565] border-[#515151] hover:border-[#717171]  text-[#ffffff] opacity-100 cursor-pointer"
                             : " bg-[#404040] border-[#515151] text-[#ffffff] opacity-20 cursor-not-allowed"
                           : " bg-[#222222] text-[#828282]")
@@ -784,7 +808,7 @@ export function ShareChat(props) {
                       className={
                         "w-[45px] h-[45px] rounded-full p-[3px] ml-[-22px]" +
                         (props?.theme ? " bg-[#1A1A1A]" : " bg-[#1A1A1A]") +
-                        (accessGrantedUser.length > 4 ? " flex" : " hidden")
+                        (accessGrantedUser?.length > 4 ? " flex" : " hidden")
                       }
                     >
                       <div
@@ -799,7 +823,7 @@ export function ShareChat(props) {
                           strokeWidth={3.2}
                           className="mr-[2px]"
                         />{" "}
-                        {accessGrantedUser.length - 4}
+                        {accessGrantedUser?.length - 4}
                       </div>
                     </div>
                   </div>
@@ -836,7 +860,7 @@ export function ShareChat(props) {
                   className={
                     "px-[15px] h-[30px] rounded-[8px] border-[1.5px] flex justify-center items-center text-[14px] " +
                     (props?.theme
-                      ? newName.length > 0
+                      ? newName?.length > 0
                         ? " bg-[#404040] hover:bg-[#656565] border-[#515151] hover:border-[#717171]  text-[#ffffff] opacity-100 cursor-pointer"
                         : " bg-[#404040] border-[#515151] text-[#ffffff] opacity-20 cursor-not-allowed"
                       : " bg-[#222222] text-[#828282]")
@@ -901,7 +925,8 @@ export function ShareChat(props) {
                   }}
                   // copyToClipboard
                 >
-                  <Files width={16} height={16} strokeWidth="2" className="" />
+                  {/* <Files width={16} height={16} strokeWidth="2" className="" />{" "} */}
+                  <HugeiconsIcon icon={Copy01Icon} size={18} strokeWidth={2} />
                 </div>
               </div>
               <div className="w-full flex justify-center items-center mt-[30px]">
@@ -965,8 +990,8 @@ export function ShareChat(props) {
                       className="w-full aspect-square"
                       color="#ffffff"
                       backgroundColor="#1A1A1A"
-                      rounding={50}
-                      errorCorrectionLevel="M"
+                      rounding={100}
+                      errorCorrectionLevel="L"
                     >
                       {`https://auroranoteai.vercel.app/shared?chat=${
                         props?.shareModalData[0]

@@ -38,6 +38,22 @@ import {
 } from "firebase/firestore";
 import firebase from "../firebase";
 import ChooseDirectory from "./ChooseDirectory";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  ArrowRight01Icon,
+  ArrowRight04Icon,
+  Copy01Icon,
+  Delete01Icon,
+  Edit04Icon,
+  File02Icon,
+  FileCorruptIcon,
+  FileEmpty02Icon,
+  FileShredderIcon,
+  Folder01Icon,
+  Folder02Icon,
+  LinkForwardIcon,
+  Wrench01Icon,
+} from "@hugeicons/core-free-icons";
 
 const name = [
   "Clippings",
@@ -289,7 +305,7 @@ const LeftSection = (props) => {
     <>
       <div
         className={
-          "w-full h-[100svh] justify-center items-center fixed z-[200]" +
+          "w-full h-[100svh] justify-center items-center fixed z-[200] " +
           (props?.theme ? " bg-[#1414146a]" : " bg-[#b0b0b081]") +
           (addFolderModal || addNoteModal ? " flex" : " hidden")
         }
@@ -304,7 +320,7 @@ const LeftSection = (props) => {
         >
           <span
             className={
-              "text-[22px] font-[geistMedium]" +
+              "text-[22px] font-[r]" +
               (props?.theme ? " text-white" : " text-black")
             }
           >
@@ -591,7 +607,7 @@ const LeftSection = (props) => {
       >
         <div
           className={
-            "w-full h-[0px] md:h-[40px] lg:h-[40px] border-b-[1.5px] border-[#25252500] flex justify-between items-center text-[18px] font-[geistBold] uppercase" +
+            "w-full h-[0px] md:h-[40px] lg:h-[40px] border-b-[1.5px] border-[#25252500] flex justify-between items-center text-[18px] font-[r] uppercase" +
             (props?.theme ? " bg-[#141414] " : " bg-[#ffffff00] ")
           }
         >
@@ -601,14 +617,14 @@ const LeftSection = (props) => {
         </div>
         <div
           className={
-            "w-full h-[calc(100%-0px)] md:h-[calc(100%-40px)] lg:h-[calc(100%-40px)] flex flex-col justify-start items-start px-[3px] text-[white] overflow-hidden rounded-l-lg" +
+            "w-full h-[calc(100%-0px)] md:h-[calc(100%-40px)] lg:h-[calc(100%-40px)] flex flex-col justify-start items-start px-[3px] text-[white] overflow-hidden rounded-l-lg border-r-[1px] border-[#f6f6f6]" +
             (props?.theme
               ? " bg-[#1A1A1A] text-white"
               : " bg-[#ffffff] text-black")
           }
         >
           <div className="w-full h-[50px] flex justify-between items-center px-[30px] md:px-[15px] lg:px-[15px]">
-            <div className="font-[geistSemibold]">Notes</div>
+            <div className="font-[r] font-bold">Notes</div>
             <div className="flex flex-col justify-start items-end overflow-visible h-[30px] w-[40px]">
               <div className="flex justify-end items-center min-h-[30px] max-h-[30px] w-[40px]">
                 {/* <FolderPlus
@@ -799,7 +815,44 @@ const LeftSection = (props) => {
               (props?.isMinimise ? " overflow-hidden" : " overflow-y-scroll")
             }
           >
-            {folderStructure?.map((data, index) => {
+            <div
+              className={`w-full `}
+              style={{
+                transition: ".2s",
+                display: "grid",
+                gridTemplateRows: "1fr",
+              }}
+            >
+              <div className="overflow-hidden w-full ">
+                {folderStructure?.map((data, index) => {
+                  return (
+                    <>
+                      <NoteTitleBlock
+                        fileStacked={props?.fileStacked}
+                        setFileStacked={props?.setFileStacked}
+                        selected={props?.selected}
+                        setSelected={props?.setSelected}
+                        index={index}
+                        data={data}
+                        directory={data?.Title}
+                        theme={props?.theme}
+                        activeFolder={activeFolder}
+                        setActiveFolder={setActiveFolder}
+                        entryDirectory={entryDirectory}
+                        setEntryDirectory={setEntryDirectory}
+                        setRightClickFolder={setRightClickFolder}
+                        rightClickedFolder={rightClickedFolder}
+                        isfolder={isfolder}
+                        setIsfolder={setIsfolder}
+                        setFetchNoteQueue={props?.setFetchNoteQueue}
+                        fetchNoteQueue={props?.fetchNoteQueue}
+                      />
+                    </>
+                  );
+                })}
+              </div>
+            </div>
+            {/* {folderStructure?.map((data, index) => {
               return (
                 <>
                   <NoteTitleBlock
@@ -824,7 +877,7 @@ const LeftSection = (props) => {
                   />
                 </>
               );
-            })}
+            })} */}
           </div>
         </div>
       </div>
@@ -873,36 +926,26 @@ const NoteTitleBlock = (props) => {
 
   return (
     <>
-      <div className="min-h-[27px] max-h-[27px] flex flex-col justify-start items-end w-full overflow-y-visible">
+      <div className="min-h-[30px] max-h-[30px] flex flex-col justify-start items-end w-full overflow-y-visible">
         <div
           key={props?.index}
           className={
-            "text-[16px] md:text-[14px] lg:text-[14px]  cursor-pointer rounded-[4px] flex justify-start items-center  px-[0px] md:px-[7px] lg:px-[7px] w-full min-h-[27px] max-h-[27px] my-[1px] group " +
+            "text-[16px] md:text-[14px] lg:text-[14px]  cursor-pointer rounded-[4px] flex justify-start items-center  px-[0px] md:px-[7px] lg:px-[7px] w-full min-h-[33px] max-h-[33px] my-[1px] group " +
             (props?.data?.isFolder
               ? props?.theme
                 ? " hover:bg-[#26262600] text-[#9ba6aa] hover:text-[#ffffff]"
-                : " hover:bg-[#F8F8FB00] text-[#6e6e7c] hover:text-[#000000]"
+                : " hover:bg-[#F8F8FB00] text-[#6d6d6d] hover:text-[#000000]"
               : props?.theme
               ? props?.fileStacked[props?.selected] == props?.directory
-                ? " bg-[#222222] text-[#ffffff]"
-                : " hover:bg-[#222222] text-[#9ba6aa] hover:text-[#ffffff]"
+                ? " bg-[#22222200] text-[#ffffff]"
+                : " hover:bg-[#22222200] text-[#9ba6aa] hover:text-[#ffffff]"
               : props?.fileStacked[props?.selected] == props?.directory
-              ? " bg-[#ededed] text-[#000000]"
-              : " hover:bg-[#ededed] text-[#6e6e7c] hover:text-[#000000]")
+              ? " bg-[#f4f6f800] text-[#000000]"
+              : " hover:bg-[#f4f6f800] text-[#6d6d6d] hover:text-[#000000]")
           }
           onContextMenu={(event) =>
             handleRightClick(event, props?.directory, props?.data?.isFolder)
           }
-          // style={{
-          //   color:
-          //     props?.fileStacked[props?.selected] == props?.directory
-          //       ? props?.theme
-          //         ? "#ffffff"
-          //         : "#000000"
-          //       : props?.theme
-          //       ? "#9ba6aa"
-          //       : "#6e6e7c",
-          // }}
           onClick={() => {
             if (props?.data?.isFolder) {
               setExpand(!expand);
@@ -968,13 +1011,10 @@ const NoteTitleBlock = (props) => {
         >
           {props?.data?.isFolder ? (
             <>
-              <div className="min-w-[40px] mr-[-4px] flex justify-start items-center">
-                <ChevronRight
-                  width={14}
-                  height={14}
-                  strokeWidth="2.5"
+              <div className="min-w-[42px] mr-[-4px] flex justify-start items-center">
+                <HugeiconsIcon
                   className={
-                    " ml-[-3px] mr-[5.5px]  " +
+                    " ml-[-3px] mr-[3.5px]  " +
                     (expand ? "  rotate-90" : "  rotate-0") +
                     (props?.theme
                       ? props?.fileStacked[props?.selected]?.startsWith(
@@ -989,75 +1029,123 @@ const NoteTitleBlock = (props) => {
                       : " text-[#aeaebb]")
                   }
                   style={{ transition: ".2s" }}
+                  icon={ArrowRight01Icon}
+                  size={16}
+                  strokeWidth={2}
                 />
                 {!expand ? (
-                  <Folder
-                    width={15}
-                    height={15}
-                    strokeWidth="2"
-                    className={
-                      " ml-[0px] mr-[3px]  " +
-                      (props?.theme
-                        ? props?.fileStacked[props?.selected]?.startsWith(
-                            props?.directory
-                          )
-                          ? " text-[#ffffff]"
-                          : " text-[#9ba6aa] group-hover:text-[#ffffff]"
-                        : props?.fileStacked[props?.selected]?.startsWith(
-                            props?.directory
-                          )
-                        ? " text-[#000000]"
-                        : " text-[#6e6e7c] group-hover:text-[#000000]")
-                    }
-                    style={{ transition: ".2s" }}
-                  />
+                  <>
+                    <HugeiconsIcon
+                      className={
+                        " ml-[0px] mr-[8px]  " +
+                        (props?.theme
+                          ? props?.fileStacked[props?.selected]?.startsWith(
+                              props?.directory
+                            )
+                            ? " text-[#ffffff]"
+                            : " text-[#9ba6aa] group-hover:text-[#ffffff]"
+                          : props?.fileStacked[props?.selected]?.startsWith(
+                              props?.directory
+                            )
+                          ? " text-[#000000]"
+                          : " text-[#6d6d6d] group-hover:text-[#000000]")
+                      }
+                      icon={Folder01Icon}
+                      size={16}
+                      strokeWidth={2}
+                    />
+                  </>
                 ) : (
-                  <FolderOpen
-                    width={15}
-                    height={15}
-                    strokeWidth="2"
-                    className={
-                      " ml-[0px] mr-[3px]  " +
-                      (props?.theme
-                        ? props?.fileStacked[props?.selected]?.startsWith(
-                            props?.directory
-                          )
-                          ? " text-[#ffffff]"
-                          : " text-[#9ba6aa] group-hover:text-[#ffffff]"
-                        : props?.fileStacked[props?.selected]?.startsWith(
-                            props?.directory
-                          )
-                        ? " text-[#000000]"
-                        : " text-[#6e6e7c] group-hover:text-[#000000]")
-                    }
-                    style={{ transition: ".2s" }}
-                  />
+                  <>
+                    <HugeiconsIcon
+                      className={
+                        " ml-[0px] mr-[8px]  " +
+                        (props?.theme
+                          ? props?.fileStacked[props?.selected]?.startsWith(
+                              props?.directory
+                            )
+                            ? " text-[#ffffff]"
+                            : " text-[#9ba6aa] group-hover:text-[#ffffff]"
+                          : props?.fileStacked[props?.selected]?.startsWith(
+                              props?.directory
+                            )
+                          ? " text-[#000000]"
+                          : " text-[#6d6d6d] group-hover:text-[#000000]")
+                      }
+                      icon={Folder02Icon}
+                      size={16}
+                      strokeWidth={2}
+                    />
+                  </>
                 )}
               </div>
             </>
           ) : (
             <>
-              <div className="min-w-[20px] mr-[0px] flex justify-start items-center">
-                <File
-                  width={15}
-                  height={15}
-                  strokeWidth="2"
-                  className={
-                    " ml-[0px] mr-[3px]  " +
-                    (props?.theme
-                      ? props?.fileStacked[props?.selected]?.startsWith(
-                          props?.directory
-                        )
-                        ? " text-[#ffffff]"
-                        : " text-[#9ba6aa] group-hover:text-[#ffffff]"
-                      : props?.fileStacked[props?.selected]?.startsWith(
-                          props?.directory
-                        )
-                      ? " text-[#000000]"
-                      : " text-[#6e6e7c] group-hover:text-[#000000]")
-                  }
-                  style={{ transition: ".2s" }}
-                />
+              <div className="min-w-[22px] mr-[0px] flex justify-start items-center">
+                {props?.fileStacked[props?.selected]?.startsWith(
+                  props?.directory
+                ) ? (
+                  <HugeiconsIcon
+                    className={
+                      " ml-[0px] mr-[3px]  " +
+                      (props?.theme
+                        ? props?.fileStacked[props?.selected]?.startsWith(
+                            props?.directory
+                          )
+                          ? " text-[#ffffff]"
+                          : " text-[#9ba6aa] group-hover:text-[#ffffff]"
+                        : props?.fileStacked[props?.selected]?.startsWith(
+                            props?.directory
+                          )
+                        ? " text-[#000000]"
+                        : " text-[#05a0f7] group-hover:text-[#05a0f7]")
+                    }
+                    icon={ArrowRight04Icon}
+                    fill="currentColor"
+                    size={16}
+                    strokeWidth={2.3}
+                  />
+                ) : (
+                  <HugeiconsIcon
+                    className={
+                      " ml-[0px] mr-[3px]   " +
+                      (props?.theme
+                        ? props?.fileStacked[props?.selected]?.startsWith(
+                            props?.directory
+                          )
+                          ? " text-[#ffffff]"
+                          : " text-[#9ba6aa] group-hover:text-[#ffffff]"
+                        : props?.fileStacked[props?.selected]?.startsWith(
+                            props?.directory
+                          )
+                        ? " text-[#000000]"
+                        : " text-[#6d6d6d] group-hover:text-[#000000]")
+                    }
+                    icon={File02Icon}
+                    size={16}
+                    strokeWidth={2}
+                  />
+                )}
+
+                {/* <div
+                  className={`group/circle min-w-[18px] min-h-[18px] max-w-[18px] max-h-[18px] rounded-full flex justify-center items-center  mr-[10px] cursor-pointer`}
+                  // onClick={() => toggleExpanded(index)}
+                  style={{
+                    transition: ".3s",
+                    backgroundColor: `#393a4400`,
+                  }}
+                >
+                  <div
+                    className={
+                      "min-w-[6px] min-h-[6px] rounded-full  group-hover/circle:min-w-[6px] group-hover/circle:min-h-[6px]"
+                    }
+                    style={{
+                      transition: ".15s",
+                      backgroundColor: `#787785`,
+                    }}
+                  ></div>
+                </div> */}
               </div>
             </>
           )}
@@ -1085,7 +1173,7 @@ const NoteTitleBlock = (props) => {
             <>
               <span
                 className={
-                  "text-ellipsis overflow-hidden whitespace-nowrap w-full " +
+                  "text-ellipsis overflow-hidden whitespace-nowrap w-full font-[r]" +
                   (expand ? " " : " ") +
                   (props?.theme
                     ? props?.fileStacked[props?.selected]?.startsWith(
@@ -1102,62 +1190,72 @@ const NoteTitleBlock = (props) => {
               >
                 {props?.data?.Title}
               </span>
-              {props?.data?.isFolder && props?.data?.subStructure.length > 0 ? (
+              {props?.data?.Title == "UI Design & Interaction.txt" ? (
+                <div className="min-w-[20px] h-[20px] flex justify-end items-center">
+                  <div className="min-w-[8px] h-[8px] rounded-full bg-[#fac66d]"></div>
+                </div>
+              ) : (
+                <></>
+              )}
+              {/* {props?.data?.isFolder &&
+              props?.data?.subStructure.length &&
+              !expand > 0 ? (
                 // && !props?.activeFolder.includes(props?.directory)
                 <span
                   className={
-                    "min-w-[17px] h-[17px] rounded-md text-[11px] flex justify-center items-center " +
+                    "min-w-[17px] h-[17px] rounded-[5px] text-[11px] flex justify-center items-center " +
                     (props?.theme
                       ? " bg-[#141414] text-[#9ba6aa]"
-                      : " bg-[#EAEBF4] text-[#6e6e7c]")
+                      : " bg-[#efefef] text-[#030303]") +
+                    (props?.data?.isFolder &&
+                    props?.data?.subStructure.length > 0 &&
+                    !expand
+                      ? " opacity-100"
+                      : " opacity-0")
                   }
+                  style={{ transition: ".2s"  }}
                 >
                   {props?.data?.subStructure.length}
                 </span>
               ) : (
                 <></>
-              )}
+              )} */}
+              <span
+                className={
+                  "min-w-[17px] h-[17px] rounded-[5px] text-[11px] flex justify-center items-center " +
+                  (props?.theme
+                    ? " bg-[#141414] text-[#9ba6aa]"
+                    : " bg-[#efefef] text-[#030303]") +
+                  (props?.data?.isFolder &&
+                  props?.data?.subStructure.length > 0 &&
+                  !expand
+                    ? " opacity-100"
+                    : " opacity-0")
+                }
+                style={{ transition: ".15s" }}
+              >
+                {props?.data?.subStructure.length}
+              </span>
             </>
           )}
         </div>
-        <div
-          ref={rightClickedRef}
-          className={
-            "w-auto min-w-[150px] h-auto p-[4px] py-[12px] mt-[-14px] mr-[4px] rounded-xl z-10 boxShadowLight00 flex-col justify-start items-start backdrop-blur-[8px] border-[2px]" +
-            (props?.rightClickedFolder == props?.directory
-              ? " flex"
-              : " hidden") +
-            (props?.theme
-              ? " bg-[#141414b0] border-[#29333c]"
-              : " bg-[#ffffffb0] border-[#f2f2f2]")
-          }
-        >
-          {props?.isfolder ? (
-            <div
-              className={
-                "w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
-                (props?.theme
-                  ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                  : " text-[#6e6e7c] hover:text-[#000000]")
-              }
-              onClick={() => {
-                // addNew(activeFolder);
-                // setAddFolderModal(true);
-              }}
-            >
-              <FolderX
-                width={16}
-                height={16}
-                strokeWidth="1.8"
-                className="mr-[7px]"
-              />
-              Delete Folder
-            </div>
-          ) : (
-            <>
+        <div className="w-full flex justify-end items-start">
+          <div
+            ref={rightClickedRef}
+            className={
+              "w-auto relative min-w-[150px] h-auto p-[4px] py-[12px] px-[15px] mt-[-14px] mr-[4px] rounded-xl z-10 boxShadowLight00 flex-col justify-start items-start backdrop-blur-[8px] border-[2px] font-[r]" +
+              (props?.rightClickedFolder == props?.directory
+                ? " flex"
+                : " hidden") +
+              (props?.theme
+                ? " bg-[#141414b0] border-[#29333c]"
+                : " bg-[#ffffffb0] border-[#f2f2f2]")
+            }
+          >
+            {props?.isfolder ? (
               <div
                 className={
-                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                  "w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
                   (props?.theme
                     ? " text-[#9ba6aa] hover:text-[#ffffff]"
                     : " text-[#6e6e7c] hover:text-[#000000]")
@@ -1167,123 +1265,139 @@ const NoteTitleBlock = (props) => {
                   // setAddFolderModal(true);
                 }}
               >
-                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
-                <FileArchive
+                <FolderX
                   width={16}
                   height={16}
                   strokeWidth="1.8"
                   className="mr-[7px]"
                 />
-                Archive
-              </div>{" "}
-              <div
-                className={
-                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
-                  (props?.theme
-                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                    : " text-[#6e6e7c] hover:text-[#000000]")
-                }
-                onClick={() => {
-                  // addNew(activeFolder);
-                  // setAddFolderModal(true);
-                }}
-              >
-                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
-                <Clipboard
-                  width={16}
-                  height={16}
-                  strokeWidth="1.8"
-                  className="mr-[7px]"
-                />
-                Copy
+                Delete Folder
               </div>
-              <div
-                className={
-                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
-                  (props?.theme
-                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                    : " text-[#6e6e7c] hover:text-[#000000]")
-                }
-                onClick={() => {
-                  // addNew(activeFolder);
-                  // setAddFolderModal(true);
-                }}
-              >
-                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
-                <Share2
-                  width={16}
-                  height={16}
-                  strokeWidth="1.8"
-                  className="mr-[7px]"
-                />
-                Share
-              </div>{" "}
-              <div
-                className={
-                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
-                  (props?.theme
-                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                    : " text-[#6e6e7c] hover:text-[#000000]")
-                }
-                onClick={() => {
-                  // addNew(activeFolder);
-                  // setAddFolderModal(true);
-                }}
-              >
-                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
-                <FilePenLine
-                  width={16}
-                  height={16}
-                  strokeWidth="1.8"
-                  className="mr-[7px]"
-                />
-                Rename
-              </div>{" "}
-              <div
-                className={
-                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
-                  (props?.theme
-                    ? " text-[#9ba6aa] hover:text-[#ffffff]"
-                    : " text-[#6e6e7c] hover:text-[#000000]")
-                }
-                onClick={() => {
-                  // addNew(activeFolder);
-                  // setAddFolderModal(true);
-                }}
-              >
-                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
-                <Wrench
-                  width={16}
-                  height={16}
-                  strokeWidth="1.8"
-                  className="mr-[7px]"
-                />
-                Properties
-              </div>{" "}
-              <div
-                className={
-                  "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
-                  (props?.theme
-                    ? " text-[#aaa39b] hover:text-[#ffffff]"
-                    : " text-[#e3572c] hover:text-[#000000]")
-                }
-                onClick={() => {
-                  // addNew(activeFolder);
-                  // setAddFolderModal(true);
-                }}
-              >
-                <div className="h-[15px] w-[3px] mr-[10px] rounded-full bg-transparent group-hover:bg-[#4e4e4e] "></div>
-                <Trash
-                  width={16}
-                  height={16}
-                  strokeWidth="1.8"
-                  className="mr-[7px]"
-                />
-                Delete
-              </div>
-            </>
-          )}
-          {/* <div
+            ) : (
+              <>
+                <div
+                  className={
+                    "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer " +
+                    (props?.theme
+                      ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                      : " text-[#6d6d6d] hover:text-[#000000]")
+                  }
+                  onClick={() => {
+                    // addNew(activeFolder);
+                    // setAddFolderModal(true);
+                  }}
+                >
+                  <HugeiconsIcon
+                    className={" mr-[7px]   "}
+                    icon={FileCorruptIcon}
+                    size={16}
+                    strokeWidth={2}
+                  />
+                  Archive
+                </div>{" "}
+                <div
+                  className={
+                    "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                    (props?.theme
+                      ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                      : " text-[#6d6d6d] hover:text-[#000000]")
+                  }
+                  onClick={() => {
+                    // addNew(activeFolder);
+                    // setAddFolderModal(true);
+                  }}
+                >
+                  <HugeiconsIcon
+                    className={" mr-[7px]   "}
+                    icon={Copy01Icon}
+                    size={16}
+                    strokeWidth={2}
+                  />
+                  Copy
+                </div>
+                <div
+                  className={
+                    "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                    (props?.theme
+                      ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                      : " text-[#6d6d6d] hover:text-[#000000]")
+                  }
+                  onClick={() => {
+                    // addNew(activeFolder);
+                    // setAddFolderModal(true);
+                  }}
+                >
+                  <HugeiconsIcon
+                    className={" mr-[7px]   "}
+                    icon={LinkForwardIcon}
+                    size={16}
+                    strokeWidth={2}
+                  />
+                  Share
+                </div>{" "}
+                <div
+                  className={
+                    "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                    (props?.theme
+                      ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                      : " text-[#6d6d6d] hover:text-[#000000]")
+                  }
+                  onClick={() => {
+                    // addNew(activeFolder);
+                    // setAddFolderModal(true);
+                  }}
+                >
+                  <HugeiconsIcon
+                    className={" mr-[7px]   "}
+                    icon={Edit04Icon}
+                    size={16}
+                    strokeWidth={2}
+                  />
+                  Rename
+                </div>{" "}
+                <div
+                  className={
+                    "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                    (props?.theme
+                      ? " text-[#9ba6aa] hover:text-[#ffffff]"
+                      : " text-[#6d6d6d] hover:text-[#000000]")
+                  }
+                  onClick={() => {
+                    // addNew(activeFolder);
+                    // setAddFolderModal(true);
+                  }}
+                >
+                  <HugeiconsIcon
+                    className={" mr-[7px]   "}
+                    icon={Wrench01Icon}
+                    size={16}
+                    strokeWidth={2}
+                  />
+                  Properties
+                </div>{" "}
+                <div
+                  className={
+                    "group w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer" +
+                    (props?.theme
+                      ? " text-[#aaa39b] hover:text-[#ffffff]"
+                      : " text-[#f65c2d] hover:text-[#dc4c39]")
+                  }
+                  onClick={() => {
+                    // addNew(activeFolder);
+                    // setAddFolderModal(true);
+                  }}
+                >
+                  <HugeiconsIcon
+                    className={" mr-[7px]   "}
+                    icon={FileShredderIcon}
+                    size={16}
+                    strokeWidth={2}
+                  />
+                  Delete
+                </div>
+              </>
+            )}
+            {/* <div
             className={
               "w-full h-[27px] text-[14px] flex justify-start items-center whitespace-nowrap cursor-pointer " +
               (props?.theme
@@ -1303,9 +1417,10 @@ const NoteTitleBlock = (props) => {
             />
             New Note
           </div> */}
+          </div>
         </div>
       </div>
-      {expand && props?.data?.isFolder ? (
+      {/* {expand && props?.data?.isFolder ? (
         <>
           <div className="w-full flex flex-col justify-start items-start pl-[10px]">
             <div
@@ -1313,6 +1428,10 @@ const NoteTitleBlock = (props) => {
                 "w-full flex flex-col justify-start items-start pl-[5px] border-l-[1.5px] " +
                 (props?.theme ? " border-[#222222]" : " border-[#f3f3fa]")
               }
+              style={{
+                height: expand && props?.data?.isFolder ? `${props?.data?.subStructure?.length * 30}px` : `30px`,
+                transition: ".3s",
+              }}
             >
               {props?.data?.subStructure?.map((data, index) => {
                 return (
@@ -1345,7 +1464,69 @@ const NoteTitleBlock = (props) => {
         </>
       ) : (
         <></>
-      )}
+      )} */}
+
+      <div
+        className={
+          "w-full pl-[11px]" +
+          (expand && props?.data?.isFolder
+            ? " opacity-100 overflow-visible"
+            : " opacity-0 overflow-hidden")
+        }
+        style={{
+          transition: ".2s",
+          // transitionDelay: expand && props?.data?.isFolder ? "0.1s" : "0s",
+          display: "grid",
+          gridTemplateRows: expand && props?.data?.isFolder ? "1fr" : "0fr",
+        }}
+      >
+        <div
+          className={
+            "w-full flex flex-col justify-start items-start pl-[4px] border-l-[1.5px] border-dashed overflow-hidden" +
+            (props?.theme ? " border-[#222222]" : " border-[#f3f3fa]")
+            // +
+            // (expand && props?.data?.isFolder
+            //   ? " opacity-100 overflow-visible"
+            //   : " opacity-0 overflow-hidden")
+          }
+          // style={{
+          //   maxHeight:
+          //     expand && props?.data?.isFolder
+          //       ? `${props?.data?.subStructure?.length * 30}px`
+          //       : `0px`,
+          //   transition: "max-height 0.3s ease, opacity 0.3s ease",
+          //   transitionDelay:
+          //     expand && props?.data?.isFolder ? "0s, 0.1s" : "0s, 0s",
+          // }}
+        >
+          {props?.data?.subStructure?.map((data, index) => {
+            return (
+              <>
+                <NoteTitleBlock
+                  index={index}
+                  data={data}
+                  theme={props?.theme}
+                  directory={props?.directory + "~_~" + data?.Title}
+                  fileStacked={props?.fileStacked}
+                  setFileStacked={props?.setFileStacked}
+                  selected={props?.selected}
+                  setSelected={props?.setSelected}
+                  activeFolder={props?.activeFolder}
+                  setActiveFolder={props?.setActiveFolder}
+                  entryDirectory={props?.entryDirectory}
+                  setEntryDirectory={props?.setEntryDirectory}
+                  setRightClickFolder={props?.setRightClickFolder}
+                  rightClickedFolder={props?.rightClickedFolder}
+                  isfolder={props?.isfolder}
+                  setIsfolder={props?.setIsfolder}
+                  setFetchNoteQueue={props?.setFetchNoteQueue}
+                  fetchNoteQueue={props?.fetchNoteQueue}
+                />
+              </>
+            );
+          })}
+        </div>
+      </div>
     </>
   );
 };

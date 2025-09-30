@@ -130,6 +130,22 @@ export default function APIKeyAdd(props) {
         }),
       });
 
+    db.collection("user")
+      .doc(user.uid)
+      .collection("APIKeys")
+      .doc("APIKey_" + processStringEncrypt(apiKey))
+      .set({
+        CurrentDate:
+          new Date().getDate() +
+          "/" +
+          parseInt(new Date().getMonth() + 1) +
+          "/" +
+          new Date().getFullYear(),
+        TotalTokens: 10000000,
+        CurrentUsage: 0,
+        RequestInADay: [],
+      });
+
     setNewAPI("");
   }
 

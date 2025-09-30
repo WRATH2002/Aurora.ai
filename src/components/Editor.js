@@ -81,6 +81,10 @@ import firebase from "../firebase";
 import { ring2 } from "ldrs";
 import { useDebouncedCallback } from "use-debounce";
 import DraggableBlockPlugin from "../plugins/DraggableBlockPlugin";
+import InlineImagePlugin from "../plugins/InlineImagePlugin";
+import { InlineImageNode } from "../nodes/InlineImageNode";
+import DragDropPaste from "../plugins/DragDropPaste";
+import HoverLinkToolbarPlugin from "../plugins/HoverLinkToolbarPlugin";
 // import ExcalidrawPlugin from "../plugins/ExcalidrawPlugin";
 // import { ExcalidrawNode } from "../nodes/ExcalidrawNode";
 ring2.register();
@@ -180,6 +184,7 @@ export default function Editor(props) {
       HorizontalRuleNode,
       CustomParagraphNode,
       HashtagNode,
+      InlineImageNode,
       // ExcalidrawNode,
     ],
     editable: false,
@@ -438,8 +443,9 @@ export default function Editor(props) {
                 <ContentEditable
                   name="editor-input"
                   placeholder={"<Placeholder />"}
+                  spellcheck="false"
                   className={
-                    " focus:outline-none w-full  z-0 py-[30px] md:py-[60px] lg:py-[60px] overflow-y-scroll  border-none outline-none" +
+                    " focus:outline-none w-full  z-0 py-[30px] md:py-[60px] lg:py-[60px] overflow-y-scroll  border-none outline-none leading-[28px] caret-[#919191] " +
                     (props?.isMinimise
                       ? " px-[150px]"
                       : " px-[30px] md:px-[70px] lg:px-[70px]") +
@@ -477,9 +483,12 @@ export default function Editor(props) {
             <HorizontalRulePlugin />
             <CheckListPlugin />
             <AutoLinkPlugin />
-            <ClickableLinkPlugin />
+            {/* <ClickableLinkPlugin /> */}
+            <HoverLinkToolbarPlugin />
             <HashtagPlugin />
             <SpeechToTextPlugin />
+            <InlineImagePlugin />
+            <DragDropPaste />
             {/* {floatingAnchorElem && (
               <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
             )} */}
@@ -497,7 +506,7 @@ export default function Editor(props) {
 
 function Placeholder() {
   return (
-    <div className="editor-placeholder ">
+    <div className="editor-placeholder font-extrabold ">
       Play around with the speech to text button on the bottom right...{" "}
     </div>
   );
@@ -512,9 +521,9 @@ const getThemeStyles = (isDark) => ({
   // hashtag: "bg-[red]",
   quote: "editorQuote border-l-[1px] border-[#927de6]",
   heading: {
-    h1: "text-[60px] font-bold",
-    h2: "text-[50px] font-bold",
-    h3: "text-[40px] font-bold",
+    h1: "text-[60px] font-extrabold ",
+    h2: "text-[50px] font-extrabold ",
+    h3: "text-[40px] font-extrabold ",
     h4: "text-[30px] font-bold",
     h5: "text-[20px] font-bold",
     h6: "text-[30px] font-bold",
@@ -544,6 +553,12 @@ const getThemeStyles = (isDark) => ({
     h40: "font-[ot]",
     h41: "font-[gr]",
     h42: "font-[sr]",
+    h43: "font-[cms1]",
+    h44: "font-[cms2]",
+    h45: "font-[cms3]",
+    h46: "font-[mnc]",
+    h47: "font-[mn0]",
+    h48: "font-[ir]",
     // h41: "font-[wtdr]",
   },
   list: {
@@ -557,25 +572,23 @@ const getThemeStyles = (isDark) => ({
     listitemUnchecked: "PlaygroundEditorTheme__listItemUnchecked",
   },
   // hashtag: "editor-hashtag",
-  image: "editor-image",
+  image: "rounded-lg",
   link: "cursor-pointer text-blue",
   text: {
     bold: "font-bold",
-    code: "bg-[#F0F2F5] px-[5px] rounded-sm",
+    code: "bg-[#F035F5] px-[5px] rounded-sm",
     italic: "italic",
     strikethrough: "line-through",
     subscript: "editor-textSubscript",
     superscript: "editor-textSuperscript",
     underline: "underline underline-offset-[5px]",
     underlineStrikethrough: "underline underline-offset-[5px] line-through",
-    highlight: "bg-[#dcd2ff]",
+    highlight: isDark ? "highlightDark" : "highlightLight",
     // highlight: "border border-[white] rounded-[6px] bg-[#1A1A1A]",
     ai: "bg-gradient-to-r from-[#4aa6d5] via-[#61e1e4] to-[#4aa6d5] gradDiv",
     cfont: "font-[mono]",
   },
-  code: isDark
-    ? " bg-[#3a3a3a] border-[#f0f0f0] text-[white] border-[1.5px] editorCode d"
-    : " bg-[#f9f9f9] border-[#f0f0f0] text-[black] border-[1.5px] editorCode l",
+  code: isDark ? " text-[white] editorCode d" : " text-[black] editorCode l",
   codeHighlight: {
     atrule: "editor-tokenAttr",
     attr: "editor-tokenAttr",
