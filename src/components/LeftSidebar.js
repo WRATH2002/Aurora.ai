@@ -27,8 +27,9 @@ import {
   SidebarRight01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import logoLight from "../assets/img/LogoLight.png";
-import logoDark from "../assets/img/logoDark.png";
+
+// import logoLight from "../assets/img/LogoLight.png";
+// import logoDark from "../assets/img/logoDark.png";
 
 const LeftSidebar = (props) => {
   const [isSettings, setIsSettings] = useState(false);
@@ -191,10 +192,10 @@ const LeftSidebar = (props) => {
         }
         style={{ transitionDelay: props?.isMinimise ? ".3s" : "0s" }}
       >
-        <img
+        {/* <img
           className="w-[20px] aspect-square my-[15px]"
           src={props?.theme ? logoDark : logoLight}
-        ></img>
+        ></img> */}
         <div className="w-full h-[40px] border-b-[1.5px] border-[#25252500] flex justify-center items-center">
           <div className="">
             {props?.isMinimise ? (
