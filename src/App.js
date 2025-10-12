@@ -33,6 +33,8 @@ import SharedChat from "./components/SharedChat";
 import SharedLogin from "./components/Landing/SharedLogin";
 import LinkError from "./components/LinkError";
 import GlowingText from "./Effects/GlowingText";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 function App() {
   const [theme, setTheme] = useState(false);
@@ -226,22 +228,24 @@ Here's a breakdown of key aspects of computer networks:
           </div>
         </div>
       </div> */}
-      <Router>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          {/* <Route path="/" element={<GlowingText />} /> */}
-          <Route path="/documentation" element={<Documentation />} />
+      <Provider store={store}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            {/* <Route path="/" element={<GlowingText />} /> */}
+            <Route path="/documentation" element={<Documentation />} />
 
-          <Route path="/user/login" element={<Login />} />
-          <Route path="/user/signup" element={<Signup />} />
-          <Route path="/user/welcomeUser/user" element={<AppContainer />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/shared" element={<SharedChat />} />
-          <Route path="/shared/login" element={<SharedLogin />} />
+            <Route path="/user/login" element={<Login />} />
+            <Route path="/user/signup" element={<Signup />} />
+            <Route path="/user/welcomeUser/user" element={<AppContainer />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/shared" element={<SharedChat />} />
+            <Route path="/shared/login" element={<SharedLogin />} />
 
-          <Route path="*" element={<LinkError />} />
-        </Routes>
-      </Router>
+            <Route path="*" element={<LinkError />} />
+          </Routes>
+        </Router>
+      </Provider>
       {/* <div className="w-full h-[100svh] flex justify-center items-center font-[geistRegular]"> */}
       {/* <Login />  */}
       {/* <Signup /> */}

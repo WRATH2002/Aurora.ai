@@ -315,6 +315,16 @@ const MainPageTopBar = (props) => {
                         ? " bg-[#1A1A1A] text-[white]"
                         : " bg-[#ffffff] text-[black]")
                     }
+                    onMouseDownCapture={(e) => {
+                      if (e.button === 1) {
+                        console.log(
+                          `Middle mouse button clicked ➜ Close Tab (${
+                            data?.split("~_~")[data?.split("~_~").length - 1]
+                          })`
+                        );
+                        enqueueDeletion(data, index);
+                      }
+                    }}
                   >
                     <span className="whitespace-nowrap overflow-hidden text-ellipsis pl-[5px]">
                       {data?.split("~_~")[data?.split("~_~").length - 1]}
@@ -418,6 +428,16 @@ const MainPageTopBar = (props) => {
                       onClick={() => {
                         props?.setSelected(index);
                         // console.log("parent");
+                      }}
+                      onMouseDownCapture={(e) => {
+                        if (e.button === 1) {
+                          console.log(
+                            `Middle mouse button clicked ➜ Close Tab (${
+                              data?.split("~_~")[data?.split("~_~").length - 1]
+                            })`
+                          );
+                          enqueueDeletion(data, index);
+                        }
                       }}
                     >
                       <span

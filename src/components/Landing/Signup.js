@@ -10,13 +10,14 @@ import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
 import { Eye, EyeOff } from "lucide-react";
-import { arrayUnion, serverTimestamp } from "firebase/firestore";
+import { arrayUnion, doc, serverTimestamp } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router-dom";
 import { toolbarItems } from "../../utils/constant";
 import { processStringEncrypt } from "../../utils/functions";
 import { formatDate } from "../../utils/functionsConstant";
 import logo from "../../assets/img/brandLogo.svg";
 import ClickSpark from "../Animations/ClickSpark";
+import { LoaderForSignUp } from "../Loader";
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -32,6 +33,14 @@ export default function Signup() {
     email: false,
     password: false,
     errorDetails: "",
+  });
+  const [loading, setLoading] = useState({
+    state: false,
+    statusInitial: "Validating credentials ...",
+    error: false,
+    statusError: "Oops, Account already exists !",
+    success: false,
+    statusSuccess: "Account created successfully ! Redirecting ...",
   });
 
   const provider = new GoogleAuthProvider();
@@ -256,34 +265,34 @@ export default function Signup() {
         AllTasks: [],
       });
 
-    console.log("Account created successfully");
-    navigateToLoggedInPage(user.uid);
+    console.log("Arora Space => Account created successfully");
+    // navigateToLoggedInPage(user.uid);
+
+    setTimeout(() => {
+      setLoading((prev) => ({
+        ...prev,
+        state: false,
+        success: false,
+      }));
+      navigateToLoggedInPage(user.uid);
+    }, 1500);
   }
 
   const signUp = () => {
     const letterPattern = /[a-zA-Z]/;
-    // e.preventDefault();
-    // if (name.length == 0) {
-    //   setError("Name can't be empty");
-    // } else if (email.length === 0 || !email.includes("@gmail.com")) {
-    //   setError("Email must contain '@gmail.com'");
-    // } else if (password.length < 8) {
-    //   setError("Password should be atleast 8 characters");
-    // } else {
-    //   createUserWithEmailAndPassword(auth, email, password)
-    //     .then((userCredential) => {
-    //       // console.log(userCredential.user.uid);
-    //       // console.log(userCredential.user.email);
-    //       // console.log(userCredential);
-    //       createUserCollection(userCredential.user);
-    //     })
-    //     .catch((error) => {
-    //       console.log(error.message);
-    //       setError("Oops! Email already in use");
-    //     });
-    // }
 
     let obj = errorInfo;
+
+    if (
+      email?.toLowerCase()?.includes("@gmail.com") &&
+      password?.length >= 8 &&
+      name.length > 0
+    ) {
+      setLoading((prev) => ({
+        ...prev,
+        state: true,
+      }));
+    }
 
     if (name.length == 0) {
       obj = {
@@ -317,20 +326,31 @@ export default function Signup() {
     ) {
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          // console.log(userCredential.user.uid);
-          // console.log(userCredential.user.email);
-          // console.log(userCredential);
+          setLoading((prev) => ({
+            ...prev,
+            success: true,
+          }));
           createUserCollection(userCredential.user);
         })
         .catch((error) => {
-          console.log(error.message);
-          // setError("Oops! Email already in use");
           setErrorInfo({
             name: false,
             email: false,
             password: false,
             errorDetails: "Oops! Invalid Login Credentials",
           });
+          setLoading((prev) => ({
+            ...prev,
+            error: true,
+          }));
+
+          setTimeout(() => {
+            setLoading((prev) => ({
+              ...prev,
+              state: false,
+              error: false,
+            }));
+          }, 1500);
         });
     }
 
@@ -341,15 +361,10 @@ export default function Signup() {
     signInWithPopup(auth, provider)
       .then((result) => {
         const user = result.user;
-        console.log("Google Sign-In Success");
-        console.log("User ID:", user.uid);
-        console.log("Email:", user.email);
-
         // Optionally, create a user collection in your database
         createUserCollection(user);
       })
       .catch((error) => {
-        console.error("Google Sign-In Error:", error.message);
         setError("Google Sign-In failed");
       });
   };
@@ -367,22 +382,6 @@ export default function Signup() {
     navigate(`/user/welcomeUser/user?ID=${id}?section=Notes`);
   }
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === "Enter") {
-        console.log("We are verifying details !");
-        signUp();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    // Cleanup the event listener on component unmount
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
   return (
     <>
       <ClickSpark
@@ -392,6 +391,7 @@ export default function Signup() {
         sparkCount={8}
         duration={400}
       />
+      {loading?.state && <LoaderForSignUp loading={loading} />}
       <div className="w-full h-[100svh] flex justify-center items-center font-[r]">
         <div
           className="w-full lg:w-[400px] md:w-[400px] p-[40px] py-[20px] rounded-none md:rounded-xl lg:rounded-xl min-h-[100svh] md:min-h-[75%] lg:min-h-[75%]  flex flex-col justify-center md:justify-center lg:justify-center items-start bg-[white] px-[50px] font-[r] text-[14px] max-h-full md:max-h-[100%] lg:max-h-[100%]"
@@ -455,6 +455,7 @@ export default function Signup() {
               </div>
             </div>
             <input
+              id="nameField"
               className="w-full h-[40px] border-[1px] border-[#d5d5d500] rounded-lg bg-transparent px-[12px] "
               style={{
                 zIndex: "5",
@@ -475,6 +476,30 @@ export default function Signup() {
                 }
                 setName(e.target.value);
                 setError("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (name.length == 0) {
+                    console.log("Please enter your name !");
+                    document.getElementById("nameField").focus();
+                  } else if (email.length == 0) {
+                    console.log("Please enter your email !");
+                    document.getElementById("emailField").focus();
+                  } else if (password.length == 0) {
+                    console.log("Please choose any password !");
+                    document.getElementById("passwordField").focus();
+                  } else if (
+                    name.length > 0 &&
+                    email.length > 0 &&
+                    password.length > 0
+                  ) {
+                    console.log("We are processing the details !");
+                    signUp();
+                  }
+
+                  // signUp();
+                }
               }}
               onFocus={() => {
                 setNameField(true);
@@ -508,6 +533,7 @@ export default function Signup() {
               </div>
             </div>
             <input
+              id="emailField"
               className="w-full h-[40px] border-[1px] border-[#d5d5d500] rounded-lg bg-transparent px-[12px]"
               style={{
                 zIndex: "5",
@@ -528,6 +554,30 @@ export default function Signup() {
                 }
                 setEmail(e.target.value);
                 setError("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (name.length == 0) {
+                    console.log("Please enter your name !");
+                    document.getElementById("nameField").focus();
+                  } else if (email.length == 0) {
+                    console.log("Please enter your email !");
+                    document.getElementById("emailField").focus();
+                  } else if (password.length == 0) {
+                    console.log("Please choose any password !");
+                    document.getElementById("passwordField").focus();
+                  } else if (
+                    name.length > 0 &&
+                    email.length > 0 &&
+                    password.length > 0
+                  ) {
+                    console.log("We are processing the details !");
+                    signUp();
+                  }
+
+                  // signUp();
+                }
               }}
               onFocus={() => {
                 setEmailField(true);
@@ -565,6 +615,7 @@ export default function Signup() {
               style={{ zIndex: "5" }}
             >
               <input
+                id="passwordField"
                 className="w-full h-[40px] border-[1px] border-[#d5d5d500] rounded-lg bg-transparent px-[12px]"
                 style={{
                   zIndex: "5",
@@ -587,6 +638,30 @@ export default function Signup() {
                   setPassword(e.target.value);
                   setError("");
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (name.length == 0) {
+                      console.log("Please enter your name !");
+                      document.getElementById("nameField").focus();
+                    } else if (email.length == 0) {
+                      console.log("Please enter your email !");
+                      document.getElementById("emailField").focus();
+                    } else if (password.length == 0) {
+                      console.log("Please choose any password !");
+                      document.getElementById("passwordField").focus();
+                    } else if (
+                      name.length > 0 &&
+                      email.length > 0 &&
+                      password.length > 0
+                    ) {
+                      console.log("We are processing the details !");
+                      signUp();
+                    }
+
+                    // signUp();
+                  }
+                }}
                 onFocus={() => {
                   setPasswordField(true);
                 }}
@@ -594,7 +669,7 @@ export default function Signup() {
                   setPasswordField(false);
                 }}
               ></input>
-              <div
+              <button
                 className="w-[40px] h-full ml-[-40px] flex justify-center items-center cursor-pointer z-20"
                 onClick={() => {
                   setShowPass(!showPass);
@@ -605,7 +680,7 @@ export default function Signup() {
                 ) : (
                   <Eye width={15} height={15} strokeWidth={1.7} />
                 )}
-              </div>
+              </button>
             </div>
           </div>
           <div
@@ -619,7 +694,7 @@ export default function Signup() {
 
           <div
             style={{ zIndex: "10" }}
-            className="w-full h-[40px] mt-[30px] rounded-lg bg-[#27344c] text-[white] text-[14px] flex justify-center items-center cursor-pointer"
+            className="w-full h-[40px] mt-[30px] rounded-lg font-[700] tracking-wider bg-[#000000] hover:bg-[#252525] text-[white] text-[14px] flex justify-center items-center cursor-pointer"
             onClick={() => {
               signUp();
             }}

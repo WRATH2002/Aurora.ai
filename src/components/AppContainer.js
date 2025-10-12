@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use } from "react";
 import LandingPage from "./Landing/LandingPage";
 import LeftSidebar from "./LeftSidebar";
 import LeftSection from "./LeftSection";
@@ -35,6 +35,8 @@ import RoadMapContainer from "./RoadMapContainer";
 import LockDown from "./LockDown";
 
 import { ring2 } from "ldrs";
+import { useSelector } from "react-redux";
+import CreateTheme from "./CreateTheme";
 ring2.register();
 
 // Default values shown
@@ -72,6 +74,11 @@ export default function AppContainer() {
   const [agentInfo, setAgentInfo] = useState([]);
   const [chatLoading, setChatLoading] = useState(false);
 
+  // ---- For fetching data from Redux Store
+  const currentTheme = useSelector((state) => state?.currentTheme);
+  // ---- Initializing Navigate for redirection
+  const navigate = useNavigate();
+
   const [chat, setChat] = useState([
     { sender: "user", message: "Tell me about COmputer network" },
     {
@@ -88,17 +95,12 @@ Here's a breakdown of key aspects of computer networks:
     },
   ]);
 
-  useEffect(() => {
-    console.log("##########################################################");
-    console.log(fileStackedWithInfo);
-  }, [fileStackedWithInfo]);
-
-  const navigate = useNavigate();
+  // ---- Function to navigate to Login Page
   function navigateToWelcomePgae() {
     navigate(`/user/login`);
   }
 
-  // -------------------------------- Function to fetch Theme form Firebase  ## Called inside auth checking UseEffect
+  // ---- Function to fetch Theme form Firebase  ## Called inside auth checking UseEffect
   function fetchTheme() {
     const user = firebase.auth().currentUser;
     const channelRef = db.collection("user").doc(user?.uid);
@@ -107,7 +109,7 @@ Here's a breakdown of key aspects of computer networks:
     });
   }
 
-  // -------------------------------- Checking for if the user is logged in or not
+  // ---- Checking if the user is logged in or not
   useEffect(() => {
     const listen = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -123,26 +125,7 @@ Here's a breakdown of key aspects of computer networks:
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (scrollToLast.current) {
-  //     scrollToLast.current.scrollTop = scrollToLast.current.scrollHeight;
-  //   }
-  // }, []);
-
-  // --------------------------- Fetching Theme ## Deprecated --> Called Above
-
-  // useEffect(() => {
-  //   function fetchTheme() {
-  //     const user = firebase.auth().currentUser;
-  //     const channelRef = db.collection("user").doc(user?.uid);
-  //     onSnapshot(channelRef, (snapshot) => {
-  //       setTheme(snapshot?.data()?.Theme);
-  //     });
-  //   }
-  //   fetchTheme();
-  // }, []);
-
-  // ------------------------------- Setting the Browser theme color based on Theme for Android
+  // ---- Setting the Browser theme color based on Theme for Android
   useEffect(() => {
     const themeColorMeta = document.querySelector("meta[name='theme-color']");
 
@@ -163,54 +146,6 @@ Here's a breakdown of key aspects of computer networks:
       setSubDivHeight(subDivRef.current.offsetHeight);
     }
   }, []);
-
-  // const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_KEY);
-  // const genAI = new GoogleGenerativeAI(
-  //   "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-  // );
-  // const model = genAI.getGenerativeModel({
-  //   model: "gemini-1.5-pro",
-  // });
-
-  // const generationConfig = {
-  //   temperature: 1,
-  //   top_p: 0.95,
-  //   top_k: 64,
-  //   max_output_tokens: 8192,
-  //   response_mime_type: "text/plain",
-  // };
-
-  // async function run() {
-  //   console.log("generating plan");
-  //   const chatSession = model.startChat({
-  //     generationConfig,
-  //     // safetySettings: Adjust safety settings
-  //     // See https://ai.google.dev/gemini-api/docs/safety-settings
-  //     history: [],
-  //   });
-
-  //   const result = await chatSession.sendMessage(
-  //     `
-  //     ${prompt}`
-  //   );
-  //   console.log(result?.response?.text());
-  //   setChat((prev) => [
-  //     ...prev,
-  //     { sender: "assistant", message: result?.response?.text() },
-  //   ]);
-  // }
-  // const navigate = useNavigate();
-  // function navigateToSection(section) {
-  //   navigate(`/user/welcomeUser/${section}`);
-  // }
-
-  // const addToQueue = (noteId) => {
-  //   setFetchNoteQueue((prevQueue) => [...prevQueue, noteId]); // Append to queue
-  // };
-
-  // useEffect(() => {
-  //   console.log(selectedDoc);
-  // }, [selectedDoc]);
 
   const activeTimeRef = useRef(0); // in seconds
   const intervalRef = useRef(null);
@@ -263,16 +198,23 @@ Here's a breakdown of key aspects of computer networks:
 
   return (
     <>
-      {showReminder && (
+      {/* {showReminder && (
         <LockDown theme={theme} onBreakComplete={resetReminder} />
-      )}
-      {/* <LockDown theme={theme} onBreakComplete={resetReminder} /> */}
-      {/*  */}
+      )} */}
+
+      {/* <CreateTheme /> */}
+
       <div
         className={
           "w-full h-[100svh] flex font-[DMSr] pr-[0px] md:pr-[7px] lg:pr-[7px] pb-[7px] z-10 backdrop-blur-xl overflow-hidden" +
-          (theme ? " bg-[#141414]" : " bg-[#f4f6f8]")
+          (theme
+            ? ` bg-[#141414] appDark`
+            : ` bg-[${currentTheme?.bgSecondary}] appLight`)
         }
+        style={{
+          // ---- fetched from redux store
+          backgroundColor: `${currentTheme?.bgSecondary}`,
+        }}
       >
         <div
           className={
@@ -283,9 +225,13 @@ Here's a breakdown of key aspects of computer networks:
             (loading ? " mb-[0px]" : " mb-[-70px]")
           }
           style={{
-            transition: ".3s",
             zIndex: "1000",
             boxShadow: "0 12px 16px -6px rgba(0, 0, 0, 0.1)",
+            // ---- fetched from redux store
+            transition: `${currentTheme?.mediumAnimationDuration}`,
+            backgroundColor: `${currentTheme?.bgPrimary}`,
+            borderColor: `${currentTheme?.borderSecondary}`,
+            color: `${currentTheme?.textPrimary}`, // For both text and loader
           }}
         >
           <l-ring-2
@@ -294,7 +240,7 @@ Here's a breakdown of key aspects of computer networks:
             stroke-length="0.25"
             bg-opacity="0.1"
             speed="0.8"
-            color="black"
+            color="currentColor"
           ></l-ring-2>
           <div className="ml-[10px] font-[r] text-[14px]">
             Please wait ! Gemini is thinking ...
@@ -374,7 +320,10 @@ Here's a breakdown of key aspects of computer networks:
                   ? " w-full flex fixed md:static lg:static md:flex lg:flex md:w-[calc((100%-300px)/1)] lg:w-[calc((100%-300px)/1)]"
                   : " w-[0px] hidden md:flex lg:flex  md:w-[calc((100%-300px)/1)] lg:w-[calc((100%-300px)/1)]")
               }
-              style={{ transition: ".3s" }}
+              style={{
+                // ---- fetched from redux store
+                transition: `${currentTheme?.mediumAnimationDuration}`,
+              }}
             >
               <MainPageTopBar
                 theme={theme}
@@ -435,7 +384,7 @@ Here's a breakdown of key aspects of computer networks:
           <div
             className={
               "w-full md:w-[calc(100%-50px)] lg:w-[calc(100%-50px)] h-[calc(100svh-52px)] md:h-[100svh] lg:h-[100svh] flex flex-col justify-start items-start py-[0px] md:py-[8px] lg:py-[8px] text-[white] text-[14px]" +
-              (theme ? " text-[#9ba6aa]" : " text-[#797979]")
+              (theme ? " text-[#9ba6aa]" : " text-[#9a6969]")
             }
           >
             <div className="w-full h-[40px] hidden md:hidden lg:hidden"></div>

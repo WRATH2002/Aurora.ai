@@ -63,7 +63,11 @@ import {
   Plus,
   SquareCheckBig,
 } from "lucide-react";
-import { toolTemplate } from "../utils/constant";
+import {
+  emptyEditorStateAfterEdit,
+  emptyEditorStateInitial,
+  toolTemplate,
+} from "../utils/constant";
 import FloatingToolbarPlugin from "../plugins/FloatingToolbarPlugin";
 import TextFormattingFloatingToolbarPlugin from "../plugins/TextFormatFloatingToolbarPlugin";
 
@@ -85,6 +89,21 @@ import InlineImagePlugin from "../plugins/InlineImagePlugin";
 import { InlineImageNode } from "../nodes/InlineImageNode";
 import DragDropPaste from "../plugins/DragDropPaste";
 import HoverLinkToolbarPlugin from "../plugins/HoverLinkToolbarPlugin";
+import { SlashCommandPlugin } from "../plugins/SlashCommandPlugin";
+import {
+  MarkdownShortcutPlugin,
+  DEFAULT_TRANSFORMERS,
+} from "@lexical/react/LexicalMarkdownShortcutPlugin";
+import { ELEMENT_TRANSFORMERS } from "@lexical/markdown";
+import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
+import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { FileEmpty02Icon } from "@hugeicons/core-free-icons";
+
+import { MentionNode } from "../nodes/MentionNode";
+import MentionsPlugin from "../plugins/MentionsPlugin";
+import { StickyNode } from "../nodes/StickyNode";
+import StickyToolbarPlugin from "../plugins/StickyToolbar";
 // import ExcalidrawPlugin from "../plugins/ExcalidrawPlugin";
 // import { ExcalidrawNode } from "../nodes/ExcalidrawNode";
 ring2.register();
@@ -185,6 +204,12 @@ export default function Editor(props) {
       CustomParagraphNode,
       HashtagNode,
       InlineImageNode,
+      TableNode,
+      TableRowNode,
+      TableCellNode,
+      StickyNode,
+      // MentionNode,
+
       // ExcalidrawNode,
     ],
     editable: false,
@@ -358,7 +383,13 @@ export default function Editor(props) {
   useEffect(() => {
     console.log("fetchNoteQueue");
     console.log(props?.fetchNoteQueue);
-  }, []);
+    console.log("selected", props?.selected);
+
+    console.log("fileStackedWithInfo", props?.fileStackedWithInfo);
+
+    console.log("fileStacked", props?.fileStacked);
+    console.log("file name", props?.fileStacked[props?.selected]);
+  }, [props?.selected]);
 
   return (
     <div
@@ -438,57 +469,124 @@ export default function Editor(props) {
           <></>
         ) : (
           <>
-            <RichTextPlugin
-              contentEditable={
-                <ContentEditable
-                  name="editor-input"
-                  placeholder={"<Placeholder />"}
-                  spellcheck="false"
-                  className={
-                    " focus:outline-none w-full  z-0 py-[30px] md:py-[60px] lg:py-[60px] overflow-y-scroll  border-none outline-none leading-[28px] caret-[#919191] " +
-                    (props?.isMinimise
-                      ? " px-[150px]"
-                      : " px-[30px] md:px-[70px] lg:px-[70px]") +
-                    (isEditMode
-                      ? " h-[calc(100%-100px)]"
-                      : " h-[calc(100%-50px)]") +
-                    (props?.theme ? " text-[#fffcfce4]" : " text-[#1e1e1ee4]")
+            {props?.fileStackedWithInfo[props?.selected]?.Title ==
+              props?.fileStacked[props?.selected] &&
+            props?.fileStackedWithInfo[props?.selected]?.isReadMode &&
+            (props?.fileStackedWithInfo[props?.selected]?.Content ==
+              emptyEditorStateInitial ||
+              props?.fileStackedWithInfo[props?.selected]?.Content ==
+                emptyEditorStateAfterEdit) ? (
+              <>
+                <div className="w-full h-full flex flex-col justify-center items-center font-[Geist] mt-[-60px] initialOpacityAnimation">
+                  <HugeiconsIcon
+                    icon={FileEmpty02Icon}
+                    size={130}
+                    strokeWidth={0.5}
+                    className="mb-[20px] text-[#8f8f8f]"
+                  />
+                  <div className="text-[24px] font-[600] ">Empty Note</div>
+                  <div
+                    className={
+                      "text-[14px] mt-[15px] text-center w-[250px]" +
+                      (props?.theme ? " text-[#8f8f8f]" : " text-[#8f8f8f]")
+                    }
+                  >
+                    This note is empty. You have not noted anything yet. Get
+                    started by editing and adding notes to this note.
+                  </div>
+                  <div
+                    className={
+                      "text-[14px] inline-flex justify-center items-center mt-[15px]" +
+                      (props?.theme ? " text-[#8f8f8f]" : " text-[#8f8f8f]")
+                    }
+                  >
+                    Press{" "}
+                    <span
+                      className={
+                        "text-[12px] rounded-md px-[5px] h-[20px] flex justify-center items-center mx-[5px] font-[500]" +
+                        (props?.theme
+                          ? " bg-[] text-[]"
+                          : " bg-[#F5F5F5] text-[#737373]")
+                      }
+                    >
+                      Ctrl + E
+                    </span>{" "}
+                    ➜ Toggle Mode
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <RichTextPlugin
+                  contentEditable={
+                    <ContentEditable
+                      name="editor-input"
+                      // placeholder={<Placeholder />}
+                      // placeholder={"Enter anything"}
+                      spellcheck="false"
+                      className={
+                        " focus:outline-none w-full  z-0 py-[30px] md:py-[60px] lg:py-[60px] overflow-y-scroll  border-none outline-none leading-[28px] caret-[#919191] " +
+                        (props?.isMinimise
+                          ? " px-[150px]"
+                          : " px-[30px] md:px-[70px] lg:px-[70px]") +
+                        (isEditMode
+                          ? " h-[calc(100%-100px)]"
+                          : " h-[calc(100%-50px)]") +
+                        (props?.theme
+                          ? " text-[#fffcfce4]"
+                          : " text-[#1e1e1ee4]")
+                      }
+                      style={{ transition: ".3s", zIndex: "0" }}
+                      // onClick={() => {
+                      //   console.log("editor");
+                      //   console.log(editor.editorState);
+                      // }}
+                    />
                   }
-                  style={{ transition: ".3s", zIndex: "0" }}
-                  // onClick={() => {
-                  //   console.log("editor");
-                  //   console.log(editor.editorState);
-                  // }}
+                  ErrorBoundary={LexicalErrorBoundary}
                 />
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
+                <SelectionExtractorPlugin
+                  setSelectedText={props?.setSelectedText}
+                  selectedText={props?.selectedText}
+                />
 
-            <SelectionExtractorPlugin
-              setSelectedText={props?.setSelectedText}
-              selectedText={props?.selectedText}
-            />
+                <TextFormattingFloatingToolbarPlugin
+                  setLoading={props?.setLoading}
+                  theme={props?.theme}
+                  AiOutput={props?.AiOutput}
+                  setAiOutput={props?.setAiOutput}
+                  AiSection={props?.AiSection}
+                  setAiSection={props?.setAiSection}
+                />
 
-            <TextFormattingFloatingToolbarPlugin
-              setLoading={props?.setLoading}
-              theme={props?.theme}
-              AiOutput={props?.AiOutput}
-              setAiOutput={props?.setAiOutput}
-              AiSection={props?.AiSection}
-              setAiSection={props?.setAiSection}
-            />
-            <HistoryPlugin />
-            <AutoFocusPlugin />
-            <ListPlugin />
-            <HorizontalRulePlugin />
-            <CheckListPlugin />
-            <AutoLinkPlugin />
-            {/* <ClickableLinkPlugin /> */}
-            <HoverLinkToolbarPlugin />
-            <HashtagPlugin />
-            <SpeechToTextPlugin />
-            <InlineImagePlugin />
-            <DragDropPaste />
+                <HistoryPlugin />
+                <AutoFocusPlugin />
+
+                <HorizontalRulePlugin />
+
+                <AutoLinkPlugin />
+                {/* <ClickableLinkPlugin /> */}
+                <MarkdownShortcutPlugin
+                  transformers={[
+                    ...DEFAULT_TRANSFORMERS,
+                    ...ELEMENT_TRANSFORMERS,
+                  ]}
+                />
+                <LinkPlugin />
+                <ListPlugin />
+                <CheckListPlugin />
+                <TablePlugin />
+                <SlashCommandPlugin />
+                <HoverLinkToolbarPlugin />
+                <HashtagPlugin />
+                <SpeechToTextPlugin />
+                {/* <StickyToolbarPlugin /> */}
+                {/* <MentionsPlugin /> */}
+                <InlineImagePlugin />
+                <DragDropPaste />
+              </>
+            )}
+
             {/* {floatingAnchorElem && (
               <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
             )} */}
@@ -521,12 +619,12 @@ const getThemeStyles = (isDark) => ({
   // hashtag: "bg-[red]",
   quote: "editorQuote border-l-[1px] border-[#927de6]",
   heading: {
-    h1: "text-[60px] font-extrabold ",
-    h2: "text-[50px] font-extrabold ",
-    h3: "text-[40px] font-extrabold ",
-    h4: "text-[30px] font-bold",
-    h5: "text-[20px] font-bold",
-    h6: "text-[30px] font-bold",
+    h1: "text-[60px] font-extrabold leading-[70px] my-[20px]",
+    h2: "text-[50px] font-extrabold leading-[65px] my-[15px]",
+    h3: "text-[40px] font-extrabold leading-[55px] my-[12px]",
+    h4: "text-[30px] font-bold leading-[40px] my-[10px]",
+    h5: "text-[24px] font-bold leading-[30px] my-[8px]",
+    h6: "text-[20px] font-bold leading-[25px] my-[6px]",
     h8: "text-[15px]",
     h11: "font-[geistRegular]",
     h12: "font-[google]",
@@ -576,7 +674,7 @@ const getThemeStyles = (isDark) => ({
   link: "cursor-pointer text-blue",
   text: {
     bold: "font-bold",
-    code: "bg-[#F035F5] px-[5px] rounded-sm",
+    code: "bg-[#e6e6e6] px-[5px] rounded-sm",
     italic: "italic",
     strikethrough: "line-through",
     subscript: "editor-textSubscript",

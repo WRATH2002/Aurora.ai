@@ -191,6 +191,55 @@ export default function Toolbars(props) {
 
   const [saveState, setSaveState] = useState(true);
 
+  // ---- useEffect for detecting Ctrl + E
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (
+        (event.ctrlKey && event.key === "e") ||
+        (event.ctrlKey && event.key === "E")
+      ) {
+        event.preventDefault(); // Prevent default behavior
+        console.log("Ctrl + E detected");
+        if (props?.isEditMode) {
+          editor.setEditable(false);
+          props?.setFileStackedWithInfo((prev) =>
+            prev.map((item, i) =>
+              i === props?.selected
+                ? {
+                    Title: item?.Title,
+                    Content: item?.Content,
+                    LastSaved: item.LastSaved,
+                    isReadMode: true,
+                  }
+                : item
+            )
+          );
+        } else {
+          editor.setEditable(true);
+          props?.setFileStackedWithInfo((prev) =>
+            prev.map((item, i) =>
+              i === props?.selected
+                ? {
+                    Title: item?.Title,
+                    Content: item?.Content,
+                    LastSaved: item.LastSaved,
+                    isReadMode: false,
+                  }
+                : item
+            )
+          );
+        }
+      }
+    };
+
+    // Attach event listener
+    window.addEventListener("keydown", handleKeyDown);
+    // Cleanup function to remove the listener
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [props?.isEditMode]);
+
   function fetchNoteLastSaved() {
     const user = firebase.auth().currentUser;
 

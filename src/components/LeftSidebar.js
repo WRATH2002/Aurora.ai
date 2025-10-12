@@ -27,14 +27,20 @@ import {
   SidebarRight01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useSelector } from "react-redux";
 
-// import logoLight from "../assets/img/LogoLight.png";
+import logoLight from "../assets/img/brandLogo.svg";
 // import logoDark from "../assets/img/logoDark.png";
 
 const LeftSidebar = (props) => {
   const [isSettings, setIsSettings] = useState(false);
   const [searchParams] = useSearchParams();
+  // ---- For fetching data from Redux Store
+  const currentTheme = useSelector((state) => state?.currentTheme);
+  // ---- Initializing Navigate for redirection
   const navigate = useNavigate();
+
+  // ---- Function to navigate to different sections
   function navigateToSection(section) {
     navigate(
       `/user/welcomeUser/user?ID=${
@@ -42,6 +48,8 @@ const LeftSidebar = (props) => {
       }?section=${section}`
     );
   }
+
+  // ---- Function to navigate to settings page
   function navigateToSettings(section) {
     navigate(
       `/user/welcomeUser/user?ID=${
@@ -49,6 +57,7 @@ const LeftSidebar = (props) => {
       }?section=${section}%${searchParams.get("ID")?.split("?section=")[1]}`
     );
   }
+
   return (
     <>
       {searchParams
@@ -182,45 +191,22 @@ const LeftSidebar = (props) => {
       </div>
       <div
         className={
-          "h-full min-w-[50px] hidden md:flex lg:flex flex-col justify-start items-center  " +
-          (props?.isMinimise
-            ? " border-r-[1.5px] border-[#25252500]"
-            : " border-r-[1.5px] border-[#25252500]") +
-          (props?.theme
-            ? " bg-[#141414] text-[#9ba6aa]"
-            : " bg-[#ffffff00] text-[#6e6e7c]")
+          "h-full min-w-[50px] hidden md:flex lg:flex flex-col justify-start items-center  "
         }
-        style={{ transitionDelay: props?.isMinimise ? ".3s" : "0s" }}
+        style={{
+          transitionDelay: props?.isMinimise ? ".3s" : "0s",
+          // ---- fetched from redux store
+          color: `${currentTheme?.textSecondary}`,
+          backgroundColor: `transparent`,
+        }}
       >
-        {/* <img
-          className="w-[20px] aspect-square my-[15px]"
-          src={props?.theme ? logoDark : logoLight}
-        ></img> */}
+        <img className="w-[20px] aspect-square my-[15px]" src={logoLight}></img>
         <div className="w-full h-[40px] border-b-[1.5px] border-[#25252500] flex justify-center items-center">
           <div className="">
             {props?.isMinimise ? (
               <>
-                {/* <Maximize
-                  width={20}
-                  height={20}
-                  strokeWidth="1.8"
-                  className={
-                    " cursor-pointer" +
-                    (props?.theme
-                      ? " hover:text-[#ffffff]"
-                      : " hover:text-[#1e1e1ee4]")
-                  }
-                  onClick={() => {
-                    props?.setIsMinimise(!props?.isMinimise);
-                  }}
-                /> */}
                 <HugeiconsIcon
-                  className={
-                    " cursor-pointer" +
-                    (props?.theme
-                      ? " hover:text-[#ffffff]"
-                      : " hover:text-[#1e1e1ee4]")
-                  }
+                  className={` cursor-pointer hover:text-[${currentTheme?.textPrimary}] `}
                   onClick={() => {
                     props?.setIsMinimise(!props?.isMinimise);
                   }}
@@ -231,27 +217,8 @@ const LeftSidebar = (props) => {
               </>
             ) : (
               <>
-                {/* <Minimize
-                  width={20}
-                  height={20}
-                  strokeWidth="1.8"
-                  className={
-                    " cursor-pointer" +
-                    (props?.theme
-                      ? " hover:text-[#ffffff]"
-                      : " hover:text-[#1e1e1ee4]")
-                  }
-                  onClick={() => {
-                    props?.setIsMinimise(!props?.isMinimise);
-                  }}
-                /> */}
                 <HugeiconsIcon
-                  className={
-                    " cursor-pointer" +
-                    (props?.theme
-                      ? " hover:text-[#ffffff]"
-                      : " hover:text-[#1e1e1ee4]")
-                  }
+                  className={` cursor-pointer hover:text-[${currentTheme?.textPrimary}] `}
                   onClick={() => {
                     props?.setIsMinimise(!props?.isMinimise);
                   }}

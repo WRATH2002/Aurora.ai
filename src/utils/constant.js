@@ -688,6 +688,10 @@ const strengthColors = {
   100: { bg: "#1eae02", tag: "Strong" }, // creamy green
 };
 
+const emptyEditorStateInitial = `{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":""}],"direction":null,"format":"","indent":0,"type":"root","version":1}}`;
+
+const emptyEditorStateAfterEdit = `{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":null,"format":"","indent":0,"type":"root","version":1}}`;
+
 export {
   dayNamesLong,
   dayNamesShort,
@@ -699,4 +703,6 @@ export {
   languages,
   systemPrompt,
   strengthColors,
+  emptyEditorStateInitial,
+  emptyEditorStateAfterEdit,
 };

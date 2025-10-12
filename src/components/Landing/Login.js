@@ -12,8 +12,10 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Tick02Icon } from "@hugeicons/core-free-icons";
 import { strengthColors } from "../../utils/constant";
 import logo from "../../assets/img/brandLogo.svg";
+import { LoaderForSignIn } from "../Loader";
 
 export default function Login(props) {
+  const [flag, setflag] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailField, setEmailField] = useState(false);
@@ -25,55 +27,39 @@ export default function Login(props) {
     password: false,
     errorDetails: "",
   });
+  const [loading, setLoading] = useState({
+    state: false,
+    statusInitial: "Validating login credentials ...",
+    error: false,
+    statusError: "Oops ! Invalid login credentials",
+    success: false,
+    statusSuccess: "Credentials validated ! Redirecting ...",
+  });
 
   useEffect(() => {
-    console.log();
-    const listen = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("✔️ You'r logged in, taking you to the desired page.");
-        navigateToLoggedInPage(user.uid);
-        console.log("######### Welcome to AURORA #########");
-      } else {
-        console.error("❌ You'r not logged in, Please login or signup.");
-      }
-    });
-    return () => {
-      console.log("⏳ Checking if you'r logged in or not");
-      listen();
-    };
+    setTimeout(() => {
+      checkIfLoggedIn();
+    }, 500);
   }, []);
 
+  function checkIfLoggedIn() {
+    const user = auth.currentUser;
+    if (user) {
+      console.log(
+        "Arora Space => Already logged in. Redirecting you to main page !"
+      );
+      navigateToLoggedInPage(user.uid);
+    } else {
+    }
+  }
+
   const signIn = () => {
-    // if (!email.includes("@gmail.com")) {
-    //   // setError("Email must contain '@gmail.com'");
-    //   setErrorInfo({
-    //     email: true,
-    //     password: errorInfo.password,
-    //     errorDetails: "Email must contain '@gmail.com'",
-    //   });
-    // } else if (password.length < 8) {
-    //   // setError("Password should be atleast 8 characters");
-    //   setErrorInfo({
-    //     email: false,
-    //     password: true,
-    //     errorDetails: "Password should be atleast 8 characters",
-    //   });
-    // } else {
-    //   signInWithEmailAndPassword(auth, email.trim(), password)
-    //     .then((userCredential) => {
-    //       // console.log(userCredential);
-    //       console.log("✅ Login successful");
-    //       navigateToLoggedInPage(userCredential?.user?.uid);
-    //     })
-    //     .catch((error) => {
-    //       // toast.error("Invalid Login Credentials");
-    //       console.log(error);
-    //       setError("Oops! Invalid Login Credentials");
-    //       // toast.error(error.message);
-    //       // console.log(error);
-    //       // console.log(error.message);
-    //     });
-    // }
+    if (email?.toLowerCase()?.includes("@gmail.com") && password?.length >= 8) {
+      setLoading((prev) => ({
+        ...prev,
+        state: true,
+      }));
+    }
 
     let obj = errorInfo;
 
@@ -95,22 +81,41 @@ export default function Login(props) {
     if (email?.toLowerCase()?.includes("@gmail.com") && password?.length >= 8) {
       signInWithEmailAndPassword(auth, email.trim(), password)
         .then((userCredential) => {
-          // console.log(userCredential);
-          console.log("✅ Login successful");
-          navigateToLoggedInPage(userCredential?.user?.uid);
+          setLoading((prev) => ({
+            ...prev,
+            success: true,
+          }));
+
+          setTimeout(() => {
+            setLoading((prev) => ({
+              ...prev,
+              state: false,
+              success: false,
+            }));
+
+            console.log("Arora Space => Logged in successfully !");
+            navigateToLoggedInPage(userCredential?.user?.uid);
+          }, 1500);
         })
         .catch((error) => {
-          // toast.error("Invalid Login Credentials");
-          console.log(error);
-          // setError("Oops! Invalid Login Credentials");
-          // toast.error(error.message);
-          // console.log(error);
-          // console.log(error.message);
           setErrorInfo({
             email: false,
             password: false,
             errorDetails: "Oops! Invalid Login Credentials",
           });
+
+          setLoading((prev) => ({
+            ...prev,
+            error: true,
+          }));
+
+          setTimeout(() => {
+            setLoading((prev) => ({
+              ...prev,
+              state: false,
+              error: false,
+            }));
+          }, 1500);
         });
     }
 
@@ -158,6 +163,7 @@ export default function Login(props) {
         sparkCount={8}
         duration={400}
       />
+      {loading?.state && <LoaderForSignIn loading={loading} />}
       <div className="w-full h-[100svh] flex justify-center items-center font-[r]">
         <div
           className="w-full lg:w-[400px] md:w-[400px] p-[40px] py-[20px] rounded-none md:rounded-xl lg:rounded-xl min-h-[100svh] md:min-h-[75%] lg:min-h-[75%]  flex flex-col justify-center md:justify-center lg:justify-center items-start bg-[white] px-[50px] font-[r] text-[14px] max-h-full md:max-h-[100%] lg:max-h-[100%]"
@@ -224,6 +230,7 @@ export default function Login(props) {
               </div>
             </div>
             <input
+              id="emailField"
               className=" w-full  h-[40px] border-[1px] border-[#d5d5d500] rounded-lg bg-transparent px-[12px]"
               // placeholderTextColor="#000000"
               style={{
@@ -243,6 +250,23 @@ export default function Login(props) {
                   });
                 }
                 setEmail(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (email.length == 0) {
+                    console.log("Please enter your email !");
+                    document.getElementById("emailField").focus();
+                  } else if (password.length == 0) {
+                    console.log("Please choose any password !");
+                    document.getElementById("passwordField").focus();
+                  } else if (email.length > 0 && password.length > 0) {
+                    console.log("We are processing the details !");
+                    signIn();
+                  }
+
+                  // signUp();
+                }
               }}
               onFocus={() => {
                 setEmailField(true);
@@ -283,6 +307,7 @@ export default function Login(props) {
               style={{ zIndex: "5" }}
             >
               <input
+                id="passwordField"
                 className="w-full h-[40px] border-[1.5px] border-[#ededed00] rounded-lg bg-transparent px-[12px] pr-[52px]   "
                 style={{
                   zIndex: "5",
@@ -302,6 +327,23 @@ export default function Login(props) {
                     });
                   }
                   setPassword(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (email.length == 0) {
+                      console.log("Please enter your email !");
+                      document.getElementById("emailField").focus();
+                    } else if (password.length == 0) {
+                      console.log("Please choose any password !");
+                      document.getElementById("passwordField").focus();
+                    } else if (email.length > 0 && password.length > 0) {
+                      console.log("We are processing the details !");
+                      signIn();
+                    }
+
+                    // signUp();
+                  }
                 }}
                 onFocus={() => {
                   setPasswordField(true);
@@ -385,7 +427,7 @@ export default function Login(props) {
           </div>
           <button
             style={{ zIndex: "10" }}
-            className=" w-full h-[40px] mt-[30px] rounded-lg font-[700] tracking-wider bg-[#000000] text-[white] text-[14px] flex justify-center items-center cursor-pointer"
+            className=" w-full h-[40px] mt-[30px] rounded-lg font-[700] tracking-wider bg-[#000000] hover:bg-[#252525] text-[white] text-[14px] flex justify-center items-center cursor-pointer"
             onClick={() => {
               signIn();
             }}

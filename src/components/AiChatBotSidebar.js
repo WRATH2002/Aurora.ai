@@ -33,7 +33,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
 import NewAIChatModal from "./NewAIChatModal";
 import ShowArchiveChats from "./ShowArchiveChats";
-import ConfirmModal, { RenameChatModal, ShareChat } from "./ConfirmModal";
+// import ConfirmModal, { RenameChatModal, ShareChat } from "./ConfirmModal";
 import ShowSharedChats from "./ShowSharedChats";
 import {
   ArrowMoveDownRightIcon,
@@ -361,7 +361,7 @@ export default function AiChatBotSidebar(props) {
         <></>
       )}
 
-      {confirmModal ? (
+      {/* {confirmModal ? (
         <div
           className={
             "w-full h-[100svh] fixed left-0 top-0 flex justify-center items-center font-[DMSr] backdrop-blur-[5px]" +
@@ -433,12 +433,7 @@ export default function AiChatBotSidebar(props) {
                   (theme ? " text-[white]" : " text-[black]")
                 }
               >
-                {/* <HugeiconsIcon
-                    icon={Comment01Icon}
-                    size={16}
-                    strokeWidth={2}
-                    className="mr-[10px]"
-                  /> */}
+             
                 {confirmModalData[0]}
               </span>
             </div>
@@ -465,9 +460,9 @@ export default function AiChatBotSidebar(props) {
         </div>
       ) : (
         <></>
-      )}
+      )} */}
 
-      {renameModal ? (
+      {/* {renameModal ? (
         <>
           <RenameChatModal
             theme={theme}
@@ -495,7 +490,7 @@ export default function AiChatBotSidebar(props) {
         </>
       ) : (
         <></>
-      )}
+      )} */}
 
       {newChat ? (
         <NewAIChatModal

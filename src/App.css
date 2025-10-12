@@ -2,8 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+
 html {
   scroll-behavior: smooth;
+}
+
+.appLight ::selection {
+  background-color: #0a0a0a;
+  color: white;
+}
+
+.appDark ::selection {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+}
+
+.initialOpacityAnimation {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    margin-top: 0px;
+    opacity: 0;
+  }
+  to {
+    margin-top: -60px;
+    opacity: 1;
+  }
 }
 
 /* input::placeholder {
@@ -422,6 +449,26 @@ a,
 
 /* ---------------------------------------- */
 
+.toolbarDark::-webkit-scrollbar-thumb {
+  background-color: #33373e;
+}
+.toolbarDark::-webkit-scrollbar-thumb:hover {
+  background-color: #41454d;
+}
+.toolbarDark::-webkit-scrollbar {
+  width: 4px;
+}
+
+.toolbarLight::-webkit-scrollbar-thumb {
+  background: #d7d7d7;
+}
+.toolbarLight::-webkit-scrollbar-thumb:hover {
+  background-color: #ffffff;
+}
+.toolbarLight::-webkit-scrollbar {
+  width: 4px;
+}
+
 .bullete1 {
   margin-right: 7px;
 }
@@ -634,25 +681,25 @@ a,
 
 /* Mode wise Scroll Color and Modification --> */
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   height: 3px;
   width: 3.5px;
 }
 
-/* Track */
+
 ::-webkit-scrollbar-track {
   background: transparent;
   border-radius: 50px;
 }
 
-/* Handle */
+
 ::-webkit-scrollbar-thumb {
   background: #273136;
   border-radius: 10px;
   z-index: 80;
 }
 
-/* Handle on hover */
+
 ::-webkit-scrollbar-thumb:hover {
   background: #fff;
   cursor: pointer;
@@ -661,7 +708,7 @@ a,
 .darkScrollSecondary::-webkit-scrollbar-thumb {
   background: #273136;
   border-radius: 10px;
-}
+} */
 
 .darkScrollSecondary::-webkit-scrollbar-thumb:hover {
   background: #fff;
